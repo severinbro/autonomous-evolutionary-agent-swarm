@@ -1,0 +1,553 @@
+#!/usr/bin/env python3
+"""
+piper-notify: Local neural TTS task completion notification utility & Antigravity hook daemon.
+"""
+
+import argparse
+import array
+import fcntl
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+CONFIG_PATH = Path.home() / ".config" / "piper-tts" / "config.json"
+STATE_DIR = Path.home() / ".local" / "state" / "piper-tts"
+LOG_PATH = STATE_DIR / "notify.log"
+DEBOUNCE_PATH = Path("/tmp/piper_notify_debounce.json")
+LOCK_PATH = Path("/tmp/piper_notify_playback.lock")
+PIPER_BIN = Path.home() / ".local" / "bin" / "piper"
+PIPER_PYTHON = Path.home() / ".local" / "share" / "uv" / "tools" / "piper-tts" / "bin" / "python"
+
+DEFAULT_CONFIG = {
+    "voice": "en_US-lessac-medium",
+    "voices_dir": str(Path.home() / ".local" / "share" / "piper" / "voices"),
+    "enabled": True,
+    "format": "Task {title} finished",
+    "volume": 1.0,
+    "length_scale": 1.0,
+    "notify_on_stop": True,
+    "notify_on_error": False,
+    "player": "paplay",
+}
+
+FILLER_PREFIXES = [
+    r"^hey\b[,\s]*",
+    r"^hi\b[,\s]*",
+    r"^hello\b[,\s]*",
+    r"^please\b[,\s]*",
+    r"^can you please\b[,\s]*",
+    r"^could you please\b[,\s]*",
+    r"^would you please\b[,\s]*",
+    r"^can you\b[,\s]*",
+    r"^could you\b[,\s]*",
+    r"^would you\b[,\s]*",
+    r"^i want you to\b[,\s]*",
+    r"^i need you to\b[,\s]*",
+    r"^i'd like you to\b[,\s]*",
+    r"^help me\b[,\s]*",
+    r"^let's\b[,\s]*",
+    r"^now\b[,\s]*",
+    r"^also\b[,\s]*",
+    r"^go ahead and\b[,\s]*",
+]
+
+TRAILING_STOPWORDS = {
+    "to", "for", "with", "in", "on", "at", "from", "by", "of", "and", "or",
+    "the", "a", "an", "this", "that", "into", "onto", "about", "as", "is",
+    "are", "was", "were", "be", "been", "please", "now", "then",
+}
+
+
+def log_msg(msg: str) -> None:
+    try:
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        with open(LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(f"[{ts}] {msg}\n")
+    except Exception:
+        pass
+
+
+def load_config() -> dict:
+    cfg = dict(DEFAULT_CONFIG)
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                user_cfg = json.load(f)
+            if isinstance(user_cfg, dict):
+                cfg.update(user_cfg)
+        except Exception as e:
+            log_msg(f"Warning: failed to load config: {e}")
+    return cfg
+
+
+def save_config(cfg: dict) -> None:
+    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2)
+        f.write("\n")
+
+
+def clean_task_title(raw_text: str) -> str:
+    if not raw_text:
+        return "Current operation"
+
+    # Remove XML/HTML-like tags such as <USER_REQUEST>...</USER_REQUEST>
+    text = re.sub(r"</?[A-Z_]+>", " ", raw_text)
+    # Remove markdown links/codeticks/paths
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"https?://\S+", "", text)
+    text = re.sub(r"(/[a-zA-Z0-9._-]+)+/([a-zA-Z0-9._-]+)", r"\2", text)
+
+    # Take first non-empty sentence/line
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip() and not ln.strip().startswith("#")]
+    text = lines[0] if lines else text.strip()
+    text = re.split(r"[.!?;]\s+|\n", text)[0].strip()
+
+    # Strip polite filler prefixes iteratively
+    changed = True
+    while changed:
+        changed = False
+        for pat in FILLER_PREFIXES:
+            new_text = re.sub(pat, "", text, flags=re.IGNORECASE).strip()
+            if new_text != text:
+                text = new_text
+                changed = True
+
+    # Keep alphanumeric and basic word characters
+    words = re.findall(r"[A-Za-z0-9][A-Za-z0-9_-]*", text)
+    if not words:
+        return "Agent turn"
+
+    # Limit to 5 words and trim trailing prepositions/stopwords
+    selected = words[:5]
+    while len(selected) > 2 and selected[-1].lower() in TRAILING_STOPWORDS:
+        selected.pop()
+
+    title = " ".join(selected)
+    # Replace underscores/hyphens with spaces for natural speech
+    title = re.sub(r"[_-]+", " ", title).strip()
+    if title:
+        title = title[0].upper() + title[1:]
+    return title or "Agent turn"
+
+
+def should_notify(speech_text: str, min_interval: float = 2.5, dup_interval: float = 8.0) -> bool:
+    now = time.time()
+    try:
+        if DEBOUNCE_PATH.exists():
+            with open(DEBOUNCE_PATH, "r", encoding="utf-8") as f:
+                state = json.load(f)
+            last_ts = float(state.get("timestamp", 0.0))
+            last_text = str(state.get("text", ""))
+            if now - last_ts < min_interval:
+                log_msg(f"Debounced: triggered too soon ({now - last_ts:.2f}s < {min_interval}s) for '{speech_text}'")
+                return False
+            if speech_text.lower() == last_text.lower() and (now - last_ts < dup_interval):
+                log_msg(f"Debounced: duplicate request ({now - last_ts:.2f}s < {dup_interval}s) for '{speech_text}'")
+                return False
+    except Exception as e:
+        log_msg(f"Debounce check warning: {e}")
+
+    try:
+        with open(DEBOUNCE_PATH, "w", encoding="utf-8") as f:
+            json.dump({"timestamp": now, "text": speech_text}, f)
+    except Exception:
+        pass
+    return True
+
+
+def scale_wav_volume(wav_path: str, volume: float) -> None:
+    if abs(volume - 1.0) < 1e-3:
+        return
+    try:
+        import wave
+
+        with wave.open(wav_path, "rb") as rf:
+            params = rf.getparams()
+            if params.sampwidth != 2:
+                return
+            raw_frames = rf.readframes(params.nframes)
+
+        samples = array.array("h")
+        samples.frombytes(raw_frames)
+        for i in range(len(samples)):
+            val = int(samples[i] * volume)
+            if val > 32767:
+                val = 32767
+            elif val < -32768:
+                val = -32768
+            samples[i] = val
+
+        with wave.open(wav_path, "wb") as wf:
+            wf.setparams(params)
+            wf.writeframes(samples.tobytes())
+    except Exception as e:
+        log_msg(f"Volume scaling warning: {e}")
+
+
+def resolve_player_cmd(cfg: dict, wav_path: str) -> list[str] | None:
+    preferred = cfg.get("player", "paplay")
+    candidates = [preferred, "paplay", "pw-play", "aplay"]
+    seen = set()
+    for player in candidates:
+        if not player or player in seen:
+            continue
+        seen.add(player)
+        bin_path = shutil.which(player)
+        if not bin_path:
+            continue
+        if player == "paplay":
+            return [bin_path, wav_path]
+        if player == "pw-play":
+            return [bin_path, wav_path]
+        if player == "aplay":
+            return [bin_path, "-q", wav_path]
+        return [bin_path, wav_path]
+    return None
+
+
+def synthesize_and_play_sync(speech_text: str) -> int:
+    cfg = load_config()
+    if not cfg.get("enabled", True):
+        log_msg(f"Skipped (disabled): '{speech_text}'")
+        return 0
+
+    voice = cfg.get("voice", "en_US-lessac-medium")
+    voices_dir = Path(cfg.get("voices_dir", str(Path.home() / ".local" / "share" / "piper" / "voices")))
+    model_path = voices_dir / f"{voice}.onnx"
+    if not model_path.exists():
+        log_msg(f"Error: Voice model not found at {model_path}")
+        return 1
+
+    piper_exec = str(PIPER_BIN) if PIPER_BIN.exists() else shutil.which("piper")
+    if not piper_exec:
+        log_msg("Error: piper binary not found")
+        return 1
+
+    length_scale = float(cfg.get("length_scale", 1.0))
+    volume = float(cfg.get("volume", 1.0))
+
+    LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOCK_PATH, "w", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        tmp_wav = None
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tf:
+                tmp_wav = tf.name
+
+            cmd = [
+                piper_exec,
+                "--model",
+                str(model_path),
+                "--output_file",
+                tmp_wav,
+                "--length_scale",
+                str(length_scale),
+                "--volume",
+                str(volume),
+            ]
+            proc = subprocess.run(
+                cmd,
+                input=speech_text.encode("utf-8"),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if proc.returncode != 0:
+                log_msg(f"Piper synthesis error ({proc.returncode}): {proc.stderr.decode('utf-8', errors='replace').strip()}")
+                return 1
+
+            player_cmd = resolve_player_cmd(cfg, tmp_wav)
+            if not player_cmd:
+                log_msg("Error: No audio player (paplay, pw-play, aplay) found.")
+                return 1
+
+            play_proc = subprocess.run(
+                player_cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            if play_proc.returncode != 0:
+                log_msg(f"Audio playback error ({play_proc.returncode}): {play_proc.stderr.decode('utf-8', errors='replace').strip()}")
+                return 1
+
+            log_msg(f"Spoke ({voice}, vol={volume}, speed={length_scale}): \"{speech_text}\"")
+            return 0
+        finally:
+            if tmp_wav and os.path.exists(tmp_wav):
+                try:
+                    os.remove(tmp_wav)
+                except OSError:
+                    pass
+            try:
+                fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
+
+
+def spawn_detached(speech_text: str) -> None:
+    cfg = load_config()
+    if not cfg.get("enabled", True):
+        log_msg(f"Notifications disabled; skipping '{speech_text}'")
+        print("PiperTTS notifications are disabled.")
+        return
+
+    if not should_notify(speech_text):
+        print(f"PiperTTS notification debounced: {speech_text}")
+        return
+
+    subprocess.Popen(
+        [sys.executable, os.path.abspath(__file__), "--sync", speech_text],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    print(f"PiperTTS notification queued: \"{speech_text}\"")
+
+
+def extract_hook_title(hook_payload: dict) -> tuple[str | None, bool]:
+    """
+    Returns (extracted_title, already_notified_by_tool).
+    Inspects transcript.jsonl if available to check whether piper-notify was already invoked
+    in the concluding turn and to extract the latest user request.
+    """
+    transcript_path = hook_payload.get("transcriptPath")
+    conv_id = hook_payload.get("conversationId")
+
+    candidates = []
+    if transcript_path:
+        candidates.append(Path(transcript_path))
+    if conv_id:
+        candidates.append(
+            Path.home()
+            / ".gemini"
+            / "antigravity"
+            / "brain"
+            / str(conv_id)
+            / ".system_generated"
+            / "logs"
+            / "transcript.jsonl"
+        )
+
+    for path in candidates:
+        if path.exists():
+            try:
+                with open(path, "r", encoding="utf-8", errors="replace") as f:
+                    lines = f.readlines()
+                last_user_idx = -1
+                last_user_text = ""
+                for idx, line in enumerate(lines):
+                    if '"USER_INPUT"' in line:
+                        last_user_idx = idx
+                        try:
+                            obj = json.loads(line)
+                            last_user_text = obj.get("content", "") or ""
+                        except Exception:
+                            pass
+
+                # Check if piper-notify was called after the last USER_INPUT
+                check_slice = lines[last_user_idx + 1 :] if last_user_idx >= 0 else lines[-10:]
+                for line in check_slice:
+                    if "piper-notify" in line and "--hook" not in line:
+                        return (clean_task_title(last_user_text), True)
+
+                if last_user_text:
+                    return (clean_task_title(last_user_text), False)
+            except Exception as e:
+                log_msg(f"Transcript inspect warning: {e}")
+
+    return ("Agent turn", False)
+
+
+def handle_hook() -> int:
+    cfg = load_config()
+    raw_stdin = ""
+    try:
+        if not sys.stdin.isatty():
+            raw_stdin = sys.stdin.read()
+    except Exception:
+        pass
+
+    payload = {}
+    if raw_stdin.strip():
+        try:
+            payload = json.loads(raw_stdin)
+        except Exception:
+            pass
+
+    term_reason = payload.get("terminationReason", "NO_TOOL_CALL")
+    if term_reason == "USER_CANCELED":
+        sys.stdout.write("{}\n")
+        return 0
+
+    if term_reason == "ERROR":
+        if not cfg.get("notify_on_error", False):
+            sys.stdout.write("{}\n")
+            return 0
+    else:
+        if not cfg.get("notify_on_stop", True):
+            sys.stdout.write("{}\n")
+            return 0
+
+    title, already_notified = extract_hook_title(payload)
+    if already_notified:
+        log_msg(f"Hook skipped: turn already notified via tool call for '{title}'")
+        sys.stdout.write("{}\n")
+        return 0
+
+    if cfg.get("enabled", True) and title:
+        fmt = cfg.get("format", "Task {title} finished")
+        speech_text = fmt.format(title=title)
+        if should_notify(speech_text):
+            subprocess.Popen(
+                [sys.executable, os.path.abspath(__file__), "--sync", speech_text],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+
+    sys.stdout.write("{}\n")
+    return 0
+
+
+def list_voices(cfg: dict) -> int:
+    voices_dir = Path(cfg.get("voices_dir", str(Path.home() / ".local" / "share" / "piper" / "voices")))
+    active = cfg.get("voice", "en_US-lessac-medium")
+    if not voices_dir.exists():
+        print(f"No voices directory found at {voices_dir}")
+        return 0
+    models = sorted(p.stem for p in voices_dir.glob("*.onnx"))
+    if not models:
+        print(f"No voice models installed in {voices_dir}")
+        return 0
+    print(f"Installed voices in {voices_dir}:")
+    for m in models:
+        marker = "* " if m == active else "  "
+        print(f"{marker}{m}")
+    return 0
+
+
+def download_voice(voice_name: str, cfg: dict) -> int:
+    voices_dir = Path(cfg.get("voices_dir", str(Path.home() / ".local" / "share" / "piper" / "voices")))
+    voices_dir.mkdir(parents=True, exist_ok=True)
+    py_exec = str(PIPER_PYTHON) if PIPER_PYTHON.exists() else sys.executable
+    cmd = [
+        py_exec,
+        "-m",
+        "piper.download_voices",
+        "--download-dir",
+        str(voices_dir),
+        voice_name,
+    ]
+    print(f"Downloading voice '{voice_name}' to {voices_dir}...")
+    return subprocess.run(cmd, check=False).returncode
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="piper-notify",
+        description="Local neural TTS task completion notification utility using Piper TTS.",
+    )
+    parser.add_argument("title", nargs="*", help="Task title to announce")
+    parser.add_argument("--say", metavar="TEXT", help="Speak custom raw text directly")
+    parser.add_argument("--test", action="store_true", help="Test speech synthesis and audio playback")
+    parser.add_argument("--voices", action="store_true", help="List installed voice models")
+    parser.add_argument("--download-voice", metavar="VOICE", help="Download a Piper voice model")
+    parser.add_argument("--set-voice", metavar="VOICE", help="Set the active Piper voice model")
+    parser.add_argument("--set-volume", metavar="FLOAT", type=float, help="Set playback volume (e.g. 0.85)")
+    parser.add_argument("--set-speed", metavar="FLOAT", type=float, help="Set speech length_scale (e.g. 0.95)")
+    parser.add_argument("--enable", action="store_true", help="Enable voice notifications")
+    parser.add_argument("--disable", action="store_true", help="Disable voice notifications")
+    parser.add_argument("--config", action="store_true", help="Show current configuration")
+    parser.add_argument("--hook", action="store_true", help="Run as Antigravity Stop lifecycle hook")
+    parser.add_argument("--sync", metavar="TEXT", help=argparse.SUPPRESS)
+
+    args = parser.parse_args()
+
+    # Internal background worker path: bypasses debounce so parent is not self-debounced
+    if args.sync is not None:
+        return synthesize_and_play_sync(args.sync)
+
+    if args.hook:
+        return handle_hook()
+
+    cfg = load_config()
+
+    if args.config:
+        print(json.dumps(cfg, indent=2))
+        return 0
+
+    if args.enable:
+        cfg["enabled"] = True
+        save_config(cfg)
+        print("PiperTTS notifications enabled.")
+        return 0
+
+    if args.disable:
+        cfg["enabled"] = False
+        save_config(cfg)
+        print("PiperTTS notifications disabled.")
+        return 0
+
+    if args.voices:
+        return list_voices(cfg)
+
+    if args.download_voice:
+        return download_voice(args.download_voice, cfg)
+
+    if args.set_voice:
+        voices_dir = Path(cfg.get("voices_dir", str(Path.home() / ".local" / "share" / "piper" / "voices")))
+        if not (voices_dir / f"{args.set_voice}.onnx").exists():
+            rc = download_voice(args.set_voice, cfg)
+            if rc != 0:
+                return rc
+        cfg["voice"] = args.set_voice
+        save_config(cfg)
+        print(f"Active voice set to: {args.set_voice}")
+        return 0
+
+    if args.set_volume is not None:
+        cfg["volume"] = max(0.0, float(args.set_volume))
+        save_config(cfg)
+        print(f"Volume set to: {cfg['volume']}")
+        return 0
+
+    if args.set_speed is not None:
+        cfg["length_scale"] = max(0.1, float(args.set_speed))
+        save_config(cfg)
+        print(f"Speed (length_scale) set to: {cfg['length_scale']}")
+        return 0
+
+    if args.test:
+        spawn_detached("Task Piper voice notification test finished")
+        return 0
+
+    if args.say:
+        spawn_detached(args.say.strip())
+        return 0
+
+    if args.title:
+        raw_title = " ".join(args.title).strip()
+        cleaned = clean_task_title(raw_title)
+        fmt = cfg.get("format", "Task {title} finished")
+        speech_text = fmt.format(title=cleaned)
+        spawn_detached(speech_text)
+        return 0
+
+    parser.print_help()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

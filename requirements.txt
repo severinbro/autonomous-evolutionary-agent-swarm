@@ -1,0 +1,9 @@
+# The scripts in scripts/ use only the Python standard library.
+# These packages enable browser-based UI validation and PDF regeneration.
+
+# web_ui_validator.py real-browser checks. Also run: python3 -m playwright install chromium
+# Without it, UI validation reports FAIL (browser-unavailable) instead of passing unverified.
+playwright
+
+# scripts/generate_cheatsheet_pdf.py (regenerates SWARM_CHEATSHEET.pdf)
+weasyprint

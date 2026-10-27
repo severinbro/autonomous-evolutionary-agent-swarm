@@ -1,0 +1,21 @@
+# Runtime logs, PID files, and ephemeral swarm state
+*.log
+*.pid
+swarm_tasks.json
+.swarm/
+.swarm_global/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets and local env
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
