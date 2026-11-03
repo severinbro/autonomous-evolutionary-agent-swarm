@@ -23,9 +23,9 @@ Inspect the workspace before spawning subagents and follow the matching branch:
 
 | Observable Workspace Condition | Required Action & Verdict Slot |
 | :--- | :--- |
-| **Condition A: Greenfield Workspace** (no existing implementation in `src/`, `lib/`, `app/`) | Run **Greenfield Idea Mode**. Set `Existing-Repo Market & Switch-Trigger Sufficiency Score` to `N/A — Greenfield`. Map customer switch triggers to candidate MVP wedges. |
-| **Condition B: Existing Repo with `Market Sufficiency Score >= 8.5/10`** (existing codebase `src/`, manifests, and docs already solve the primary customer switch triggers and match/exceed leading alternatives) | Run **Truth-in-Code Sufficiency Mode**. Record **`VERDICT: MARKET & COMPETITIVE POSITIONING ALREADY OPTIMAL (NO NEW FEATURES REQUIRED)`** in Section 1 and mark solved rows in Section 4 as `Already Solved at <path:line>`. |
-| **Condition C: Existing Repo with `Market Sufficiency Score < 8.5/10`** (unsolved high-severity customer switch triggers exist relative to direct alternatives) | Run **Truth-in-Code Sufficiency Mode**. Cite `path:line` for implemented capabilities and propose only switch-trigger responses with `Net-ROI >= 8.0`. |
+| **Condition A: Greenfield Workspace** (no existing implementation in `src/`, `lib/`, `app/`) | Run **Greenfield Idea Mode**. Set `Sufficiency Verdict` to `GREENFIELD — HIGH-LEVERAGE WEDGE IDENTIFIED`. Map customer switch triggers to candidate MVP wedges. |
+| **Condition B: Existing Repo already solves primary customer switch triggers** (existing codebase `src/`, manifests, and docs already solve the primary customer switch triggers and match/exceed leading alternatives) | Run **Truth-in-Code Sufficiency Mode**. Record **`VERDICT: MARKET & COMPETITIVE POSITIONING ALREADY OPTIMAL (NO NEW FEATURES REQUIRED)`** in Section 1 and mark solved rows in Section 4 as `Already Solved at <path:line>`. |
+| **Condition C: Existing Repo has unsolved high-severity customer switch triggers** (relative to direct alternatives) | Run **Truth-in-Code Sufficiency Mode**. Cite `path:line` for implemented capabilities and propose only switch-trigger responses with `Net-ROI: HIGH`. |
 
 ---
 
@@ -67,9 +67,8 @@ Write `.swarm/blueprint/market_research_report.md` containing these 5 sections i
 ```markdown
 # Market Research Report: <Project Name>
 
-## 1. Executive Market Synthesis, Sufficiency Score & Core Wedge
+## 1. Executive Market Synthesis, Sufficiency Verdict & Core Wedge
 - **Workspace Mode:** `Greenfield Idea Mode` | `Existing Codebase Truth-in-Code Mode`
-- **Existing-Repo Market & Switch-Trigger Sufficiency Score:** `<X.X/10 or N/A — Greenfield>`
 - **Sufficiency Verdict:** `<VERDICT: MARKET & COMPETITIVE POSITIONING ALREADY OPTIMAL (NO NEW FEATURES REQUIRED) | HIGH-LEVERAGE WEDGE IDENTIFIED>`
 - **Core Market Synthesis & Wedge:** <1-paragraph synthesis of the primary switch-trigger wedge or verification that existing repo code already covers customer switch triggers>
 
@@ -123,7 +122,7 @@ Each of the 3 market subagents (and `/market-research` itself when invoked by an
 ```markdown
 Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
 Artifacts: .swarm/blueprint/market_research_report.md, .swarm/blueprint/market_dashboard.html (web_ui_validator: PASS)
-Market Sufficiency Score: <X.X/10 or N/A — Greenfield> (<Sufficiency Verdict>)
+Sufficiency Verdict: <ALREADY OPTIMAL | HIGH-LEVERAGE WEDGE IDENTIFIED>
 Bottom-Up Sizing: TAM $<X> | SAM $<Y> | SOM $<Z>
 Top 3 Switch Triggers:
 1. <Trigger 1> — <Source URL> (<Already Solved at path:line | Proposed>)

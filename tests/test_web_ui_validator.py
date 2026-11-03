@@ -48,7 +48,8 @@ class TestBrowserUnavailable(unittest.TestCase):
     def test_missing_browser_fails_closed(self):
         res = self._validate(set())
         self.assertEqual(res["status"], "FAIL")
-        self.assertEqual(res["hard_cap_score"], 6.0)
+        self.assertEqual(res["fail_count"], 1)
+        self.assertNotIn("hard_cap_score", res)
         fail_ids = [f["id"] for f in res["findings"] if f["level"] == "FAIL"]
         self.assertEqual(fail_ids, ["browser-unavailable"])
 

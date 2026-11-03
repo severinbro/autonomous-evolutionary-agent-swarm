@@ -7,7 +7,7 @@ description: "Use when work must continue until a stated goal is verifiably met:
 
 > **Script paths:** `$AGENT_SWARM_HOME` is the root of this skill pack (the folder containing `skills/` and `scripts/`). If it is unset, resolve this file's real path (following symlinks) and go two directories up.
 
-When the user invokes `/goal-loop` (or `/goal`), or when `/invoke-swarm` / `/discriminator-gate` executes task-level and goal-level verification, use `"$AGENT_SWARM_HOME/scripts/goal_loop.py"` to enforce hierarchical goal decomposition, context-slimmed file handoffs, AST-verified entrypoint wiring, and deterministic hard-cap gating until the desired outcome is genuinely reached.
+When the user invokes `/goal-loop` (or `/goal`), or when `/invoke-swarm` / `/discriminator-gate` executes task-level and goal-level verification, use `"$AGENT_SWARM_HOME/scripts/goal_loop.py"` to enforce hierarchical goal decomposition, context-slimmed file handoffs, AST-verified entrypoint wiring, and deterministic categorical gating (`PASS`/`FAIL`) until the desired outcome is reached.
 
 ---
 
@@ -15,38 +15,40 @@ When the user invokes `/goal-loop` (or `/goal`), or when `/invoke-swarm` / `/dis
 
 ```
 1. NO COMPLETION WITHOUT DETERMINISTIC INVARIANT PASS + TWO-VERDICT GATE PASS.
-2. NO ARBITRARY POINT-DEDUCTION ARITHMETIC — HARD CAPS RULE THE SCORE.
+2. CATEGORIES AND COUNTS DECIDE THE OUTCOME — NO REDUNDANT DECIMAL SCORES.
 3. AN IMPORT WITHOUT AN AST CALL/ATTRIBUTE/NAME USAGE IS UNWIRED DEAD CODE (`BLOCKING_FAIL`).
 4. SUBAGENTS READ FILES FROM DISK (`--task-brief` / `--review-package`) — NEVER PASTE WALLS OF TEXT INTO PROMPTS.
 ```
 
 ---
 
-## Core Architecture: Deterministic Invariants + Hard Caps
+## Core Architecture: Deterministic Invariants + Categorical Gate
 
-The `/goal-loop` engine eliminates fragile point-deduction arithmetic (where a broken build or unwired module could still average out to a passing score) and replaces it with **Deterministic Invariants (`BLOCKING_FAIL` vs. `ADVISORY_WARN`)** combined with **Hard Caps**:
+The `/goal-loop` engine eliminates fragile point-deduction arithmetic and redundant decimal scores, evaluating tasks directly through **Deterministic Invariants (`BLOCKING_FAIL` vs. `ADVISORY_WARN`)** and **Categorical Verdicts (`PASS` vs. `FAIL`)**:
 
 ### 1. Deterministic Invariants (`BLOCKING_FAIL` vs. `ADVISORY_WARN`)
 Every automated scan in `goal_loop.py` classifies findings into two strict tiers:
 
-- **`BLOCKING_FAIL` (Immediate Hard Cap at `<= 6.0`, Status: `NEEDS_ITERATION`):**
+- **`BLOCKING_FAIL` (Immediate `FAIL` Verdict, Status: `NEEDS_ITERATION`):**
   1. **Missing Target Files** or empty (`0-byte`) target files.
   2. **AST / Regex Wiring Violation (`wiring_contract`):** Target module is never imported by its declared caller (`must_be_called_by`), or is imported only at top-level without any active AST `Call`, `Attribute`, or `Name` reference outside the import node (`unused_import`), or fails to define its `exported_symbols`.
   3. **Outcome Command Failure:** Any `verification_commands` or `outcome_verification_cmds` exits with a non-zero code or times out.
-  4. **Authenticity Critical Violation:** Unconditional `NotImplementedError`, stub-only functions (`pass` / `...`), `TODO` / `FIXME` / `PLACEHOLDER` markers, mock-framework imports, or literal dummy/mock/placeholder return values in production code. Interfaces (`Protocol`, `@abstractmethod`, `src/contracts/`) and tests are exempt.
+  4. **Code & Test Authenticity Violation:**
+     - Unconditional `NotImplementedError`, stub-only functions (`pass` / `...`), `TODO` / `FIXME` / `PLACEHOLDER` markers, mock-framework imports, or literal dummy/mock/placeholder return values in production code.
+     - **Constant return next to a fake/stub comment** (`CONSTANT_RETURN_WITH_FAKE_COMMENT`, e.g., `return 1.25  # fake` or `# fake value for now\nreturn 42`).
+     - **Mock-only test file** (`MOCK_ONLY_TEST_FILE`, test files that only assert on `MagicMock`/`AsyncMock`/`patch`/`.assert_called*` without asserting on real production outputs) or **vacuous test file** (`VACUOUS_TEST_FILE`, e.g., `assert True`).
+     - Interfaces (`Protocol`, `@abstractmethod`, `src/contracts/`) are exempt from stub checks.
 
-- **`ADVISORY_WARN` (Capped at `8.5` instead of `9.2`, Never Blocks Alone):**
-  1. Contextual keywords (`mock`, `dummy`, `placeholder`, `lorem ipsum`) appearing inside docstrings, comments, fallback constants, or schema labels.
+- **`ADVISORY_WARN` (Reported for Review, Does Not Block Alone):**
+  1. Broad `except Exception:` blocks or `: any` / `as any` type annotations in production files.
 
-### 2. Hard-Cap Score Computation (`compute_hard_cap_score`)
-When `goal_loop.py --audit-task <TASK_ID>` or `goal_loop.py --record-task <TASK_ID>` computes a task's effective score (`1.0–10.0`), it applies strict ceiling caps in order:
+### 2. Categorical Gate Evaluation (`evaluate_gate`)
+When `goal_loop.py --audit-task <TASK_ID>` or `goal_loop.py --record-task <TASK_ID>` evaluates a task, the category and counts directly determine the verdict:
 
-| Condition | Hard Cap Applied | Gate Result |
+| Condition | Gate Verdict | Task Status |
 | :--- | :---: | :--- |
-| Any `BLOCKING_FAIL` invariant, `spec_verdict != "PASS"`, or `critical_count > 0` | **Capped at `<= 6.0`** | **FAIL (`NEEDS_ITERATION`)** |
-| `important_count > 0` (even if `BLOCKING_FAIL == 0` and `spec_verdict == "PASS"`) | **Capped at `<= 7.0`** | **FAIL (`NEEDS_ITERATION`)** |
-| `BLOCKING_FAIL == 0` AND `spec_verdict == "PASS"` AND `critical == 0` AND `important == 0` (with `ADVISORY_WARN > 0`) | **`>= 8.5`** | **PASS (`VERIFIED_COMPLETE`)** |
-| Clean Pass (`BLOCKING_FAIL == 0`, `ADVISORY_WARN == 0`, `spec_verdict == "PASS"`, `critical == 0`, `important == 0`) | **`>= 9.2`** | **PASS (`VERIFIED_COMPLETE`)** |
+| Any `BLOCKING_FAIL` invariant (`blocking_fails > 0`), `spec_verdict != "PASS"`, `critical_count > 0`, or `important_count > 0` | **`FAIL`** | **`NEEDS_ITERATION`** |
+| `blocking_fails == 0` AND `spec_verdict == "PASS"` AND `critical_count == 0` AND `important_count == 0` | **`PASS`** | **`VERIFIED_COMPLETE`** |
 
 ### 3. Completion, Review & Rulings
 - **The reviewer can only add failures.** `--record-task` records the reviewer verdict on top of the latest `--audit-task` (and runs the audit itself if the task was never audited). A `PASS` verdict never clears a `BLOCKING_FAIL`; only re-running `--audit-task` on fixed code does.
@@ -79,7 +81,7 @@ To prevent orchestrator context window bloat, `goal_loop.py` generates self-cont
    python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd <WORKSPACE_DIR> --review-package TASK-001 --base-sha <BASE_SHA>
    ```
    Writes `.swarm/reviews/<TASK_ID>-review.diff.md` containing:
-   - Exact task specification, `wiring_contract`, and `review_focus` items.
+   - The task's title, objective, `spec_ref` (when set), `wiring_contract`, and `review_focus` items (not the spec itself; pass the spec path to the reviewer separately).
    - `git log --oneline <BASE_SHA>..HEAD` and `git diff --stat <BASE_SHA>..HEAD`.
    - Full unified diff (`git diff <BASE_SHA>..HEAD`) plus untracked target file previews.
    - Pre-computed automated invariant summary (`BLOCKING_FAIL` vs. `ADVISORY_WARN`).
@@ -98,13 +100,17 @@ Each task in `.swarm/goal_loop.json` includes:
 - `title` & `description`: Concrete engineering deliverable.
 - `epoch`: Target epoch (`1`, `2`, `3`, or `4+` for remediation).
 - `base_sha`: Git commit SHA captured when the task starts so `--review-package` diffs accurately.
-- `review_focus`: Array of top implied failure modes that tests must explicitly verify.
+- `review_focus`: Array of top implied failure modes that tests must explicitly verify. Workers treat it as their acceptance checklist, so each item must keep the full condition of the spec clause it covers (quote the clause when in doubt); a narrower item makes every worker implement the narrow version.
 - `target_files`: Exact files the task creates or modifies.
 - `wiring_contract`:
   - `must_be_called_by`: Entrypoint/orchestrator files that must import and actively invoke this module in their AST.
   - `exported_symbols`: Symbols that must be defined in `target_files` and invoked by callers.
 - `verification_commands`: Shell commands that must exit `0`.
+- `depends_on`: Task IDs that must finish first; `/invoke-swarm` dispatches in waves by it, and `--preflight` uses it to tell serialized from parallel tasks.
+- `spec_ref`: For tasks imported from a design, `"<design path> § Task <ID>"`. Briefs and review packages print it; where they differ from the design, the design decides.
 - `subtasks`: Atomic checklist items (`id`, `title`, `status`, `verification_cmd`).
+
+**Importing a design (`--import-design <doc> [--dry-run] [--drop-missing]`):** reads the `### Goal` block and every `### Task <ID>: <title>` block under the design's `## Detailed Implementation Plan` (headings inside code fences are ignored) and writes them as tasks with `spec_ref`. Fields are column-0 bullets: `Files` (backticked paths tagged `(Create)`/`(Modify)`/`(Delete)`), `Depends on`, `Changes`, `Verification` (backticked command) are required; `Outcome`, `Review focus` (numbered list), `Called by` and `Symbols` are optional. All errors are reported together and nothing is written while any exists: missing fields, untagged files, unknown or cyclic dependencies, duplicate IDs, files shared by tasks with no dependency path, task IDs owned by another design, and tasks dropped from the plan (unless `--drop-missing`). A re-imported task whose fields changed goes back to `PENDING` with its gate results cleared. The output lists every new or changed command; confirm them with the user before a real import, because the gate will run them.
 
 ---
 
@@ -114,6 +120,14 @@ Each task in `.swarm/goal_loop.json` includes:
 # 1. Initialize or inspect the manifest
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --init
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --status
+
+# 1b. Import a reviewed design's plan (dry run first; it lists every command the gate will run)
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --import-design docs/designs/<name>.md --dry-run
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --import-design docs/designs/<name>.md
+
+# 1c. Add a single task by hand (an existing task keeps its objective when --objective is omitted)
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --add-task --task-id T2 --title "<title>" \
+  --target-files src/a.py --validation-cmd "<cmd>" --depends-on T1
 
 # 2. Run preflight conflict & dependency check before dispatching workers
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --preflight
@@ -153,8 +167,8 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --verify-goal
 
 ## Red Flag Thought-Catchers (STOP Immediately If You Think Any of These)
 
-- *"The module is imported at the top of `main.py`, so it's wired."* -> **STOP.** `goal_loop.py` parses the caller's Python AST (`ast.parse`). If an imported symbol is never referenced in an `ast.Call`, `ast.Attribute`, or `ast.Name` node outside the import statement, it triggers `BLOCKING_FAIL` (`unused_import`) and hard-caps the task at `6.0`.
-- *"There is one failing test, but the code quality is a 9.5, so the average is above 8.0."* -> **STOP.** Any `BLOCKING_FAIL` or `spec_verdict != PASS` hard-caps the score at `<= 6.0` regardless of code elegance.
+- *"The module is imported at the top of `main.py`, so it's wired."* -> **STOP.** `goal_loop.py` parses the caller's Python AST (`ast.parse`). If an imported symbol is never referenced in an `ast.Call`, `ast.Attribute`, or `ast.Name` node outside the import statement, it triggers `BLOCKING_FAIL` (`unused_import`) and fails the gate.
+- *"There is one failing test, but the rest of the code looks clean, so I'll mark it complete."* -> **STOP.** Any `BLOCKING_FAIL` or `spec_verdict != PASS` immediately fails the categorical gate (`FAIL`).
 - *"I'll paste the entire `.swarm/goal_loop.json` and 5 source files into the worker subagent prompt so it has full context."* -> **STOP.** Generate `.swarm/briefs/<TASK_ID>-brief.md` via `--task-brief <TASK_ID>` and pass the file path.
 
 ---
@@ -164,7 +178,7 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --verify-goal
 | Common Agent Excuse | Reality & Mandatory Action |
 | :--- | :--- |
 | *"The helper function is tested in `test_helper.py`, so it participates in the outcome."* | Unit testing an isolated file is **0% outcome participation** if no runtime entrypoint calls it. Wire it into `must_be_called_by` and re-run `--audit-task`. |
-| *"The `NotImplementedError` is only in an edge-case branch we don't hit yet."* | Unconditional `NotImplementedError` in production code is a `BLOCKING_FAIL` (capped at `<= 6.0`). Implement the branch or remove dead surface area (YAGNI). |
+| *"The `NotImplementedError` is only in an edge-case branch we don't hit yet."* | Unconditional `NotImplementedError` in production code is a `BLOCKING_FAIL`. Implement the branch or remove dead surface area (YAGNI). |
 | *"Running `--preflight` is unnecessary for 3 small tasks."* | Overlapping `target_files` across parallel workers cause silent merge overwrites. Always run `--preflight` before dispatching workers. |
 | *"The reviewer says PASS, so recording it will clear the audit's `BLOCKING_FAIL`s."* | The reviewer can only add failures. Fix the code, re-run `--audit-task`, then record the verdict. |
 | *"I'll manually edit `.swarm/goal_loop.json` to set `status: VERIFIED`."* | Never hand-edit task statuses to bypass verification. Always run `--audit-task` and `--record-task` so deterministic invariants and ledgers stay synchronized. |

@@ -1,153 +1,160 @@
 ---
 name: coop-brainstorm
-description: "Use when planning features, architecture, or execution tasks together with the user before code is written, including turning research reports into a locked plan and a seeded .swarm/goal_loop.json. Runs standalone or as Checkpoint 1 of /product-discovery."
+description: "Use when planning features, architecture, or a product together with the user before code is written, including turning research reports into agreed product notes that /design-draft turns into a design. Runs standalone or as Checkpoint 1 of /product-discovery."
 disable-model-invocation: false
 triggers: [user, model]
 ---
 
-# Cooperative Brainstorming & Product Architecture Ideation (`/coop-brainstorm`)
+# Cooperative Brainstorming & Product Notes (`/coop-brainstorm`)
 
 > **Script paths:** `$AGENT_SWARM_HOME` is the root of this skill pack (the folder containing `skills/` and `scripts/`). If it is unset, resolve this file's real path (following symlinks) and go two directories up.
 
 ## Overview
 
-Collaborate with your human partner to converge on high-ROI innovation hypotheses, a 3-Epoch feature matrix with explicit entrypoint wiring, a software architecture blueprint, and a 5-item `## Review Focus` failure-mode test plan before Epoch 1 implementation begins.
+You are the **Elephant**: the session that holds the project context. Together with the user you turn an idea (and any research reports) into agreed **product notes**: what to build, for whom, why, under which constraints, and with which architecture. Before the user commits, six fresh read-only reviewers (the **Goldfish lenses**, ported from the Elephant-Goldfish Model) critique the concept from different angles. The notes are the input to `/design-draft`, which writes the design whose implementation plan becomes the task list. This skill writes no tasks.
 
-**Core principle:** Read existing code and discovery artifacts before asking; clarify open requirements one single-sentence question at a time; lock concrete interfaces, entrypoint wiring paths, and implied failure-mode tests with zero placeholders (`TBD`/`TODO`).
+**Core principle:** read the code and the reports before asking; ask one question at a time; let fresh reviewers attack the concept before the user locks it.
 
 ---
 
-## 1. Look Before You Ask & Single-Question Clarification Protocol
+## 1. Look Before You Ask & Single-Question Clarification
 
-1. **Read Context First:** Inspect the repository (`src/`, tests, manifests, `docs/`) and any existing discovery blueprints before your first message:
-   - `.swarm/blueprint/deep_research_report.md` & `.swarm/sota/sota_knowledge_base.md`
+1. **Read context first.** Inspect the repository (`src/`, tests, manifests, `docs/`) and any discovery reports before your first message:
+   - `.swarm/blueprint/tech_research_report.md` & `.swarm/sota/sota_knowledge_base.md`
    - `.swarm/blueprint/market_research_report.md`
    - `.swarm/blueprint/commercial_strategy_report.md`
-2. **One Question at a Time (Socratic Clarification):**
-   - **IF a critical requirement is unsettled** (target user workflow, deployment environment, or core constraint not answered by the repo or prior reports): echo back what you understand in $\le 150$ words, state any relevant codebase findings (`path:line`), and end with **one single-sentence question** stating what the answer changes about what gets built.
-   - **IF the user's goal and discovery reports are already complete** (or once clarifying questions are answered): proceed directly to laying out the approaches and presenting the Checkpoint 1 selection modal via `ask_question`.
+2. **One question at a time.**
+   - **If a critical requirement is unsettled** (who uses it, where it runs, a hard constraint, how success is measured, what is out of scope): echo back what you understand in at most 150 words, cite relevant code (`path:line`), and end with **one** open question saying what the answer changes about what gets built. Keep asking across turns until the problem, users, constraints and boundaries are clear.
+   - **Once the concept is clear:** summarise it in 2–3 sentences and ask whether to send it to the lens review or keep clarifying.
 
 ---
 
-## 2. Observable Conditional Predicates (Existing-Repo Sufficiency & Architecture Gates)
+## 2. Existing-Repository Verdict (Conditions A–D)
 
-Evaluate the workspace across 4 Sufficiency Dimensions (`Technical & SOTA Parity`, `Market & Switch-Trigger Coverage`, `Architecture & Open-Core Boundary Cleanliness`, `UI/UX Quality`) and follow the matching predicate branch:
+Evaluate the workspace across 4 Sufficiency Dimensions (`Technical & SOTA Parity`, `Market & Switch-Trigger Coverage`, `Architecture & Open-Core Boundary Cleanliness`, `UI/UX Quality`) and follow the matching branch:
 
 | Observable Condition | Required Action & Recommendation |
 | :--- | :--- |
-| **Condition A: Existing Repo with all 4 Sufficiency Dimensions $\ge 8.5/10$ AND max candidate feature `Net-ROI < 8.0`** | Declare **`VERDICT: PROJECT ALREADY OPTIMAL (NO CODE CHANGES REQUIRED)`** in Section 1. Present *"Keep project as-is (Already Optimal — skip UI & Swarm)"* as the `(Recommended)` first option in `ask_question`. |
-| **Condition B: Existing Repo with `Option 0 (Existing Architecture)` scoring $\ge 8.5/10$** | Recommend **`Option 0: KEEP EXISTING ARCHITECTURE (Zero Structural Rewrite)`** and attach any approved `Net-ROI >= 8.0` features into existing module boundaries. |
-| **Condition C: Greenfield Repo OR `Option 0 (Existing Architecture)` scoring $< 8.5/10$** | Lay out **2–3 competing Software Architecture Blueprints** with explicit trade-offs, recommend the strongest fit, and ask the user to confirm in `ask_question`. |
-| **Condition D: Non-differentiating commodity subsystem needed** (CLI parsing, auth, charting, serialization, transport) | Run **Search-First Build-vs-Adopt Evaluation** (`Fit 1-10`, `Maintenance 1-10`, `License MIT/Apache-2.0`) and tag as `[ADOPT AS-IS: <pkg>]` or `[WRAP / EXTEND: <pkg>]`. Reserve `[BUILD CUSTOM (Core Moat)]` strictly for domain-differentiating kernels. |
+| **Condition A: Existing Repo with all 4 dimensions `OPTIMAL` AND zero candidate features with `HIGH` Net-ROI** | Declare **`VERDICT: PROJECT ALREADY OPTIMAL (NO CODE CHANGES REQUIRED)`** and offer *"Keep project as-is"* as the first option. Skip the lens review and `/design-draft`. |
+| **Condition B: Existing Repo with `Option 0 (Existing Architecture)` rated `OPTIMAL`** | Recommend **`Option 0: Keep Existing Architecture`** and fit approved `HIGH` Net-ROI features into existing module boundaries. |
+| **Condition C: Greenfield Repo OR `Option 0` rated `UPGRADE_NEEDED`** | Lay out **2–3 competing architectures** with explicit trade-offs, recommend the strongest fit, and let the user confirm. |
+| **Condition D: Non-differentiating commodity subsystem needed** (CLI parsing, auth, charting, serialization, transport) | Run **Search-First Build-vs-Adopt** (`Fit: HIGH/MED/LOW`, `Maintenance: ACTIVE/STALE`, `License`) and tag `[ADOPT AS-IS: <pkg>]` or `[WRAP / EXTEND: <pkg>]`. Reserve `[BUILD CUSTOM]` for domain-differentiating kernels. |
 
 ---
 
-## 3. Interactive Checkpoint 1 Confirmation (`ask_question`)
+## 3. Lens Review (six Goldfish, in parallel)
 
-Present a concise synthesis of the Sufficiency Scorecard, candidate Innovation Hypotheses (`Net-ROI >= 8.0`), 3-Epoch Feature Matrix, and Software Architecture options (`Option 0` vs. Alternatives), then call `ask_question` so the user selects:
-1. **Innovation Hypotheses** to include (with `(Recommended)` prefix on top `Net-ROI >= 8.0` items, or *"Keep project as-is"* when Condition A holds).
-2. **Feature Tier Scope & Build-vs-Adopt Decisions** across Epochs 1–3.
-3. **Software Architecture Choice** (`Option 0` vs. Blueprint A / B / C).
-4. **UI/UX Prototype Wave (`Wave 2`)**: whether to run `/ui-ux-design` or skip directly to `/invoke-swarm`.
+1. Write the clarified concept to `.swarm/blueprint/concept.md` (2–3 paragraphs: problem, users, proposed approach, constraints, non-goals). This file is all the lenses see.
+2. Start six read-only reviewers in parallel, one per lens, exactly as `/goldfish-review` starts them (Claude Code: `Agent` with `subagent_type: "goldfish"`; Antigravity: `define_subagent(..., enable_write_tools=False)` then `invoke_subagent`; take the snapshot fingerprint before and after; no subagent tool → tell the user and stop the lens step). Prompt each with `Mode: BRAINSTORM`, `Target: .swarm/blueprint/concept.md`, its persona file `$AGENT_SWARM_HOME/skills/goldfish-review/personas/<persona>.md`, and the reading list (the discovery reports, if any):
+
+   | Persona | Lens |
+   | :--- | :--- |
+   | `zoom-out` | Does this need to exist? Can existing code or a library cover most of it? |
+   | `comprehension` | Interface and workflow ergonomics; actionable errors |
+   | `design-critic` | Cost, quota and token budget; bottlenecks |
+   | `implementation-readiness` | Migration, backward compatibility, rollback |
+   | `codebase-details` | Observability and debuggability |
+   | `maintainability` | Coupling and long-term maintenance |
+
+3. Save each reply to `.swarm/design-reviews/concept/<persona>.md`. Merge the findings (duplicates become one item) into the **Lens Analysis** section of the product notes.
+4. Tell the user the 2–3 strongest objections and ask how to address them (narrow scope, change approach, add a constraint, or accept the risk). Repeat clarification and the lens review if the concept changes substantially.
 
 ---
 
-## 4. Positive Structural Output Contract (`.swarm/blueprint/brainstorm_blueprint.md` & `docs/ARCHITECTURE.md`)
+## 4. Checkpoint 1 Confirmation
 
-Write the confirmed blueprint to `.swarm/blueprint/brainstorm_blueprint.md` and `docs/ARCHITECTURE.md`. The document MUST contain these 6 sections in exact order:
+Present a concise synthesis and let the user choose, one decision per question:
+1. **Innovation hypotheses** to include (top `HIGH` Net-ROI items first, or *"Keep project as-is"* under Condition A).
+2. **Scope:** goals and non-goals.
+3. **Architecture:** `Option 0` versus the alternatives.
+4. **UI prototypes:** whether `/product-discovery` should run `/ui-ux-design` next.
+
+---
+
+## 5. Output Contract: Product Notes (`.swarm/blueprint/brainstorm_blueprint.md`)
+
+Write the confirmed notes in exactly these sections, in this order, with no placeholders:
 
 ```markdown
-# Product & Architecture Blueprint: <Project Name>
+# Product Notes: <Project Name>
 
-**Goal:** <One sentence describing what this system builds and for whom>
-**Architecture:** <2-3 sentences summarizing the selected architecture (`Option 0` or chosen Blueprint)>
-**Tech Stack:** <Languages, core libraries, adopted packages, test runner>
-**Discovery Specs:** `.swarm/blueprint/deep_research_report.md`, `.swarm/blueprint/market_research_report.md`, `.swarm/blueprint/commercial_strategy_report.md`
+**Author:** <git config user.name> · **Date:** <YYYY-MM-DD>
+**Discovery reports:** <links to the reports used, or "none">
 
-## 1. Sufficiency Scorecard & Executive Verdict
-| Dimension | Current Score (`1.0-10.0` or `N/A`) | Cited Codebase Evidence (`path:line`) | Status (`OPTIMAL >= 8.5` / `UPGRADE TARGET`) |
-| :--- | :--- | :--- | :--- |
-| **1. Technical & SOTA Parity** | `<Score>` | `<path:line or Greenfield>` | `<Status>` |
-| **2. Market & Switch-Trigger Coverage** | `<Score>` | `<path:line or Greenfield>` | `<Status>` |
-| **3. Architecture & Open-Core Cleanliness** | `<Score>` | `<path:line or Greenfield>` | `<Status>` |
-| **4. UI/UX Quality (`web_ui_validator`)** | `<Score>` | `<path:line or Greenfield>` | `<Status>` |
+## Overview
+<What is being built, for whom, and the core value, in plain language.>
 
-- **Overall Verdict:** `<VERDICT: PROJECT ALREADY OPTIMAL (NO CODE CHANGES REQUIRED) | VERDICT: HIGH-ROI PLAN LOCKED FOR EXECUTION>`
+## Sufficiency Table and Verdict
+| Dimension | Evidence (`path:line` or Greenfield) | Status (`OPTIMAL` / `UPGRADE_TARGET`) |
+| :--- | :--- | :--- |
+| Technical & SOTA Parity | ... | ... |
+| Market & Switch-Trigger Coverage | ... | ... |
+| Architecture & Open-Core Cleanliness | ... | ... |
+| UI/UX Quality (`web_ui_validator`) | ... | ... |
+- **Verdict:** `PROJECT ALREADY OPTIMAL (NO CODE CHANGES REQUIRED)` | `PLAN AGREED — CONTINUE WITH /design-draft`
 
-## 2. Global Constraints & Behavioral Invariants
-- **Runtime & Version Floors:** `<Exact language/runtime versions and OS targets>`
-- **License & Dependency Policy:** `<Permissive MIT/Apache-2.0 only; zero copyleft in core>`
-- **Preserved Brownfield Invariants (`WHEN -> THEN` / `ALWAYS TRUE`):**
-  1. `WHEN <trigger> -> THEN <exact observable outcome>` (`<path:line>`)
-  2. `ALWAYS TRUE: <invariant property>` (`<path:line>`)
+## Lens Analysis
+<Merged findings of the six lenses, each with the user's decision: addressed how, or accepted as a risk.>
 
-## 3. Approved Innovation Hypotheses (`Net-ROI >= 8.0`)
-| ID | Hypothesis & Technical Mechanism | Novelty (`1-10`) | User / Switch Value (`1-10`) | Feasibility (`1-10`) | Net-ROI (`1-10`) | Decision (`APPROVED` / `ALREADY SOTA` / `REJECTED`) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `IH-1` | `<Mechanism + source paper/repo>` | `<X>` | `<Y>` | `<Z>` | `<ROI>` | `<Decision>` |
+## Goals and Non-Goals
+- **Goals:** <checkable outcomes>
+- **Non-Goals:** <deliberately excluded scope and anti-goals, with the reason>
 
-## 4. 3-Epoch Feature Matrix, Build-vs-Adopt & Entrypoint Wiring Contract
-| Task ID | Epoch (`1` / `2` / `3`) | Feature / Capability | Build-vs-Adopt Tag (`[ADOPT AS-IS: pkg]` / `[WRAP: pkg]` / `[BUILD CUSTOM]`) | Commercial Tier (`[OSS Core]` / `[Pro]` / `[B2B Enterprise]`) | Entrypoint Wiring Path (`Entrypoint -> Controller -> Module -> Output`) | Verification Command (`--outcome-cmd`) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `T1` | `Epoch 1` | `<Feature>` | `<Tag>` | `<Tier>` | `<exact file/call chain>` | `<runnable command>` |
+## Constraints and Invariants
+- **Runtime & version floors:** ...
+- **License & dependency policy:** ...
+- **Preserved behaviour (`WHEN -> THEN` / `ALWAYS TRUE`):** ... (`path:line`)
 
-- **Explicit Anti-Goals (Rejected Scope):**
-  1. `<Rejected Feature 1>` — **Reason:** `<Maintenance tax exceeds user/commercial value>`
+## Approved Innovation Hypotheses
+| ID | Hypothesis & mechanism (source) | Value | Effort | Net-ROI | Decision |
+| :--- | :--- | :--- | :--- | :--- | :--- |
 
-## 5. Software Architecture & Cross-Module Interface Boundaries
-- **Approaches Evaluated:**
-  - `Option 0 (Existing Architecture)`: `<Trade-offs & score>`
-  - `Option A (<Name>)`: `<Trade-offs & score>`
-  - `Option B (<Name>)`: `<Trade-offs & score>`
-- **Selected Architecture:** `<Option X>` — `<Why chosen>`
-- **Task File & Interface Map:**
-  | Task ID | Files to Create / Modify | Consumes (Exact Signatures) | Produces (Exact Signatures) |
-  | :--- | :--- | :--- | :--- |
-  | `T1` | `Create: src/...`, `Test: tests/...` | `<Imported types/functions>` | `<Exported functions(args) -> ReturnType>` |
+## Architecture Options and Choice
+- **Options:** `Option 0 (existing)`, `Option A`, `Option B`, each with trade-offs.
+- **Chosen:** <option> — <why>
+- **Build vs adopt:** <tags from Condition D>
 
-## 6. Review Focus (Top 5 Implied Failure Modes & Edge-Case Inputs)
-The five input classes or failure modes implied by this design that are most likely to bite a real user in production, and the owning task test that pins each behavior:
+## Alternatives Weighed
+<Each rejected option with its technical or scope reason ("Rejected by author: ..."). `/design-draft` copies these into the design.>
 
-| # | Implied Failure Mode / Adversarial Input Class | Expected Resilient Behavior | Owning Task ID | Pinning Test File & Test Function Name |
-| :--- | :--- | :--- | :--- | :--- |
-| 1 | `<e.g., Malformed/empty payload or zero-byte file at ingestion>` | `<Returns typed validation error without crash or partial state write>` | `T1` | `tests/test_<module>.py::test_<behavior>` |
-| 2 | `<e.g., Concurrent write / race on shared state or worktree file>` | `<Atomic lock or deterministic serialization>` | `T2` | `tests/test_<module>.py::test_<behavior>` |
-| 3 | `<e.g., Network/API timeout or offline Zotero/LLM fallback>` | `<Graceful local SQLite/cache fallback within timeout budget>` | `T2` | `tests/test_<module>.py::test_<behavior>` |
-| 4 | `<e.g., Boundary numerical input (NaN, 0, huge array)>` | `<Clamped or rejected with explicit diagnostic message>` | `T3` | `tests/test_<module>.py::test_<behavior>` |
-| 5 | `<e.g., Untrusted external string with prompt/shell injection tokens>` | `<Treated strictly as inert data; zero shell/eval execution>` | `T3` | `tests/test_<module>.py::test_<behavior>` |
+## Key Decisions for /design-draft
+<Decisions the design must carry forward, and the end-to-end outcome command that will prove the product works.>
+```
+
+Then initialise the root goal (no tasks; `/design-draft` and `goal_loop.py --import-design` create them):
+
+```bash
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" \
+  --init-goal "<Agreed Overall Goal>" \
+  --outcome-cmd "<End-to-End Verification Command>" \
+  --entrypoints <entrypoint_files>
 ```
 
 ---
 
-## 5. Self-Review Checklist & `.swarm/goal_loop.json` Seeding
+## 6. Self-Review Checklist
 
-Before finishing `/coop-brainstorm`, run this 4-point self-check and seed `.swarm/goal_loop.json`:
+Before finishing:
+1. **No placeholders:** the notes contain no `TBD`, `TODO`, "handle edge cases" or unnamed files.
+2. **Every goal is checkable** by a command or an observation.
+3. **Every lens finding has a decision** (addressed, or accepted as a risk) in Lens Analysis.
+4. **Alternatives Weighed** names a reason for each rejection.
 
-1. **Zero-Placeholder Verification:** Scan `.swarm/blueprint/brainstorm_blueprint.md` and `docs/ARCHITECTURE.md` to confirm zero occurrences of `TBD`, `TODO`, `"handle edge cases"`, `"add appropriate validation"`, or unpinned file paths.
-2. **Interface & Type Consistency:** Confirm every signature in a task's `Consumes` column matches the exact name and parameter/return types in an earlier task's `Produces` column.
-3. **Review Focus Coverage:** Confirm all 5 rows in `## 6. Review Focus` name a concrete input/condition, expected behavior, owning `Task ID`, and test function name.
-4. **Seed `.swarm/goal_loop.json` and Verify Blueprint:**
-   ```bash
-   python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" \
-     --init-goal "<Locked Overall Project Goal>" \
-     --outcome-cmd "<End-to-End Product Verification Command>" \
-     --entrypoints <entrypoint_files>
-   python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --verify-blueprint
-   ```
+Interfaces, task lists and per-task failure modes belong in the design; `/goldfish-review` stage 4 checks them there.
 
 ---
 
-## 6. Zero-Context-Bloat Subagent Return Contract (`< 15 Lines`)
+## 7. Subagent Return Contract (`< 15 Lines`)
 
-When invoked as a subagent, write the complete blueprint to `.swarm/blueprint/brainstorm_blueprint.md` and `docs/ARCHITECTURE.md`, seed `.swarm/goal_loop.json`, and return ONLY this `< 15 lines` summary:
+When invoked as a subagent, write the notes and return only:
 
 ```markdown
 Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-Artifacts: .swarm/blueprint/brainstorm_blueprint.md, docs/ARCHITECTURE.md, .swarm/goal_loop.json
-Sufficiency Verdict: <PROJECT ALREADY OPTIMAL | HIGH-ROI PLAN LOCKED>
+Artifacts: .swarm/blueprint/brainstorm_blueprint.md, .swarm/blueprint/concept.md, .swarm/design-reviews/concept/
+Sufficiency Verdict: <PROJECT ALREADY OPTIMAL | PLAN AGREED>
 Selected Architecture: <Option 0 | Option A/B>
-Tasks Seeded: <N> tasks (<T1..Tn>) across 3 Epochs | Outcome Cmd: `<cmd>`
-Review Focus Pinned: 5/5 implied failure modes mapped to task tests
-Blueprint Verification: goal_loop.py --verify-blueprint -> PASS (0 placeholders)
+Lens Review: <6/6 completed | n not run> — <top objection and its decision>
+Root Goal: initialised with outcome command `<cmd>`
+Next Step: /design-draft (or none if already optimal)
 Concerns / Blockers: None (or 1-line description)
 ```

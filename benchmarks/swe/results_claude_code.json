@@ -1,0 +1,476 @@
+{
+  "dataset": "SWE-bench/SWE-bench_Verified",
+  "harness": "claude_code",
+  "arms": {
+    "single_agent_checked": {
+      "r1": {
+        "django__django-10554": {
+          "patch_lines": 94,
+          "wall_seconds": 326.7,
+          "tokens": 90354,
+          "resolved": true
+        },
+        "django__django-11400": {
+          "patch_lines": 67,
+          "wall_seconds": 79.3,
+          "tokens": 47949,
+          "resolved": true
+        },
+        "django__django-12325": {
+          "patch_lines": 23,
+          "wall_seconds": 58.1,
+          "tokens": 39004,
+          "resolved": false
+        },
+        "django__django-13128": {
+          "patch_lines": 72,
+          "wall_seconds": 88.9,
+          "tokens": 48384,
+          "resolved": true
+        },
+        "django__django-13344": {
+          "patch_lines": 40,
+          "wall_seconds": 151.0,
+          "tokens": 53842,
+          "resolved": true
+        },
+        "django__django-13837": {
+          "patch_lines": 28,
+          "wall_seconds": 41.0,
+          "tokens": 40384,
+          "resolved": true
+        },
+        "django__django-14011": {
+          "patch_lines": 29,
+          "wall_seconds": 78.2,
+          "tokens": 46177,
+          "resolved": false
+        },
+        "django__django-15128": {
+          "patch_lines": 93,
+          "wall_seconds": 92.2,
+          "tokens": 52918,
+          "resolved": true
+        },
+        "django__django-15503": {
+          "patch_lines": 72,
+          "wall_seconds": 52.9,
+          "tokens": 45860,
+          "resolved": true
+        },
+        "django__django-15957": {
+          "patch_lines": 93,
+          "wall_seconds": 97.7,
+          "tokens": 51612,
+          "resolved": true
+        },
+        "django__django-16263": {
+          "patch_lines": 146,
+          "wall_seconds": 194.9,
+          "tokens": 66359,
+          "resolved": false
+        },
+        "django__django-16631": {
+          "patch_lines": 66,
+          "wall_seconds": 61.2,
+          "tokens": 41814,
+          "resolved": true
+        },
+        "sympy__sympy-12489": {
+          "patch_lines": 226,
+          "wall_seconds": 285.5,
+          "tokens": 53920,
+          "resolved": true
+        },
+        "sympy__sympy-13878": {
+          "patch_lines": 165,
+          "wall_seconds": 579.2,
+          "tokens": 71628,
+          "resolved": true
+        },
+        "sympy__sympy-14248": {
+          "patch_lines": 127,
+          "wall_seconds": 228.8,
+          "tokens": 70956,
+          "resolved": true
+        },
+        "sympy__sympy-16597": {
+          "patch_lines": 12,
+          "wall_seconds": 3600.0,
+          "tokens": 45791,
+          "resolved": false
+        },
+        "sympy__sympy-18199": {
+          "patch_lines": 15,
+          "wall_seconds": 334.7,
+          "tokens": 38375,
+          "resolved": false
+        },
+        "pytest-dev__pytest-5787": {
+          "patch_lines": 156,
+          "wall_seconds": 101.8,
+          "tokens": 51112,
+          "resolved": true
+        },
+        "pytest-dev__pytest-6197": {
+          "patch_lines": 39,
+          "wall_seconds": 388.3,
+          "tokens": 60269,
+          "resolved": true
+        },
+        "pytest-dev__pytest-10356": {
+          "patch_lines": 59,
+          "wall_seconds": 65.9,
+          "tokens": 40441,
+          "resolved": false
+        }
+      }
+    },
+    "best_of_3": {
+      "r1": {
+        "django__django-10554": {
+          "patch_lines": 104,
+          "wall_seconds": 319.1,
+          "tokens": 227869,
+          "resolved": true
+        },
+        "django__django-11400": {
+          "patch_lines": 67,
+          "wall_seconds": 126.0,
+          "tokens": 139704,
+          "resolved": true
+        },
+        "django__django-12325": {
+          "patch_lines": 24,
+          "wall_seconds": 73.5,
+          "tokens": 112429,
+          "resolved": false
+        },
+        "django__django-13128": {
+          "patch_lines": 39,
+          "wall_seconds": 115.0,
+          "tokens": 131253,
+          "resolved": true
+        },
+        "django__django-13344": {
+          "patch_lines": 40,
+          "wall_seconds": 245.9,
+          "tokens": 150043,
+          "resolved": true
+        },
+        "django__django-13837": {
+          "patch_lines": 32,
+          "wall_seconds": 80.3,
+          "tokens": 118170,
+          "resolved": true
+        },
+        "django__django-14011": {
+          "patch_lines": 56,
+          "wall_seconds": 184.4,
+          "tokens": 148943,
+          "resolved": true
+        },
+        "django__django-15128": {
+          "patch_lines": 86,
+          "wall_seconds": 209.1,
+          "tokens": 163245,
+          "resolved": true
+        },
+        "django__django-15503": {
+          "patch_lines": 97,
+          "wall_seconds": 106.9,
+          "tokens": 134830,
+          "resolved": true
+        },
+        "django__django-15957": {
+          "patch_lines": 95,
+          "wall_seconds": 220.6,
+          "tokens": 164616,
+          "resolved": true
+        },
+        "django__django-16263": {
+          "patch_lines": 130,
+          "wall_seconds": 688.5,
+          "tokens": 193629,
+          "resolved": false
+        },
+        "django__django-16631": {
+          "patch_lines": 58,
+          "wall_seconds": 99.1,
+          "tokens": 123217,
+          "resolved": true
+        },
+        "sympy__sympy-12489": {
+          "patch_lines": 231,
+          "wall_seconds": 286.5,
+          "tokens": 140081,
+          "resolved": true
+        },
+        "sympy__sympy-13878": {
+          "patch_lines": 165,
+          "wall_seconds": 1458.7,
+          "tokens": 248325,
+          "resolved": true
+        },
+        "sympy__sympy-14248": {
+          "patch_lines": 143,
+          "wall_seconds": 733.2,
+          "tokens": 220390,
+          "resolved": true
+        },
+        "sympy__sympy-16597": {
+          "patch_lines": 43,
+          "wall_seconds": 3626.0,
+          "tokens": 161586,
+          "resolved": true
+        },
+        "sympy__sympy-18199": {
+          "patch_lines": 15,
+          "wall_seconds": 687.3,
+          "tokens": 126681,
+          "resolved": false
+        },
+        "pytest-dev__pytest-5787": {
+          "patch_lines": 156,
+          "wall_seconds": 160.6,
+          "tokens": 153174,
+          "resolved": true
+        },
+        "pytest-dev__pytest-6197": {
+          "patch_lines": 29,
+          "wall_seconds": 661.9,
+          "tokens": 174536,
+          "resolved": true
+        },
+        "pytest-dev__pytest-10356": {
+          "patch_lines": 55,
+          "wall_seconds": 464.9,
+          "tokens": 132393,
+          "resolved": true
+        }
+      }
+    },
+    "swarm_peers": {
+      "r1": {
+        "django__django-10554": {
+          "patch_lines": 108,
+          "wall_seconds": 373.0,
+          "tokens": 234452,
+          "resolved": true
+        },
+        "django__django-11400": {
+          "patch_lines": 70,
+          "wall_seconds": 197.5,
+          "tokens": 150709,
+          "resolved": true
+        },
+        "django__django-12325": {
+          "patch_lines": 23,
+          "wall_seconds": 100.6,
+          "tokens": 130444,
+          "resolved": false
+        },
+        "django__django-13128": {
+          "patch_lines": 70,
+          "wall_seconds": 125.3,
+          "tokens": 138761,
+          "resolved": true
+        },
+        "django__django-13344": {
+          "patch_lines": 40,
+          "wall_seconds": 228.4,
+          "tokens": 175348,
+          "resolved": true
+        },
+        "django__django-13837": {
+          "patch_lines": 28,
+          "wall_seconds": 109.4,
+          "tokens": 138946,
+          "resolved": true
+        },
+        "django__django-14011": {
+          "patch_lines": 53,
+          "wall_seconds": 182.7,
+          "tokens": 150913,
+          "resolved": true
+        },
+        "django__django-15128": {
+          "patch_lines": 69,
+          "wall_seconds": 257.6,
+          "tokens": 179803,
+          "resolved": true
+        },
+        "django__django-15503": {
+          "patch_lines": 72,
+          "wall_seconds": 107.9,
+          "tokens": 134156,
+          "resolved": true
+        },
+        "django__django-15957": {
+          "patch_lines": 206,
+          "wall_seconds": 288.7,
+          "tokens": 199783,
+          "resolved": true
+        },
+        "django__django-16263": {
+          "patch_lines": 156,
+          "wall_seconds": 328.3,
+          "tokens": 184582,
+          "resolved": false
+        },
+        "django__django-16631": {
+          "patch_lines": 66,
+          "wall_seconds": 97.0,
+          "tokens": 137466,
+          "resolved": true
+        }
+      }
+    },
+    "swarm_lite": {
+      "r1": {
+        "django__django-10554": {
+          "patch_lines": 92,
+          "wall_seconds": 376.7,
+          "tokens": 133389,
+          "resolved": true
+        },
+        "django__django-11400": {
+          "patch_lines": 67,
+          "wall_seconds": 243.9,
+          "tokens": 91371,
+          "resolved": true
+        },
+        "django__django-12325": {
+          "patch_lines": 37,
+          "wall_seconds": 1027.2,
+          "tokens": 110219,
+          "resolved": true
+        },
+        "django__django-13128": {
+          "patch_lines": 72,
+          "wall_seconds": 213.6,
+          "tokens": 98299,
+          "resolved": true
+        },
+        "django__django-13344": {
+          "patch_lines": 40,
+          "wall_seconds": 802.8,
+          "tokens": 104958,
+          "resolved": true
+        },
+        "django__django-13837": {
+          "patch_lines": 28,
+          "wall_seconds": 186.8,
+          "tokens": 87246,
+          "resolved": true
+        },
+        "django__django-14011": {
+          "patch_lines": 64,
+          "wall_seconds": 292.7,
+          "tokens": 107469,
+          "resolved": true
+        },
+        "django__django-15128": {
+          "patch_lines": 73,
+          "wall_seconds": 752.6,
+          "tokens": 134799,
+          "resolved": true
+        },
+        "django__django-15503": {
+          "patch_lines": 72,
+          "wall_seconds": 210.0,
+          "tokens": 90060,
+          "resolved": true
+        },
+        "django__django-15957": {
+          "patch_lines": 144,
+          "wall_seconds": 372.2,
+          "tokens": 128300,
+          "resolved": true
+        },
+        "django__django-16263": {
+          "patch_lines": 193,
+          "wall_seconds": 1520.2,
+          "tokens": 148228,
+          "resolved": false
+        },
+        "django__django-16631": {
+          "patch_lines": 102,
+          "wall_seconds": 218.3,
+          "tokens": 85172,
+          "resolved": true
+        },
+        "sympy__sympy-12489": {
+          "patch_lines": 226,
+          "wall_seconds": 925.0,
+          "tokens": 117746,
+          "resolved": true
+        },
+        "sympy__sympy-13878": {
+          "patch_lines": 175,
+          "wall_seconds": 2042.8,
+          "tokens": 147078,
+          "resolved": true
+        },
+        "sympy__sympy-14248": {
+          "patch_lines": 140,
+          "wall_seconds": 787.5,
+          "tokens": 144732,
+          "resolved": true
+        },
+        "sympy__sympy-16597": {
+          "patch_lines": 32,
+          "wall_seconds": 3600.0,
+          "tokens": 61623,
+          "resolved": true
+        },
+        "sympy__sympy-18199": {
+          "patch_lines": 15,
+          "wall_seconds": 894.1,
+          "tokens": 92534,
+          "resolved": false
+        },
+        "pytest-dev__pytest-5787": {
+          "patch_lines": 197,
+          "wall_seconds": 237.9,
+          "tokens": 105324,
+          "resolved": true
+        },
+        "pytest-dev__pytest-6197": {
+          "patch_lines": 52,
+          "wall_seconds": 849.0,
+          "tokens": 125419,
+          "resolved": true
+        },
+        "pytest-dev__pytest-10356": {
+          "patch_lines": 77,
+          "wall_seconds": 511.9,
+          "tokens": 105524,
+          "resolved": false
+        }
+      }
+    }
+  },
+  "summary": {
+    "single_agent_checked": {
+      "resolved": "14/20",
+      "mean_tokens": 52857,
+      "mean_wall_seconds": 345.3
+    },
+    "best_of_3": {
+      "resolved": "17/20",
+      "mean_tokens": 158256,
+      "mean_wall_seconds": 527.4
+    },
+    "swarm_peers": {
+      "resolved": "10/12",
+      "mean_tokens": 162947,
+      "mean_wall_seconds": 199.7
+    },
+    "swarm_lite": {
+      "resolved": "17/20",
+      "mean_tokens": 110974,
+      "mean_wall_seconds": 803.3
+    }
+  }
+}

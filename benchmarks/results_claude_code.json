@@ -1,0 +1,590 @@
+{
+  "token_method": "transcript_tokens_est = chars / 4 of transcript.jsonl (proxy; excludes context re-reads)",
+  "arms": {
+    "single_agent_checked": {
+      "task_9_semver_ranges": {
+        "r1": {
+          "arm": "single_agent_checked",
+          "task": "task_9_semver_ranges",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_9_semver_ranges/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 91338,
+          "has_telemetry": true,
+          "wall_seconds": 431.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      },
+      "task_10_cron_schedule": {
+        "r1": {
+          "arm": "single_agent_checked",
+          "task": "task_10_cron_schedule",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_10_cron_schedule/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 51799,
+          "has_telemetry": true,
+          "wall_seconds": 155.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      },
+      "task_11_gitignore_matcher": {
+        "r1": {
+          "arm": "single_agent_checked",
+          "task": "task_11_gitignore_matcher",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_11_gitignore_matcher/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 58531,
+          "has_telemetry": true,
+          "wall_seconds": 211.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      },
+      "task_12_commonmark": {
+        "r1": {
+          "arm": "single_agent_checked",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 207106,
+          "has_telemetry": true,
+          "wall_seconds": 1265.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        },
+        "r2": {
+          "arm": "single_agent_checked",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r2",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 183451,
+          "has_telemetry": true,
+          "wall_seconds": 1067.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        },
+        "r3": {
+          "arm": "single_agent_checked",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r3",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 157048,
+          "has_telemetry": true,
+          "wall_seconds": 894.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      }
+    },
+    "swarm_peers": {
+      "task_9_semver_ranges": {
+        "r1": {
+          "arm": "swarm_peers",
+          "task": "task_9_semver_ranges",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_9_semver_ranges/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 259230,
+          "has_telemetry": true,
+          "wall_seconds": 419.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      },
+      "task_11_gitignore_matcher": {
+        "r1": {
+          "arm": "swarm_peers",
+          "task": "task_11_gitignore_matcher",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_11_gitignore_matcher/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 185578,
+          "has_telemetry": true,
+          "wall_seconds": 261.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      },
+      "task_12_commonmark": {
+        "r1": {
+          "arm": "swarm_peers",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r1",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 365598,
+          "has_telemetry": true,
+          "wall_seconds": 736.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        },
+        "r2": {
+          "arm": "swarm_peers",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r2",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 356661,
+          "has_telemetry": true,
+          "wall_seconds": 575.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        },
+        "r3": {
+          "arm": "swarm_peers",
+          "task": "task_12_commonmark",
+          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r3",
+          "passed_all": true,
+          "total_defects": 0,
+          "held_out_defect_count": 0,
+          "ui_defect_count": 0,
+          "wiring_defect_count": 0,
+          "authenticity_defect_count": 0,
+          "unit_test_defect_count": 0,
+          "defects": [],
+          "oracle_score": 1.0,
+          "ui_style_findings": [],
+          "gate": null,
+          "reported_tokens": 330943,
+          "has_telemetry": true,
+          "wall_seconds": 539.0,
+          "conversation_ids": [],
+          "planner_steps": 0,
+          "tool_calls": 0,
+          "transcript_chars": 0,
+          "transcript_tokens_est": 0
+        }
+      }
+    }
+  },
+  "summary": {
+    "single_agent_checked": {
+      "runs_passed": "6/6",
+      "total_defects_found_afterwards": 0,
+      "total_ui_style_findings": 0,
+      "runs_with_telemetry": 6,
+      "pending_runs": [],
+      "total_wall_seconds": 4023.0,
+      "total_planner_steps": 0,
+      "total_tool_calls": 0,
+      "total_transcript_tokens_est": 0,
+      "total_reported_tokens": 749273,
+      "per_task": {
+        "task_9_semver_ranges": {
+          "runs": 1,
+          "passed_runs": 1,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 431.0,
+            "min": 431.0,
+            "max": 431.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 91338.0,
+            "min": 91338,
+            "max": 91338
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        },
+        "task_10_cron_schedule": {
+          "runs": 1,
+          "passed_runs": 1,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 155.0,
+            "min": 155.0,
+            "max": 155.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 51799.0,
+            "min": 51799,
+            "max": 51799
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        },
+        "task_11_gitignore_matcher": {
+          "runs": 1,
+          "passed_runs": 1,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 211.0,
+            "min": 211.0,
+            "max": 211.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 58531.0,
+            "min": 58531,
+            "max": 58531
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        },
+        "task_12_commonmark": {
+          "runs": 3,
+          "passed_runs": 3,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 1075.3,
+            "min": 894.0,
+            "max": 1265.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 182535.0,
+            "min": 157048,
+            "max": 207106
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        }
+      }
+    },
+    "swarm_peers": {
+      "runs_passed": "5/5",
+      "total_defects_found_afterwards": 0,
+      "total_ui_style_findings": 0,
+      "runs_with_telemetry": 5,
+      "pending_runs": [],
+      "total_wall_seconds": 2530.0,
+      "total_planner_steps": 0,
+      "total_tool_calls": 0,
+      "total_transcript_tokens_est": 0,
+      "total_reported_tokens": 1498010,
+      "per_task": {
+        "task_9_semver_ranges": {
+          "runs": 1,
+          "passed_runs": 1,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 419.0,
+            "min": 419.0,
+            "max": 419.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 259230.0,
+            "min": 259230,
+            "max": 259230
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        },
+        "task_11_gitignore_matcher": {
+          "runs": 1,
+          "passed_runs": 1,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 261.0,
+            "min": 261.0,
+            "max": 261.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 185578.0,
+            "min": 185578,
+            "max": 185578
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        },
+        "task_12_commonmark": {
+          "runs": 3,
+          "passed_runs": 3,
+          "defects": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "ui_style_findings": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "wall_seconds": {
+            "mean": 616.7,
+            "min": 539.0,
+            "max": 736.0
+          },
+          "transcript_tokens_est": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "tool_calls": {
+            "mean": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "reported_tokens": {
+            "mean": 351067.3,
+            "min": 330943,
+            "max": 365598
+          },
+          "oracle_score": {
+            "mean": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          }
+        }
+      }
+    }
+  }
+}

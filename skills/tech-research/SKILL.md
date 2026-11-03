@@ -1,17 +1,17 @@
 ---
-name: deep-research
+name: tech-research
 description: "Use when a project or topic needs evidence from scientific literature, the user's Zotero library, and open-source projects before planning or building, or when checking whether an existing implementation matches the state of the art."
 disable-model-invocation: false
 triggers: [user, model]
 ---
 
-# Deep Research: Web, High-Impact Literature & Zotero Library (`/deep-research`)
+# Technical & Literature Research: Web, High-Impact Papers & Zotero Library (`/tech-research`)
 
 > **Script paths:** `$AGENT_SWARM_HOME` is the root of this skill pack (the folder containing `skills/` and `scripts/`). If it is unset, resolve this file's real path (following symlinks) and go two directories up.
 
 ## Overview
 
-Build an evidence-backed technical research foundation by executing three parallel intelligence streams—personal Zotero library inspection, high-impact scientific literature discovery, and web/open-source SOTA crawling—and synthesizing them into a deterministic blueprint artifact at `.swarm/blueprint/deep_research_report.md`.
+Build an evidence-backed technical research foundation by executing three parallel intelligence streams—personal Zotero library inspection, high-impact scientific literature discovery, and web/open-source SOTA crawling—and synthesizing them into a blueprint artifact at `.swarm/blueprint/tech_research_report.md`.
 
 **Core principle:** State concrete methods, equations, benchmark numbers, licenses, and repository statuses verified from primary sources. Match recommendations to observable repository predicates.
 
@@ -68,22 +68,22 @@ Evaluate the workspace before writing the report and follow the matching branch:
 
 | Observable Workspace Condition | Required Action & Verdict Slot |
 | :--- | :--- |
-| **Condition A: Greenfield Workspace** (no existing implementation in `src/`, `lib/`, `app/`, or root modules) | Set `Existing Codebase SOTA Sufficiency` to `N/A — Greenfield`. Populate Section 5 with candidate methods and building blocks scoring `Net-ROI >= 8.0`. |
-| **Condition B: Existing Repo with `SOTA Sufficiency Score >= 8.5/10`** (current algorithms, architecture, and visualizations already match or exceed discovered literature and web SOTA) | Set `Existing Codebase SOTA Sufficiency` to `<Score>/10 — ALREADY SOTA (>= 8.5)`. Set Section 5 `Unsolved Gaps` to `NONE — ALREADY SOTA (No new complexity required)`. |
-| **Condition C: Existing Repo with `SOTA Sufficiency Score < 8.5/10`** (specific algorithms, visualizations, or benchmarks lag verified SOTA) | Set `Existing Codebase SOTA Sufficiency` to `<Score>/10 — HIGH-ROI UPGRADES AVAILABLE`. List only upgrade candidates with `Net-ROI >= 8.0` and cite the exact repo `path:line` each upgrade improves. |
+| **Condition A: Greenfield Workspace** (no existing implementation in `src/`, `lib/`, `app/`, or root modules) | Set `Existing Codebase SOTA Sufficiency` to `N/A — Greenfield`. Populate Section 5 with `HIGH` Net-ROI candidate methods and building blocks. |
+| **Condition B: Existing Repo Matches SOTA** (current algorithms, architecture, and visualizations already match or exceed discovered literature and web SOTA) | Set `Existing Codebase SOTA Sufficiency` to `ALREADY SOTA`. Set Section 5 `Unsolved Gaps` to `NONE — ALREADY SOTA (No new complexity required)`. |
+| **Condition C: Existing Repo Has High-ROI Gaps** (specific algorithms, visualizations, or benchmarks lag verified SOTA) | Set `Existing Codebase SOTA Sufficiency` to `UPGRADES AVAILABLE`. List only `HIGH` Net-ROI upgrade candidates and cite the exact repo `path:line` each upgrade improves. |
 
 ---
 
 ## 3. Positive Structural Output Contract
 
-Write the complete research artifact to `.swarm/blueprint/deep_research_report.md` (and copy/seed `.swarm/sota/sota_knowledge_base.md` when preparing for `/invoke-swarm`). The file MUST contain these 5 sections in exact order with every table column populated:
+Write the complete research artifact to `.swarm/blueprint/tech_research_report.md` (and copy/seed `.swarm/sota/sota_knowledge_base.md` when preparing for `/invoke-swarm`). The file MUST contain these 5 sections in exact order with every table column populated:
 
 ```markdown
-# Deep Research Report: <Topic / Project Name>
+# Technical & Literature Research Report: <Topic / Project Name>
 
-## 1. Executive Synthesis & Existing-Repo SOTA Sufficiency Score
+## 1. Executive Synthesis & Existing-Repo SOTA Sufficiency Verdict
 - **Workspace Mode:** `Greenfield` | `Existing Repository`
-- **Existing Codebase SOTA Sufficiency (`1.0-10.0` or `N/A — Greenfield`):** `<Score>/10 — <ALREADY SOTA (>= 8.5) | HIGH-ROI UPGRADES AVAILABLE | N/A — Greenfield>`
+- **Existing Codebase SOTA Sufficiency:** `ALREADY SOTA | UPGRADES AVAILABLE | N/A — Greenfield`
 - **Executive Summary:** <3-5 sentences synthesizing the state of the field, key algorithmic consensus, and how our repository or concept compares>
 
 ## 2. Insights from Your Zotero Library
@@ -94,7 +94,7 @@ Write the complete research artifact to `.swarm/blueprint/deep_research_report.m
   | `<KEY>` | <Title> (<Author et al., Year>) | <Extracted highlight/annotation or `Metadata only`> | <Concrete module or equation informed> |
 
 ## 3. High-Impact Literature & Seminal Methods
-| Paper Title & DOI / arXiv ID | Year | Citations / Venue | Core Method / Mathematical Formulation | Benchmark / Metric | Repo Status (`Implemented at path:line` / `Gap (Net-ROI X.X)` / `Low-ROI (< 8.0)`) |
+| Paper Title & DOI / arXiv ID | Year | Citations / Venue | Core Method / Mathematical Formulation | Benchmark / Metric | Repo Status (`Implemented at path:line` / `Gap (HIGH ROI)` / `Low-ROI`) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | <Title> (`<DOI/arXiv>`) | <YYYY> | <Count / Venue> | <Exact algorithm / complexity> | <Dataset + score> | <Status> |
 
@@ -108,8 +108,8 @@ Write the complete research artifact to `.swarm/blueprint/deep_research_report.m
   - `<Pattern 2>`: <Observed implementation in reference project + why it works>
 
 ## 5. Actionable Inputs for `/coop-brainstorm`
-- **Unsolved High-ROI Gaps (`Net-ROI >= 8.0`, or `NONE — ALREADY SOTA`):**
-  1. `<Gap 1>` — **Net-ROI:** `<X.X/10>` | **Source:** `<Paper/Repo>` | **Target Module:** `<path or subsystem>`
+- **Unsolved High-ROI Gaps (`HIGH` Net-ROI, or `NONE — ALREADY SOTA`):**
+  1. `<Gap 1>` — **Net-ROI:** `HIGH` | **Source:** `<Paper/Repo>` | **Target Module:** `<path or subsystem>`
 - **Recommended Technical Building Blocks:**
   - **Algorithms / Equations:** <Specific formulas to implement or verify>
   - **Libraries to Adopt:** <Exact package names and versions>
@@ -120,12 +120,12 @@ Write the complete research artifact to `.swarm/blueprint/deep_research_report.m
 
 ## 4. Zero-Context-Bloat Subagent Return Contract (`< 15 Lines`)
 
-When running as a subagent (or when Stream A/B/C subagents report back to the coordinator), write the full findings to `.swarm/blueprint/deep_research_report.md` and return ONLY this compact summary (`< 15 lines`) to the caller:
+When running as a subagent (or when Stream A/B/C subagents report back to the coordinator), write the full findings to `.swarm/blueprint/tech_research_report.md` and return ONLY this compact summary (`< 15 lines`) to the caller:
 
 ```markdown
 Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-Artifact: .swarm/blueprint/deep_research_report.md (seeded .swarm/sota/sota_knowledge_base.md)
-SOTA Sufficiency: <Score/10 or N/A — Greenfield> (<Verdict>)
+Artifact: .swarm/blueprint/tech_research_report.md (seeded .swarm/sota/sota_knowledge_base.md)
+SOTA Sufficiency: <ALREADY SOTA | UPGRADES AVAILABLE | N/A — Greenfield>
 Evidence Coverage: <N> Zotero items, <M> literature papers, <K> OSS repos/packages evaluated
 Top Findings:
 1. <Finding 1 with [Zotero:KEY] or [DOI/URL] citation>

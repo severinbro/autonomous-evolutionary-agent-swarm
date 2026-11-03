@@ -1,0 +1,232 @@
+{
+"git_version": "git version 2.53.0",
+"files": [
+"README.md",
+"a.log",
+"important.log",
+"debug/app.log",
+"logs/x.log",
+"logs/keep.txt",
+"logs/sub/y.log",
+"build/out.o",
+"build/keep/me.txt",
+"src/build/gen.py",
+"src/main.py",
+"src/main.pyc",
+"src/util/__pycache__/m.pyc",
+"doc/a.txt",
+"doc/sub/b.txt",
+"doc/a.pdf",
+"tmp/cache/z.bin",
+"a/b/c/d.txt",
+"a/x/b/c/e.txt",
+"a/b/foo.txt",
+"#hash.txt",
+"!bang.txt",
+"x[1].txt",
+"data1.csv",
+"data2.csv",
+"dataA.csv",
+".env",
+"config/.env",
+"node_modules/pkg/index.js",
+"frontend/node_modules/x.js",
+"notes.txt",
+"deep/er/notes.txt"
+],
+"scenarios": [
+{
+"gitignore": [
+"*.log",
+"!important.log"
+],
+"ignored": [
+"a.log",
+"debug/app.log",
+"logs/sub/y.log",
+"logs/x.log"
+]
+},
+{
+"gitignore": [
+"logs/",
+"!logs/keep.txt"
+],
+"ignored": [
+"logs/keep.txt",
+"logs/sub/y.log",
+"logs/x.log"
+]
+},
+{
+"gitignore": [
+"logs/*",
+"!logs/keep.txt"
+],
+"ignored": [
+"logs/sub/y.log",
+"logs/x.log"
+]
+},
+{
+"gitignore": [
+"/build",
+"doc/*.txt"
+],
+"ignored": [
+"build/keep/me.txt",
+"build/out.o",
+"doc/a.txt"
+]
+},
+{
+"gitignore": [
+"build/"
+],
+"ignored": [
+"build/keep/me.txt",
+"build/out.o",
+"src/build/gen.py"
+]
+},
+{
+"gitignore": [
+"**/foo.txt",
+"a/**/c",
+"tmp/**"
+],
+"ignored": [
+"a/b/c/d.txt",
+"a/b/foo.txt",
+"a/x/b/c/e.txt",
+"tmp/cache/z.bin"
+]
+},
+{
+"gitignore": [
+"*.py[co]",
+"__pycache__/"
+],
+"ignored": [
+"src/main.pyc",
+"src/util/__pycache__/m.pyc"
+]
+},
+{
+"gitignore": [
+"data[0-9].csv",
+"\\#hash.txt",
+"\\!bang.txt",
+"x\\[1\\].txt"
+],
+"ignored": [
+"!bang.txt",
+"#hash.txt",
+"data1.csv",
+"data2.csv",
+"x[1].txt"
+]
+},
+{
+"gitignore": [
+"# comment",
+"",
+".env",
+"#hash.txt"
+],
+"ignored": [
+".env",
+"config/.env"
+]
+},
+{
+"gitignore": [
+"node_modules",
+"!frontend/node_modules/x.js"
+],
+"ignored": [
+"frontend/node_modules/x.js",
+"node_modules/pkg/index.js"
+]
+},
+{
+"gitignore": [
+"*",
+"!*/",
+"!*.txt"
+],
+"ignored": [
+".env",
+"README.md",
+"a.log",
+"build/out.o",
+"config/.env",
+"data1.csv",
+"data2.csv",
+"dataA.csv",
+"debug/app.log",
+"doc/a.pdf",
+"frontend/node_modules/x.js",
+"important.log",
+"logs/sub/y.log",
+"logs/x.log",
+"node_modules/pkg/index.js",
+"src/build/gen.py",
+"src/main.py",
+"src/main.pyc",
+"src/util/__pycache__/m.pyc",
+"tmp/cache/z.bin"
+]
+},
+{
+"gitignore": [
+"a.log   ",
+"doc/**/*.txt"
+],
+"ignored": [
+"a.log",
+"doc/a.txt",
+"doc/sub/b.txt"
+]
+},
+{
+"gitignore": [
+"?.log",
+"debug/*.log",
+"/notes.txt"
+],
+"ignored": [
+"a.log",
+"debug/app.log",
+"logs/sub/y.log",
+"logs/x.log",
+"notes.txt"
+]
+},
+{
+"gitignore": [
+"src/*",
+"!src/main.py",
+"!src/build/"
+],
+"ignored": [
+"src/main.pyc",
+"src/util/__pycache__/m.pyc"
+]
+},
+{
+"gitignore": [
+"/*.log",
+"**/sub",
+"deep/**/notes.txt"
+],
+"ignored": [
+"a.log",
+"deep/er/notes.txt",
+"doc/sub/b.txt",
+"important.log",
+"logs/sub/y.log"
+]
+}
+]
+}

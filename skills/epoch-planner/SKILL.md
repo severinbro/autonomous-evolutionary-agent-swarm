@@ -7,7 +7,9 @@ description: "Use when an epoch of a swarm run has finished and needs its interm
 
 > **Script paths:** `$AGENT_SWARM_HOME` is the root of this skill pack (the folder containing `skills/` and `scripts/`). If it is unset, resolve this file's real path (following symlinks) and go two directories up.
 
-When the user invokes `/epoch-planner`, or when `/invoke-swarm` reaches **Step 3 (Intermittent Epoch Report)** or **Step 7 (Next-Epoch Adjusted Implementation Plan)**, execute this skill.
+This skill is opt-in: it runs standalone or inside `/invoke-swarm full`; Lite Mode (the default) has no epoch re-planning.
+
+When the user invokes `/epoch-planner`, or when `/invoke-swarm full` reaches **Step 3 (Intermittent Epoch Report)** or **Step 7 (Next-Epoch Adjusted Implementation Plan)**, execute this skill.
 
 Rather than relying on vague instructions ("write a thorough plan"), `/epoch-planner` enforces a **Positive Output Contract ("Match the Form to the Failure")**: every report and plan must contain exact, verifiable sections in strict order, and every planned task must populate `review_focus` (implied failure modes pinned to tests) and `base_sha` in `.swarm/goal_loop.json`.
 
@@ -34,8 +36,8 @@ Write `.swarm/reports/epoch_<N>_intermittent_report.md` using these exact 5 sect
 ## 1. Deterministic Convergence Snapshot
 - **Epoch Gate Status:** `CONVERGED | INCOMPLETE` (`CONVERGED` when every Epoch <N> task is `VERIFIED_COMPLETE`, `COMPLETED_WITH_RULING`, or `SUPERSEDED` by finished tasks in `goal_loop.py --status`)
 - **Base -> Head Commit Range:** `<EPOCH_START_SHA>..<HEAD_SHA>`
-- **Task Hard-Cap Ledger:**
-  | Task ID | Title | Spec Verdict | Blocking Fails | Critical / Important / Minor | Hard-Cap Score | Fix Rounds Used |
+- **Task Gate Ledger:**
+  | Task ID | Title | Spec Verdict | Blocking Fails | Critical / Important / Minor | Gate Verdict (`PASS`/`FAIL`) | Fix Rounds Used |
   | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 
 ## 2. AST & Runtime Wiring Matrix

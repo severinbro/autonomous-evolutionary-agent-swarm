@@ -415,8 +415,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
   <table class="header-table">
     <tr>
       <td class="header-title" style="width: 62%;">
-        <h1>AUTONOMOUS EVOLUTIONARY AGENT SWARM (v2.7)</h1>
-        <p>Printable Desk Reference — Product Discovery &amp; Planning (Phase A), Goal-Loop Outcome Engine &amp; Swarm Loop (Phase B)</p>
+        <h1>AUTONOMOUS EVOLUTIONARY AGENT SWARM (v3.0)</h1>
+        <p>Printable Desk Reference — Product Discovery &amp; Planning (Phase A), Design Track, Goal-Loop Outcome Engine &amp; Swarm Loop (Phase B: Lite default, best-of-3, Full)</p>
       </td>
       <td style="width: 38%; text-align: right; vertical-align: middle;">
         <div class="master-pill phase-a">
@@ -424,8 +424,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
           <span class="pill-sub">Phase A Master (Scout &amp; Plan)</span>
         </div>
         <div class="master-pill phase-b">
-          <span class="pill-cmd">/invoke-swarm</span>
-          <span class="pill-sub">Phase B Master (Until Goal Met)</span>
+          <span class="pill-cmd">/invoke-swarm [lite]</span>
+          <span class="pill-sub">Phase B Master (Lite by default)</span>
         </div>
       </td>
     </tr>
@@ -441,25 +441,25 @@ HTML_CONTENT = r"""<!DOCTYPE html>
   <tr>
     <td class="q-col">Starting a brand-new product/idea (Full Phase A)?</td>
     <td class="a-col"><code class="cmd cmd-primary">/product-discovery</code></td>
-    <td class="q-col" style="padding-left: 6pt;">Ready to build &amp; evolve code autonomously (3 Epochs)?</td>
+    <td class="q-col" style="padding-left: 6pt;">Ready to build: Lite, 1 epoch, gate + Validator (default)?</td>
     <td class="a-col-right"><code class="cmd cmd-swarm">/invoke-swarm</code></td>
   </tr>
   <tr>
     <td class="q-col">Backend / CLI / SDK product plan (skip HTML UI mockups)?</td>
     <td class="a-col"><code class="cmd cmd-primary">/product-discovery no-ui</code></td>
-    <td class="q-col" style="padding-left: 6pt;">Just 1 implementation wave + merge (no 3-epoch loop)?</td>
-    <td class="a-col-right"><code class="cmd cmd-swarm">/invoke-swarm single-epoch</code></td>
+    <td class="q-col" style="padding-left: 6pt;">Multi-epoch hardening with audit &amp; scout (opt-in)?</td>
+    <td class="a-col-right"><code class="cmd cmd-swarm">/invoke-swarm full</code></td>
   </tr>
   <tr>
     <td class="q-col">Search my Zotero PDFs + high-impact papers + web SOTA?</td>
-    <td class="a-col"><code class="cmd cmd-primary">/deep-research</code></td>
+    <td class="a-col"><code class="cmd cmd-primary">/tech-research</code></td>
     <td class="q-col" style="padding-left: 6pt;">Freeze shared types + mine brownfield invariants?</td>
     <td class="a-col-right"><code class="cmd cmd-swarm">/contract-lock</code></td>
   </tr>
   <tr>
     <td class="q-col">Competitors, GitHub OSS parity, VoC pain &amp; TAM/SAM/SOM?</td>
     <td class="a-col"><code class="cmd cmd-primary">/market-research</code></td>
-    <td class="q-col" style="padding-left: 6pt;">Zero-trust code review, silent-failure &amp; pass^k gate?</td>
+    <td class="q-col" style="padding-left: 6pt;">Categorical code review, authenticity &amp; pass^k gate?</td>
     <td class="a-col-right"><code class="cmd cmd-swarm">/discriminator-gate</code></td>
   </tr>
   <tr>
@@ -469,7 +469,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <td class="a-col-right"><code class="cmd cmd-swarm">/triad-audit</code></td>
   </tr>
   <tr>
-    <td class="q-col">Co-brainstorm features, Search-First Adopt &amp; architecture?</td>
+    <td class="q-col">Co-brainstorm + 6-lens critique; then /design-draft &amp; /goldfish-review?</td>
     <td class="a-col"><code class="cmd cmd-primary">/coop-brainstorm</code></td>
     <td class="q-col" style="padding-left: 6pt;">Scan secrets, prompt-injection, Unicode &amp; MCP tax?</td>
     <td class="a-col-right"><code class="cmd cmd-swarm">/agent-shield</code></td>
@@ -512,7 +512,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <!-- Wave 1 Box -->
     <rect x="14" y="27" width="335" height="82" rx="4" fill="#ffffff" stroke="#34d399" stroke-width="1.2"/>
     <text x="22" y="39.5" fill="#065f46" font-family="Inter, Arial, sans-serif" font-size="9.2" font-weight="bold">WAVE 1: Parallel Intelligence Swarm (Prompt Defense)</text>
-    <text x="22" y="52.5" fill="#0f172a" font-family="DejaVu Sans Mono, monospace" font-size="8.3" font-weight="bold">1. /deep-research</text>
+    <text x="22" y="52.5" fill="#0f172a" font-family="DejaVu Sans Mono, monospace" font-size="8.3" font-weight="bold">1. /tech-research</text>
     <text x="132" y="52.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">Zotero DB + OpenAlex/arXiv + SOTA</text>
     <text x="22" y="65" fill="#0f172a" font-family="DejaVu Sans Mono, monospace" font-size="8.3" font-weight="bold">2. /market-research</text>
     <text x="132" y="65" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">3 Agents: Competitors, VoC, TAM/SAM</text>
@@ -530,11 +530,11 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <rect x="562" y="30" width="84" height="12.5" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="0.8"/>
     <text x="567" y="39" fill="#92400e" font-family="Inter, Arial, sans-serif" font-size="7.3" font-weight="bold">CHECKPOINT 1</text>
     <text x="386" y="39.5" fill="#065f46" font-family="DejaVu Sans Mono, monospace" font-size="9.2" font-weight="bold">5. /coop-brainstorm</text>
-    <text x="386" y="53.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Sufficiency Gate (&ge;8.5/10 &rarr; ALREADY OPTIMAL)</text>
+    <text x="386" y="53.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Sufficiency Gate (OPTIMAL &rarr; ALREADY OPTIMAL)</text>
     <text x="386" y="66" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Search-First Adopt/Extend vs. Build Custom</text>
     <text x="386" y="78.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; 3-Epoch Features [OSS/Pro/B2B] &amp; Arch Option 0</text>
     <text x="386" y="91" fill="#b45309" font-family="Inter, Arial, sans-serif" font-size="7.8" font-weight="bold">Pauses via ask_question for User Co-Design</text>
-    <text x="386" y="103" fill="#047857" font-family="DejaVu Sans Mono, monospace" font-size="7.6">&rarr; brainstorm_blueprint.md &amp; docs/ARCHITECTURE.md</text>
+    <text x="386" y="103" fill="#047857" font-family="DejaVu Sans Mono, monospace" font-size="7.6">&rarr; product notes &rarr; /design-draft &rarr; /goldfish-review</text>
 
     <!-- Arrow Checkpoint 1 -> Wave 2 -->
     <line x1="653" y1="68" x2="679" y2="68" stroke="#059669" stroke-width="1.8" marker-end="url(#arrow-teal)"/>
@@ -544,7 +544,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <rect x="855" y="30" width="84" height="12.5" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="0.8"/>
     <text x="860" y="39" fill="#92400e" font-family="Inter, Arial, sans-serif" font-size="7.3" font-weight="bold">CHECKPOINT 2</text>
     <text x="690" y="39.5" fill="#065f46" font-family="DejaVu Sans Mono, monospace" font-size="9.2" font-weight="bold">6. /ui-ux-design</text>
-    <text x="690" y="53.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Skips if Existing UI &ge; 8.5/10 &amp; Validator Passes</text>
+    <text x="690" y="53.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Skips if Existing UI Passes Validator (0 FAIL)</text>
     <text x="690" y="66" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Otherwise Spawns 3 Parallel Designers &rarr;</text>
     <text x="698" y="77" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">3 Single-File HTML/CSS/JS Templates</text>
     <text x="690" y="90" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="7.8">&bull; Verified via <tspan font-family="DejaVu Sans Mono, monospace" font-weight="bold">/visual-ui-validator</tspan></text>
@@ -558,7 +558,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <!-- PHASE B CONTAINER (BOTTOM) -->
     <rect x="4" y="134" width="952" height="159" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
     <rect x="4" y="134" width="952" height="19" rx="5" fill="#1e40af"/>
-    <text x="14" y="147" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="9.8" font-weight="bold">PHASE B: AUTONOMOUS 3-EPOCH EVOLUTIONARY SWARM LOOP (/invoke-swarm — Max 3 Macro-Loops: Epoch 1 &rarr; 2 &rarr; 3)</text>
+    <text x="14" y="147" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="9.8" font-weight="bold">PHASE B: SWARM LOOP (/invoke-swarm: Lite [default, 1 Epoch] | best-of-3 | full [3-Epoch Funnel])</text>
 
     <!-- Step 0.5 Contract Lock -->
     <rect x="14" y="158" width="122" height="78" rx="4" fill="#ffffff" stroke="#60a5fa" stroke-width="1.2"/>
@@ -657,14 +657,14 @@ HTML_CONTENT = r"""<!DOCTYPE html>
         <span class="mode-tag">tech-only</span><span class="mode-tag">market-only</span>
       </td>
       <td><span class="when-to-use">New product OR existing repo audit.</span> Crawls web/literature/market potentials &amp; plans product (2 waves, 2 checkpoints).</td>
-      <td><strong>Wave 1:</strong> <code>/deep-research</code> + <code>/market-research</code> + <code>/commercial-strategy</code>. <strong>Checkpoint 1:</strong> <code>/coop-brainstorm</code> (can declare <code>ALREADY OPTIMAL</code> if repo &ge; 8.5/10). <strong>Wave 2:</strong> <code>/ui-ux-design</code>.</td>
-      <td>All <code>.swarm/blueprint/*</code> files + <code>docs/ARCHITECTURE.md</code></td>
+      <td><strong>Wave 1:</strong> <code>/tech-research</code> + <code>/market-research</code> + <code>/commercial-strategy</code>. <strong>Checkpoint 1:</strong> <code>/coop-brainstorm</code> (can declare <code>ALREADY OPTIMAL</code>). <strong>Wave 2:</strong> <code>/ui-ux-design</code>. <strong>Design:</strong> <code>/design-draft</code> &rarr; <code>/goldfish-review</code> &rarr; <code>--import-design</code>.</td>
+      <td>All <code>.swarm/blueprint/*</code> files + <code>docs/designs/&lt;product&gt;.md</code></td>
     </tr>
     <tr>
-      <td><code class="cmd cmd-primary">/deep-research</code></td>
+      <td><code class="cmd cmd-primary">/tech-research</code></td>
       <td><span class="when-to-use">Literature &amp; Zotero grounding.</span> Academic rigor + your own curated Zotero notes/PDFs + web SOTA.</td>
       <td><strong>3 Parallel Streams (Prompt Defense):</strong> (A) Personal Zotero DB via <code>zotero_tool.py</code> (collections, notes, PDF grep), (B) High-impact papers (OpenAlex citations, arXiv, PubMed), (C) Web/OSS Build-vs-Adopt crawl.</td>
-      <td><span class="path">.swarm/blueprint/deep_research_report.md</span><br><span class="path">.swarm/sota/sota_knowledge_base.md</span></td>
+      <td><span class="path">.swarm/blueprint/tech_research_report.md</span><br><span class="path">.swarm/sota/sota_knowledge_base.md</span></td>
     </tr>
     <tr>
       <td><code class="cmd cmd-primary">/market-research</code></td>
@@ -680,14 +680,20 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     </tr>
     <tr>
       <td><code class="cmd cmd-primary">/coop-brainstorm</code></td>
-      <td><span class="when-to-use">Feature, arch &amp; Search-First gate.</span> Interactive ideation + 1-10 Sufficiency Scorecard before coding.</td>
-      <td><strong>Sufficiency Gate (&ge;8.5/10 &rarr; <code>ALREADY OPTIMAL</code>) + 3 Pillars:</strong> (1) Innovations (Net-ROI &ge; 8.0), (2) Search-First <code>[ADOPT]</code>/<code>[EXTEND]</code>/<code>[BUILD]</code> + <code>[OSS]</code>/<code>[Pro]</code>/<code>[B2B]</code>, (3) Arch Option 0 vs. Alternatives.</td>
-      <td><span class="path">.swarm/blueprint/brainstorm_blueprint.md</span><br><span class="path">docs/ARCHITECTURE.md</span></td>
+      <td><span class="when-to-use">Feature, arch &amp; Search-First gate.</span> Interactive ideation + categorical Sufficiency Table before coding.</td>
+      <td><strong>Sufficiency Gate (<code>OPTIMAL</code> &rarr; <code>ALREADY OPTIMAL</code>) + 3 Pillars:</strong> (1) Innovations (<code>HIGH</code> Net-ROI), (2) Search-First <code>[ADOPT]</code>/<code>[EXTEND]</code>/<code>[BUILD]</code> + <code>[OSS]</code>/<code>[Pro]</code>/<code>[B2B]</code>, (3) Arch Option 0 vs. Alternatives; 6 read-only Goldfish lenses critique the concept first.</td>
+      <td><span class="path">.swarm/blueprint/brainstorm_blueprint.md</span> (product notes)</td>
+    </tr>
+    <tr>
+      <td><code class="cmd cmd-primary">/design-draft</code><br><code class="cmd cmd-primary">/goldfish-review</code><br><span class="mode-tag">experimental</span></td>
+      <td><span class="when-to-use">Design before code (EGM port).</span> Elephant drafts with you; fresh read-only Goldfish review it.</td>
+      <td>Section-by-section design; review: zoom-out first, then comprehension, critics, readiness + import dry run; you decide every fix. <code>goal_loop.py --import-design</code> turns the plan into tasks.</td>
+      <td><span class="path">docs/designs/&lt;name&gt;.md</span><br><span class="path">.swarm/design-reviews/*</span></td>
     </tr>
     <tr>
       <td><code class="cmd cmd-primary">/ui-ux-design</code></td>
-      <td><span class="when-to-use">Visual prototyping &amp; UX selection.</span> Audits existing UI (&ge;8.5/10 skips regen) or builds 3 HTML mockups.</td>
-      <td>Audits existing UI via <code>web_ui_validator.py</code> (keeps if &ge; 8.5/10); otherwise proposes 3 distinct UI/UX philosophies, spawns 3 parallel UI Designers for self-contained HTML/CSS/JS files, and validates.</td>
+      <td><span class="when-to-use">Visual prototyping &amp; UX selection.</span> Audits existing UI (0 FAIL skips regen) or builds 3 HTML mockups.</td>
+      <td>Audits existing UI via <code>web_ui_validator.py</code> (keeps if <code>0 FAIL</code>); otherwise deals 3 distinct UI/UX directions, spawns 3 parallel UI Designers for self-contained HTML/CSS/JS files, and validates.</td>
       <td><span class="path">.swarm/blueprint/ui_proposals/template_1..3.html</span><br><span class="path">.swarm/blueprint/ui_ux_proposals.md</span></td>
     </tr>
     <tr>
@@ -700,8 +706,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
 </table>
 
 <div class="footer-bar">
-  <span>Autonomous Evolutionary Agent Swarm Toolkit (v2.7) — Google Antigravity</span>
-  <span class="right">Page 1 of 2 (Flip for Phase B Swarm Skills, AgentShield, Scoring Rules &amp; File Bus Map &rarr;)</span>
+  <span>Autonomous Evolutionary Agent Swarm Toolkit (v3.0) — Antigravity &amp; Claude Code</span>
+  <span class="right">Page 1 of 2 (Flip for Phase B Swarm Skills, Lite Mode, Categorical Gate &amp; File Bus Map &rarr;)</span>
 </div>
 
 <!-- ==================== PAGE 2 ==================== -->
@@ -709,8 +715,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
 
 <!-- 4. PHASE B SKILLS TABLE -->
 <div class="section-hdr blue" style="margin-top: 0;">
-  <span>4. Phase B Skills — Autonomous 3-Epoch Swarm Loop &amp; Standalone Stage Skills</span>
-  <span class="sub">Run the full loop via /invoke-swarm or invoke any individual stage skill on any branch/repo</span>
+  <span>4. Phase B Skills — Lite Mode (default), Best-of-3 &amp; Full 3-Epoch Swarm Loop</span>
+  <span class="sub">Lite: /invoke-swarm; best-of-3: /invoke-swarm best-of-3; Full: /invoke-swarm full; or any stage standalone</span>
 </div>
 <table class="skill-table phase-b">
   <thead>
@@ -725,12 +731,12 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <tr>
       <td>
         <code class="cmd cmd-swarm">/invoke-swarm</code><br>
-        <span class="mode-tag">default (3-Epoch)</span><span class="mode-tag">single-epoch</span><br>
+        <span class="mode-tag">lite (default)</span><span class="mode-tag">best-of-3</span><span class="mode-tag">full (3-Epoch)</span><br>
         <span class="mode-tag">discriminate-only</span><span class="mode-tag">audit-only</span><br>
         <span class="mode-tag">sota-only</span><span class="mode-tag">replan-only</span>
       </td>
-      <td><span class="when-to-use">Autonomous multi-agent build &amp; evolution.</span> Executes Steps 0.5 &rarr; 7 across up to 3 Macro-Loops until convergence.</td>
-      <td>Locks contracts + invariants, spawns parallel worktree workers (injected with Top-K <code>instincts.json</code>), supervises via <code>immortal_watcher</code>, gates each worker with <code>discriminator</code>, merges, runs Triad + AgentShield + SOTA Scout, and replans.</td>
+      <td><span class="when-to-use">Autonomous multi-agent build.</span> <code>lite</code> (default): 1 epoch in dependency waves, gate + Validator; reviewer only when needed; optional release-level audit. <code>best-of-3</code>: 3 workers + cross-test picker (Python). <code>full</code>: 3-Epoch Funnel.</td>
+      <td>Runs <code>--preflight</code>, locks contracts, dispatches workers via <code>--task-brief</code>, gates each worker with <code>/discriminator-gate</code>, merges, and runs Validator (plus Triad Audit &amp; SOTA Scout in Full Mode).</td>
       <td><span class="path">.swarm/swarm_tasks.json</span><br><span class="path">.swarm/dashboard.html</span><br><span class="path">.swarm/epoch_1..3/*</span></td>
     </tr>
     <tr>
@@ -741,12 +747,12 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     </tr>
     <tr>
       <td><code class="cmd cmd-swarm">/discriminator-gate</code><br><span class="mode-tag">Step 1.5</span><span class="mode-tag">pass^k</span></td>
-      <td><span class="when-to-use">Zero-trust branch review.</span> Auditing a sub-agent or feature branch before allowing merge.</td>
-      <td>Inspects <code>git diff</code>, runs tests + <code>--adversarial-cmd</code> (with <code>--pass-hat-k</code>), Silent-Failure Hunter &amp; Config/Contract Tampering check. Enforces a <strong>categorical gate</strong> (0 <code>BLOCKING_FAIL</code>, spec <code>PASS</code>, 0 Critical/Important; loops up to 5x).</td>
-      <td><span class="path">.swarm/instincts.json</span><br><span class="path">.swarm/lessons_learned.md</span></td>
+      <td><span class="when-to-use">Categorical branch review.</span> Auditing a sub-agent or feature branch before allowing merge.</td>
+      <td>Inspects <code>--review-package</code> diff, runs <code>--audit-task</code> (AST wiring, stubs, fake-comment constant returns, mock-only tests) &amp; tests. Enforces <strong>categorical gate</strong> (0 <code>BLOCKING_FAIL</code>, spec <code>PASS</code>, 0 Critical/Important; 5-round loop).</td>
+      <td><span class="path">.swarm/reviews/*</span><br><span class="path">.swarm/ledger.md</span></td>
     </tr>
     <tr>
-      <td><code class="cmd cmd-swarm">/merge-surgeon</code><br><span class="mode-tag">Step 3</span><span class="mode-tag">snapshots</span></td>
+      <td><code class="cmd cmd-swarm">/merge-surgeon</code><br><span class="mode-tag">Step 2</span><span class="mode-tag">snapshots</span></td>
       <td><span class="when-to-use">Integrating parallel branches.</span> Merging multiple Git worktrees cleanly into <code>main</code>.</td>
       <td>Creates pre-merge Git snapshots (<code>--snapshot-create</code>), merges approved worker branches (<code>git merge --no-ff</code>), resolves semantic conflicts honoring <code>src/contracts/</code>, and auto-restores (<code>--snapshot-restore</code>) on failure.</td>
       <td>Integrated <span class="path">main</span> branch + tag <span class="path">swarm-epoch-&lt;N&gt;</span></td>
@@ -754,11 +760,11 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <tr>
       <td>
         <code class="cmd cmd-swarm">/triad-audit</code><br>
-        <span class="mode-tag">default (All 3)</span><span class="mode-tag">rigor-only</span><br>
+        <span class="mode-tag">Full Mode</span><span class="mode-tag">rigor-only</span><br>
         <span class="mode-tag">safety-only</span><span class="mode-tag">innovation-only</span>
       </td>
-      <td><span class="when-to-use">Deep codebase audit (Steps 4-5).</span> Finding math bugs, security holes, or UX/innovation gaps.</td>
-      <td>Spawns 3 parallel auditors: <strong><code>rigor_auditor</code></strong> (math/algo complexity, <code>pass^k</code> &amp; <code>/perf-benchmarker</code>), <strong><code>safety_auditor</code></strong> (runs <code>/agent-shield</code> + threat tests), <strong><code>innovation_auditor</code></strong> (UX/visuals &amp; methods). Scores 1-10.</td>
+      <td><span class="when-to-use">Deep codebase audit (Full Mode, or release-level audit after Lite).</span> Finding math bugs, security holes, or UX gaps.</td>
+      <td>Spawns 3 parallel isolated auditors: <strong><code>rigor_auditor</code></strong> (math/algo, <code>pass^k</code> &amp; <code>/perf-benchmarker</code>), <strong><code>safety_auditor</code></strong> (runs <code>/agent-shield</code> + threat tests), <strong><code>innovation_auditor</code></strong> (UX/visuals). Categorical <code>PASS/FAIL</code>.</td>
       <td><span class="path">.swarm/epoch_&lt;N&gt;/audit_rigor.md</span><br><span class="path">audit_safety.md</span>, <span class="path">audit_innovation.md</span></td>
     </tr>
     <tr>
@@ -775,14 +781,14 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     </tr>
     <tr>
       <td><code class="cmd cmd-swarm">/visual-ui-validator</code><br><span class="mode-tag">UI Gate</span><span class="mode-tag">standalone</span></td>
-      <td><span class="when-to-use">Validating HTML/JS UIs.</span> Checking UI prototypes or web apps for broken JS or empty canvases.</td>
-      <td>Runs <code>scripts/web_ui_validator.py</code>: verifies HTML DOM structure, rejects <code>"Lorem ipsum"</code> placeholders, runs <code>node --check</code> on every inline <code>&lt;script&gt;</code>, and checks headless Chromium console/bounding boxes.</td>
-      <td>JSON/CLI pass-fail report + optional screenshots</td>
+      <td><span class="when-to-use">Validating HTML/JS UIs.</span> Checking UI prototypes or web apps across 3 viewports + reduced-motion.</td>
+      <td>Runs <code>scripts/web_ui_validator.py</code>: verifies DOM/layout at <code>1440/768/390</code>, rejects placeholders, runs <code>node --check</code> on inline <code>&lt;script&gt;</code>, and checks Chromium console/bounding boxes (<code>PASS/FAIL</code>).</td>
+      <td>JSON/CLI <code>PASS/FAIL</code> report + screenshots</td>
     </tr>
     <tr>
-      <td><code class="cmd cmd-swarm">/sota-web-scout</code><br><span class="mode-tag">Step 6</span><span class="mode-tag">standalone</span></td>
-      <td><span class="when-to-use">External SOTA benchmarking.</span> Comparing your repo against leading tools &amp; papers.</td>
-      <td>Crawls web, GitHub, and literature in parallel (under Prompt Defense Baseline) for SOTA visualizations, architectures, and Build-vs-Adopt packages. Scores <strong>Innovation vs. SOTA (1-10)</strong> and <strong>Implementation vs. SOTA (1-10)</strong>.</td>
+      <td><code class="cmd cmd-swarm">/sota-web-scout</code><br><span class="mode-tag">Full Mode</span><span class="mode-tag">standalone</span></td>
+      <td><span class="when-to-use">External SOTA benchmarking (Full Mode, or release-level audit after Lite).</span> Comparing your repo against leading tools &amp; papers.</td>
+      <td>Crawls web, GitHub, and literature in parallel (under Prompt Defense Baseline) for SOTA visualizations, architectures, and Build-vs-Adopt packages. Records categorical <code>ALREADY_SOTA</code> vs <code>UPGRADES_AVAILABLE</code>.</td>
       <td><span class="path">.swarm/sota/sota_knowledge_base.md</span><br><span class="path">.swarm/epoch_&lt;N&gt;/sota_evaluation.md</span></td>
     </tr>
     <tr>
@@ -810,8 +816,8 @@ HTML_CONTENT = r"""<!DOCTYPE html>
   <tbody>
     <tr>
       <td><code class="cmd cmd-util">/goal-loop</code></td>
-      <td><span class="when-to-use">Hierarchical Tasks, Briefs &amp; Hard-Cap Gate.</span></td>
-      <td>Runs <code>scripts/goal_loop.py</code>: <code>--preflight</code> conflict scan, <code>--task-brief</code> &amp; <code>--review-package</code> bundlers, AST call-site wiring check, and Hard-Cap Two-Verdict recording.</td>
+      <td><span class="when-to-use">Hierarchical Tasks, Briefs &amp; Categorical Gate.</span></td>
+      <td>Runs <code>scripts/goal_loop.py</code>: <code>--preflight</code> conflict scan, <code>--task-brief</code> &amp; <code>--review-package</code> bundlers, AST call-site wiring, fake-return &amp; mock-only test detection, and categorical Two-Verdict recording.</td>
     </tr>
     <tr>
       <td><code class="cmd cmd-util">/swarm-diagnostics</code></td>
@@ -831,22 +837,22 @@ HTML_CONTENT = r"""<!DOCTYPE html>
   </tbody>
 </table>
 
-<!-- 6. BOTTOM SPLIT TABLE: TWO-VERDICT + HARD-CAP EVALUATION RULES + .SWARM FILE BUS MAP -->
+<!-- 6. BOTTOM SPLIT TABLE: TWO-VERDICT CATEGORICAL GATE + .SWARM FILE BUS MAP -->
 <table class="bottom-layout">
   <tr>
     <td class="split-cell">
       <div class="info-card">
-        <h3>6. Two-Verdict Gate, Hard Caps &amp; 5-Round Escalating Loop</h3>
+        <h3>6. Two-Verdict Categorical Gate &amp; 5-Round Escalating Loop</h3>
         <ul class="rule-list">
-          <li><strong>No Arbitrary Point Math — Deterministic Invariants + Semantic Gate:</strong> <code>goal_loop.py</code> checks binary <code>BLOCKING_FAIL</code> invariants (test exit code, AST wiring, zero stubs) &amp; bundles <code>BASE_SHA..HEAD</code> diffs.</li>
+          <li><strong>Categories &amp; Counts Decide the Outcome (No Decimal Scores):</strong> <code>goal_loop.py</code> checks <code>BLOCKING_FAIL</code> invariants (test exit code, AST call-site wiring, stubs, constant returns next to <code>fake</code> comments, mock-only/vacuous tests).</li>
           <li><strong>Two-Verdict Discriminator:</strong> (1) <strong>Spec Compliance</strong> (<code>PASS | FAIL | UNVERIFIABLE</code> + <code>Review Focus</code> proof) &amp; (2) <strong>Severity Buckets</strong>: <code>Critical</code>, <code>Important</code>, <code>Minor (Deferred)</code>.</li>
-          <li><strong>Strict Hard Caps (Override Arithmetic):</strong><br>
-            <span class="score-pill score-deduct">Any BLOCKING_FAIL / Spec FAIL / Critical &rarr; Cap 6.0</span>
-            <span class="score-pill score-deduct">Any Important &rarr; Cap 7.0</span>
-            <span class="score-pill score-base">Minor &rarr; Deferred to Ledger (Never Blocks)</span>
+          <li><strong>Categorical Verdicts:</strong><br>
+            <span class="score-pill score-deduct">Any BLOCKING_FAIL / Spec FAIL / Critical &gt; 0 / Important &gt; 0 &rarr; FAIL</span>
+            <span class="score-pill score-pass">0 Blocking / Spec PASS / 0 Crit / 0 Imp &rarr; PASS</span>
+            <span class="score-pill score-base">Minor &rarr; Deferred to Ledger</span>
           </li>
           <li><strong>5-Round Escalating Fix Loop &amp; Scoped Re-Review (<code>FIX_BASE..HEAD</code>):</strong> Rounds 1–3 resume same worker; <strong>Rounds 4–5 spawn a fresh worker sub-agent</strong>; <strong>Round 5 Breaker</strong> logs a typed <code>Ruling:</code> (<code>OVERRIDE</code> / <code>SPLIT_TASK</code> / <code>RE_ARCHITECT_CONTRACT</code> / <code>ESCALATE_TO_USER</code>) in <code>.swarm/ledger.md</code>; rulings never overturn a <code>BLOCKING_FAIL</code>.</li>
-          <li><strong>UI Craft &amp; Unanchored Critique:</strong> <code>ui_direction_dealer.py</code> deals directions by Surface Mode + Design Dials; <code>web_ui_validator.py</code> checks <code>1440/768/390</code> + <code>reduced-motion</code>; Assessment A runs unanchored before B.</li>
+          <li><strong>Lite Mode (<code>/invoke-swarm</code>, default):</strong> Runs 1 epoch with the deterministic gate + Validator; the reviewer (which restates the spec first and never writes files) runs only when acceptance is not command-checkable or parallel work merges.</li>
         </ul>
       </div>
     </td>
@@ -857,7 +863,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
         <div class="file-tree">
           <div><span class="ft-dir">DESIGN.md &amp; .swarm/surfaces/</span> <span class="ft-desc">— 3-Tier Design System, Tokens &amp; Surface Briefs</span></div>
           <div><span class="ft-dir">.swarm/blueprint/</span> <span class="ft-desc">— Phase A Discovery, Market &amp; UI Prototypes</span></div>
-          <div>&nbsp;&nbsp;&#9500;&#9472; <code>deep_research_report.md</code>, <code>market_research_report.md</code> &amp; <code>market_dashboard.html</code></div>
+          <div>&nbsp;&nbsp;&#9500;&#9472; <code>tech_research_report.md</code>, <code>market_research_report.md</code> &amp; <code>market_dashboard.html</code></div>
           <div>&nbsp;&nbsp;&#9500;&#9472; <code>brainstorm_blueprint.md</code> (with <code>Review Focus</code>) &amp; <code>docs/INVARIANTS.md</code></div>
           <div>&nbsp;&nbsp;&#9492;&#9472; <code>ui_proposals/template_1..3.html</code> <span class="ft-desc">(3-viewport verified HTML UIs)</span></div>
           <div style="margin-top: 2pt;"><span class="ft-dir">.swarm/</span> <span class="ft-desc">— Phase B Briefs, Diff Packages, Ledgers &amp; Telemetry</span></div>

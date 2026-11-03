@@ -44,7 +44,7 @@ class TestRecordReviewGate(unittest.TestCase):
         self._tmp.cleanup()
 
     def review(self, **kwargs):
-        return immortal_watcher.record_review("worker-1", impl_score=9.0, goal_score=9.0, **kwargs)
+        return immortal_watcher.record_review("worker-1", **kwargs)
 
     def test_clean_review_passes(self):
         self.assertEqual(self.review()["verdict"], "PASS")
@@ -60,6 +60,22 @@ class TestRecordReviewGate(unittest.TestCase):
     def test_ruling_settles_a_reviewer_dispute(self):
         res = self.review(major_flaws=1, ruling="Reviewer overreach — matches spec — low cost if wrong")
         self.assertEqual(res["verdict"], "COMPLETED_WITH_RULING")
+
+    def test_init_defaults_to_lite_and_full_is_opt_in(self):
+        self.assertEqual(immortal_watcher.init_swarm("Build service")["max_epochs"], 1)
+        full = immortal_watcher.init_swarm("Build service", lite=False)
+        self.assertEqual(full["mode"], "full")
+        self.assertGreater(full["max_epochs"], 1)
+
+    def test_lite_mode_converges_without_audit_or_sota(self):
+        init_res = immortal_watcher.init_swarm("Build service", lite=True)
+        self.assertEqual(init_res["mode"], "lite")
+        self.assertEqual(init_res["max_epochs"], 1)
+        self.review()
+        conv = immortal_watcher.check_convergence(epoch_num=1, lite=True)
+        self.assertTrue(conv["converged"])
+        self.assertEqual(conv["mode"], "lite")
+        self.assertEqual(conv["decision"], "CONVERGED_NO_IMPROVEMENTS_NEEDED")
 
 
 if __name__ == "__main__":

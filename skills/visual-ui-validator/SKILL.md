@@ -43,7 +43,7 @@ python3 "$AGENT_SWARM_HOME/scripts/web_ui_validator.py" \
 - `--screenshots-dir <dir>` (alias `--screenshot-dir`): Writes `<stem>-desktop-1440-fold.png`, `<stem>-tablet-768-fold.png`, and `<stem>-mobile-390-fold.png`. The reduced-motion pass is checked by the `reduced-motion-hidden` rule, without a screenshot.
 - `--allow <rule1,rule2>`: Opt out of specific rule IDs when a direction intentionally breaks a convention.
 - `--allow-external`: Allow external `<script src="...">` and `<link rel="stylesheet">` bundles.
-- `--json`: Emit structured JSON report with per-file `summary`, `hard_cap`, `errors`, `warnings`, `findings`, and `screenshots`.
+- `--json`: Emit structured JSON report with per-file `status` (`PASS`/`FAIL`), `fail_count`, `warn_count`, `errors`, `warnings`, `findings`, and `screenshots`.
 
 ---
 
@@ -111,22 +111,22 @@ Inspect the rendered screenshots (`*-desktop-1440-fold.png`, `*-tablet-768-fold.
    - **Sam (Accessibility / Reduced Motion / Low Vision):** Does Sam get full content visibility under `prefers-reduced-motion`, WCAG AA contrast, and `:focus-visible` rings?
    - **Riley (Stress Tester):** What happens when Riley enters long strings, rapid clicks, zero-results filters, or narrow `390px` viewports?
 
-### Step B: Synthesize with `web_ui_validator.py` & Apply Hard Caps
-Now inspect **Assessment B** (the deterministic JSON output of `web_ui_validator.py`) and apply these mandatory **Hard Caps** to the final UI score (`1-10`):
+### Step B: Synthesize with `web_ui_validator.py` & Evaluate Categorical Gate
+Now inspect **Assessment B** (the deterministic JSON output of `web_ui_validator.py`) and determine the categorical UI verdict (`PASS` vs `FAIL`):
 
-| Trigger Condition | Hard Cap Applied |
+| Trigger Condition | Gate Verdict |
 | :--- | :--- |
-| Any **`FAIL`** rule triggered in `web_ui_validator.py` (`errors > 0`) | **Overall Score capped at `6.0 / 10`** (Automatic Gate Failure) |
-| Visible AI slop tells (`slop-*`) or `> 1` empty scroll screens | **Visual Craft capped at `6.5 / 10`** |
-| 5-Second Title Pass fails OR `covered-text` / Nielsen Severity $\ge 3$ defect | **Usability capped at `6.0 / 10`** |
-| Competitor Swap Test fails (generic SaaS template) | **Creativity capped at `6.0 / 10`** |
-| Missing or non-functional **One Live Thing** | **Creativity capped at `7.5 / 10`** |
+| Any **`FAIL`** rule triggered in `web_ui_validator.py` (`fail_count > 0`) | **`FAIL`** (Automatic Gate Failure) |
+| Visible AI slop tells (`slop-*`) or `> 1` empty scroll screens | **`FAIL`** (Visual Craft Failure) |
+| 5-Second Title Pass fails OR `covered-text` / Nielsen Severity $\ge 3$ defect | **`FAIL`** (Usability Failure) |
+| Competitor Swap Test fails (generic SaaS template) or missing/non-functional **One Live Thing** | **`FAIL`** (Subject Specificity Failure) |
+| `fail_count == 0` in `web_ui_validator.py` AND all 14 Visual Passes succeed | **`PASS`** |
 
 ---
 
 ## 4. Failure Feedback Loop
 
-If `web_ui_validator.py` exits with code `1` (`FAIL`) or the post-cap score is `< 8.0 / 10`:
+If `web_ui_validator.py` exits with code `1` (`FAIL`) or any of the 14 Visual Passes fails:
 - Extract the exact `errors` and `warnings` arrays from `web_ui_validator.py` along with the failed passes from the 14-Pass Visual Rubric.
-- In `/ui-ux-design`, fix the template immediately and re-run `web_ui_validator.py` until all 3 templates achieve `0 FAIL` and $\ge 8.0 / 10$ before presenting links to the user.
+- In `/ui-ux-design`, fix the template immediately and re-run `web_ui_validator.py` until all 3 templates achieve `0 FAIL` (`status: PASS`) before presenting links to the user.
 - In `/discriminator-gate`, put the `web_ui_validator.py` command in the task's `verification_commands` so any `FAIL` becomes a `BLOCKING_FAIL` in `--audit-task`, and list the exact rule IDs, viewport widths, and coordinates in the worker's fix prompt.

@@ -47,23 +47,24 @@ REPORT_TASK = {
 }
 
 
-class TestHardCapScore(unittest.TestCase):
-    def test_score_table(self):
+class TestEvaluateGate(unittest.TestCase):
+    def test_gate_verdicts(self):
         cases = [
-            ({}, 9.2, True),
-            ({"advisory_warns": ["w"]}, 8.5, True),
-            ({"important_count": 1}, 7.0, False),
-            ({"critical_count": 1}, 6.0, False),
-            ({"blocking_fails": ["b"]}, 6.0, False),
-            ({"spec_verdict": "FAIL"}, 6.0, False),
-            ({"minor_count": 4}, 9.2, True),
+            ({}, "PASS", True),
+            ({"advisory_warns": ["w"]}, "PASS", True),
+            ({"important_count": 1}, "FAIL", False),
+            ({"critical_count": 1}, "FAIL", False),
+            ({"blocking_fails": ["b"]}, "FAIL", False),
+            ({"spec_verdict": "FAIL"}, "FAIL", False),
+            ({"minor_count": 4}, "PASS", True),
         ]
-        for overrides, score, passed in cases:
+        for overrides, verdict, passed in cases:
             with self.subTest(overrides=overrides):
                 kwargs = {"blocking_fails": [], "advisory_warns": [], **overrides}
-                res = goal_loop.compute_hard_cap_score(**kwargs)
-                self.assertEqual(res["score"], score)
+                res = goal_loop.evaluate_gate(**kwargs)
+                self.assertEqual(res["verdict"], verdict)
                 self.assertEqual(res["passed_gate"], passed)
+                self.assertNotIn("score", res)
 
 
 class GoalLoopProject(unittest.TestCase):
@@ -119,6 +120,28 @@ class TestAudit(GoalLoopProject):
         res = goal_loop.audit_task("T1", cwd=self.cwd)
         self.assertTrue(res["passed"], res["blocking_fails"])
 
+    def _parallel_report_ahead_of_integrator(self, integrator_status: str) -> dict:
+        """`src/report.py` is built before T2, which will wire it into `src/main.py`."""
+        self.write("src/report.py", REPORT)
+        self.write("src/main.py", "def main():\n    return 42\n")
+        self.manifest(
+            T1={"title": "Report", "epoch": 1, "target_files": ["src/report.py"],
+                "verification_commands": [OK_CMD], "review_focus": ["empty rows"]},
+            T2={"title": "Integrate", "epoch": 1, "target_files": ["src/main.py"], "depends_on": ["T1"],
+                "status": integrator_status, "verification_commands": [OK_CMD], "review_focus": ["wiring"]},
+        )
+        return goal_loop.audit_task("T1", cwd=self.cwd)
+
+    def test_unwired_module_is_deferred_while_integrator_is_pending(self):
+        res = self._parallel_report_ahead_of_integrator("PENDING")
+        self.assertTrue(res["passed"], res["blocking_fails"])
+        self.assertTrue(any("UNWIRED_MODULE deferred to T2" in w for w in res["advisory_warns"]), res["advisory_warns"])
+
+    def test_unwired_module_blocks_once_integrator_is_done(self):
+        res = self._parallel_report_ahead_of_integrator("VERIFIED_COMPLETE")
+        self.assertFalse(res["passed"])
+        self.assertTrue(any(b.startswith("[UNWIRED_MODULE in") for b in res["blocking_fails"]), res["blocking_fails"])
+
     def test_import_without_call_is_blocking(self):
         self.write("src/solver.py", SOLVER)
         self.write("src/main.py", MAIN_IMPORT_ONLY)
@@ -162,6 +185,114 @@ class TestAudit(GoalLoopProject):
         )
         self.assertEqual(res["placeholder_findings"], [])
 
+    def test_audit_on_existing_codebase_judges_only_changes_since_task_base(self):
+        legacy_stub = "\n\ndef legacy_hook(rows):\n    pass\n"
+        self.write("src/solver.py", SOLVER + legacy_stub)
+        self.write("src/main.py", MAIN_CALLS)
+        self.write("tests/test_legacy.py", "def test_x():\n    assert True\n")
+        base = self.commit()
+        self.write("src/solver.py", SOLVER + legacy_stub + "\n\ndef export(rows):\n    pass\n")
+        self.manifest(T1=dict(SOLVER_TASK, base_sha=base))
+        res = goal_loop.audit_task("T1", cwd=self.cwd)
+        stubs = [b for b in res["blocking_fails"] if b.startswith("[STUB")]
+        self.assertEqual(len(stubs), 1, stubs)
+        self.assertIn("export()", stubs[0])
+
+    def _stub_findings(self, source: str) -> list:
+        self.write("src/render.py", source)
+        res = goal_loop.audit_authenticity(root_dir=self.cwd, target_files=["src/render.py"], check_orphan_modules=False)
+        return res["placeholder_findings"]
+
+    def test_no_op_handler_in_dispatch_family_is_not_a_stub(self):
+        source = (
+            "class Renderer:\n"
+            "    def render(self, node):\n        return getattr(self, 'r_' + node.type)(node)\n"
+            "    def r_document(self, node):\n        pass\n"
+            "    def r_paragraph(self, node):\n        return '<p>' + node.text + '</p>'\n"
+            "    def r_heading(self, node):\n        return '<h1>' + node.text + '</h1>'\n"
+        )
+        self.assertEqual(self._stub_findings(source), [])
+
+    def test_lone_pass_method_is_still_a_stub(self):
+        source = "class Renderer:\n    def render(self, node):\n        pass\n    def r_x(self, node):\n        return 1\n"
+        kinds = [f["kind"] for f in self._stub_findings(source)]
+        self.assertEqual(kinds, ["PASS_ONLY_FUNCTION_STUB"])
+
+    def test_family_of_mostly_stubs_is_still_reported(self):
+        source = (
+            "class Renderer:\n"
+            "    def r_a(self, node):\n        pass\n"
+            "    def r_b(self, node):\n        pass\n"
+            "    def r_c(self, node):\n        return 1\n"
+        )
+        self.assertEqual(len(self._stub_findings(source)), 2)
+
+    def test_constant_return_next_to_fake_comment_is_blocking(self):
+        self.write(
+            "src/solver.py",
+            "def solve(matrix):\n"
+            "    return [[1.25]]  # fake rate\n\n"
+            "def quote():\n"
+            "    # fake value for now\n"
+            "    return 42\n",
+        )
+        self.write("src/main.py", MAIN_CALLS)
+        self.manifest(T1=SOLVER_TASK)
+        res = goal_loop.audit_task("T1", cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertTrue(
+            any("CONSTANT_RETURN_WITH_FAKE_COMMENT" in b for b in res["blocking_fails"]),
+            res["blocking_fails"],
+        )
+
+    def test_mock_only_test_file_is_blocking(self):
+        self.write("src/solver.py", SOLVER)
+        self.write("src/main.py", MAIN_CALLS)
+        self.write(
+            "tests/test_solver.py",
+            "from unittest.mock import MagicMock, patch\n\n"
+            "def test_only_mocks():\n"
+            "    m = MagicMock()\n"
+            "    m.solve([[1]])\n"
+            "    m.solve.assert_called_once_with([[1]])\n",
+        )
+        self.manifest(T1=SOLVER_TASK)
+        res = goal_loop.audit_task("T1", cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertTrue(
+            any("MOCK_ONLY_TEST_FILE" in b for b in res["blocking_fails"]),
+            res["blocking_fails"],
+        )
+
+    def test_real_test_file_passes_authenticity(self):
+        self.write("src/solver.py", SOLVER)
+        self.write("src/main.py", MAIN_CALLS)
+        self.write(
+            "tests/test_solver.py",
+            "from src.solver import solve\n\n"
+            "def test_solve_doubles_values():\n"
+            "    assert solve([[1, 2]]) == [[2, 4]]\n",
+        )
+        self.manifest(T1=SOLVER_TASK)
+        res = goal_loop.audit_task("T1", cwd=self.cwd)
+        self.assertTrue(res["passed"], res["blocking_fails"])
+
+    def test_vacuous_test_file_is_blocking(self):
+        self.write("src/solver.py", SOLVER)
+        self.write("src/main.py", MAIN_CALLS)
+        self.write(
+            "tests/test_vacuous.py",
+            "def test_nothing():\n"
+            "    assert True\n",
+        )
+        self.manifest(T1=SOLVER_TASK)
+        res = goal_loop.audit_task("T1", cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertTrue(
+            any("VACUOUS_TEST_FILE" in b for b in res["blocking_fails"]),
+            res["blocking_fails"],
+        )
+
 
 class TestRecordTask(GoalLoopProject):
     def test_reviewer_pass_cannot_clear_audit_failures(self):
@@ -184,11 +315,21 @@ class TestRecordTask(GoalLoopProject):
         self.assertTrue(res["passed"])
         self.assertEqual(self.task("T1")["status"], "VERIFIED_COMPLETE")
 
+    def test_review_source_is_recorded_and_validated(self):
+        self.clean_solver()
+        goal_loop.audit_task("T1", cwd=self.cwd)
+        res = goal_loop.record_task("T1", spec_verdict="PASS", review_source="self-check", cwd=self.cwd)
+        self.assertTrue(res["passed"])
+        self.assertEqual(self.task("T1")["history"][-1]["review_source"], "self-check")
+        bad = goal_loop.record_task("T1", spec_verdict="PASS", review_source="vibes", cwd=self.cwd)
+        self.assertEqual(bad["status"], "ERROR")
+
     def test_important_finding_blocks(self):
         self.clean_solver()
         res = goal_loop.record_task("T1", spec_verdict="PASS", important_count=1, cwd=self.cwd)
         self.assertFalse(res["passed"])
-        self.assertEqual(res["hard_cap"], 7.0)
+        self.assertEqual(res["verdict"], "FAIL")
+        self.assertIn("important_count=1", res["blocking_reasons"])
 
     def test_ruling_requires_a_type(self):
         self.clean_solver()
@@ -319,6 +460,223 @@ class TestPreflightAndHandoffs(GoalLoopProject):
         path = Path(res["review_package_path"])
         self.assertEqual(path, self.root / ".swarm" / "reviews" / "T1-review.diff.md")
         self.assertIn("def scale", path.read_text(encoding="utf-8"))
+
+    def test_review_package_includes_tests_changed_alongside_scoped_files(self):
+        # Reviewers judge Review Focus coverage from the package; a scope limited to target
+        # files used to hide the worker's regression tests.
+        self.manifest(T1={**SOLVER_TASK, "target_files": ["src/solver.py"]})
+        self.write("src/solver.py", SOLVER)
+        base = self.commit()
+        self.write("src/solver.py", SOLVER + "\n\ndef scale(matrix, k):\n    return [[v * k for v in row] for row in matrix]\n")
+        self.write("tests/test_scale.py", "def test_scale():\n    assert True is not False\n")
+        self.write("src/unrelated.py", "X = 1\n")
+        self.commit()
+        with redirect_stdout(io.StringIO()):
+            res = goal_loop.generate_review_package("T1", base_sha_override=base, cwd=self.cwd)
+        text = Path(res["review_package_path"]).read_text(encoding="utf-8")
+        self.assertIn("def test_scale", text)
+        self.assertIn("`tests/test_scale.py`", text)
+        self.assertNotIn("X = 1", text)
+
+
+DESIGN_HEAD = """# Demo design
+
+## Technical Plan
+
+The plan format looks like this:
+
+```markdown
+## Detailed Implementation Plan
+
+### Task X: placeholder
+
+*   **Files:** `nowhere.py` (Create)
+```
+
+## Detailed Implementation Plan
+
+Some prose that the importer ignores.
+
+### Goal
+
+*   **Goal:** Scale matrices.
+*   **Outcome:** `python3 -c "print('OK')"`
+"""
+
+TASK_SOLVE = """
+### Task D-1: Solver
+
+*   **Files:** `src/solver.py` (Create), `tests/test_solver.py` (Create)
+*   **Depends on:** none
+*   **Changes:** Add `solve(matrix)`.
+    It doubles every value.
+*   **Verification:** `python3 -m unittest tests.test_solver`
+*   **Called by:** `src/main.py`
+*   **Symbols:** `solve`
+*   **Review focus:**
+    1.  An empty matrix returns an empty list,
+        not an error.
+    2.  Negative values double too.
+"""
+
+TASK_REPORT = """
+### Task D-2: Report
+
+*   **Files:** `src/report.py` (Create), `src/old_report.py` (Delete)
+*   **Depends on:** D-1
+*   **Changes:** Render rows.
+*   **Verification:** `python3 -m unittest tests.test_report`
+"""
+
+PLAN_TAIL = """
+### Verification Plan
+
+*   **Outcome:** this bullet is not part of any task.
+
+## Risks
+
+None.
+"""
+
+
+class TestImportDesign(GoalLoopProject):
+    def design(self, *tasks: str, name: str = "docs/designs/demo.md") -> str:
+        self.write(name, DESIGN_HEAD + "".join(tasks) + PLAN_TAIL)
+        return name
+
+    def goal_bytes(self):
+        path = self.root / ".swarm" / "goal_loop.json"
+        return path.read_bytes() if path.exists() else None
+
+    def test_imports_tasks_fields_and_goal_and_ignores_fenced_example(self):
+        res = goal_loop.import_design(self.design(TASK_SOLVE, TASK_REPORT), cwd=self.cwd)
+        self.assertEqual(res["status"], "OK", res["errors"])
+        self.assertEqual([t["id"] for t in res["tasks"]], ["D-1", "D-2"])
+        solve = self.task("D-1")
+        self.assertEqual(solve["target_files"], ["src/solver.py", "tests/test_solver.py"])
+        self.assertEqual(solve["objective"], "Add `solve(matrix)`.\nIt doubles every value.")
+        self.assertEqual(solve["verification_cmd"], "python3 -m unittest tests.test_solver")
+        self.assertEqual(solve["wiring_files"], ["src/main.py"])
+        self.assertEqual(solve["required_symbols"], ["solve"])
+        self.assertEqual(
+            solve["review_focus"], ["An empty matrix returns an empty list, not an error.", "Negative values double too."]
+        )
+        self.assertEqual(solve["spec_ref"], "docs/designs/demo.md § Task D-1")
+        report = self.task("D-2")
+        self.assertEqual(report["depends_on"], ["D-1"])
+        self.assertEqual(report["target_files"], ["src/report.py"])
+        self.assertIn("Delete: `src/old_report.py`", report["objective"])
+        self.assertEqual(report["outcome_cmd"], "")
+        state = goal_loop.load_goal_state(cwd=self.cwd)
+        self.assertEqual(state["goal"], "Scale matrices.")
+        self.assertEqual(state["outcome_cmd"], "python3 -c \"print('OK')\"")
+
+    def test_all_errors_reported_together_and_nothing_written(self):
+        broken = TASK_SOLVE.replace("*   **Verification:** `python3 -m unittest tests.test_solver`\n", "")
+        cycle = TASK_REPORT.replace("**Depends on:** D-1", "**Depends on:** D-3, D-2")
+        before = self.goal_bytes()
+        res = goal_loop.import_design(self.design(broken, cycle), cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        text = "\n".join(res["errors"])
+        self.assertIn("D-1: missing `Verification`", text)
+        self.assertIn("unknown dependency D-3", text)
+        self.assertIn("D-2: dependency cycle", text)
+        self.assertEqual(self.goal_bytes(), before)
+
+    def test_dry_run_writes_nothing(self):
+        res = goal_loop.import_design(self.design(TASK_SOLVE), cwd=self.cwd, dry_run=True)
+        self.assertEqual(res["status"], "OK")
+        self.assertIsNone(self.goal_bytes())
+        self.assertIn(
+            {"task": "D-1", "field": "verification_cmd", "command": "python3 -m unittest tests.test_solver"},
+            res["commands"],
+        )
+
+    def test_reimport_resets_changed_completed_task_and_keeps_unchanged_one(self):
+        doc = self.design(TASK_SOLVE, TASK_REPORT)
+        goal_loop.import_design(doc, cwd=self.cwd)
+        state = goal_loop.load_goal_state(cwd=self.cwd)
+        for tid in ("D-1", "D-2"):
+            state["tasks"][tid].update(status="VERIFIED_COMPLETE", gate_verdict="PASS", iterations=2)
+        goal_loop.save_goal_state(state, cwd=self.cwd)
+
+        self.design(TASK_SOLVE, TASK_REPORT.replace("Render rows.", "Render rows as CSV."))
+        res = goal_loop.import_design(doc, cwd=self.cwd)
+        self.assertEqual({t["id"]: t["action"] for t in res["tasks"]}, {"D-1": "unchanged", "D-2": "reset"})
+        self.assertEqual(self.task("D-1")["status"], "VERIFIED_COMPLETE")
+        reset = self.task("D-2")
+        self.assertEqual((reset["status"], reset["gate_verdict"], reset["iterations"]), ("PENDING", "PENDING", 0))
+
+    def test_task_owned_by_another_design_is_an_error(self):
+        goal_loop.import_design(self.design(TASK_SOLVE), cwd=self.cwd)
+        res = goal_loop.import_design(self.design(TASK_SOLVE, name="docs/designs/other.md"), cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        self.assertIn("belongs to docs/designs/demo.md", "\n".join(res["errors"]))
+
+    def test_orphans_need_drop_missing(self):
+        doc = self.design(TASK_SOLVE, TASK_REPORT)
+        goal_loop.import_design(doc, cwd=self.cwd)
+        self.design(TASK_SOLVE)
+        res = goal_loop.import_design(doc, cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        self.assertEqual(res["orphans"], ["D-2"])
+        res = goal_loop.import_design(doc, cwd=self.cwd, drop_missing=True)
+        self.assertEqual(res["status"], "OK")
+        self.assertNotIn("D-2", goal_loop.load_goal_state(cwd=self.cwd)["tasks"])
+        self.assertIn("D-2", (self.root / ".swarm" / "ledger.md").read_text(encoding="utf-8"))
+
+    def test_delete_only_task_and_unordered_overlap_are_errors(self):
+        delete_only = TASK_REPORT.replace("`src/report.py` (Create), ", "")
+        overlap = TASK_REPORT.replace("**Depends on:** D-1", "**Depends on:** none").replace(
+            "`src/report.py` (Create)", "`src/solver.py` (Modify)"
+        )
+        errors = "\n".join(goal_loop.import_design(self.design(TASK_SOLVE, delete_only), cwd=self.cwd)["errors"])
+        self.assertIn("at least one (Create) or (Modify) file", errors)
+        errors = "\n".join(goal_loop.import_design(self.design(TASK_SOLVE, overlap), cwd=self.cwd)["errors"])
+        self.assertIn("both change src/solver.py", errors)
+
+    def test_unparseable_goal_file_is_refused_and_untouched(self):
+        self.write(".swarm/goal_loop.json", "{not json")
+        res = goal_loop.import_design(self.design(TASK_SOLVE), cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        self.assertEqual(self.goal_bytes(), b"{not json")
+
+    def test_brief_and_review_package_print_spec_ref(self):
+        goal_loop.import_design(self.design(TASK_SOLVE), cwd=self.cwd)
+        brief = Path(goal_loop.generate_task_brief("D-1", cwd=self.cwd)["brief_path"]).read_text(encoding="utf-8")
+        self.assertIn("docs/designs/demo.md § Task D-1", brief)
+        self.assertIn("the design decides", brief)
+
+    def test_add_task_keeps_objective_and_takes_depends_on(self):
+        goal_loop.add_task("T1", "Title", "Original objective", validation_cmd=OK_CMD, cwd=self.cwd)
+        goal_loop.add_task("T1", "Title", "", review_focus=["edge"], depends_on=["T0"], cwd=self.cwd)
+        task = self.task("T1")
+        self.assertEqual(task["objective"], "Original objective")
+        self.assertEqual(task["depends_on"], ["T0"])
+
+    def test_verify_blueprint_checks_imported_designs_only(self):
+        self.write(".swarm/blueprint/tech_research_report.md", "Research notes. " * 30)
+        self.write(".swarm/blueprint/brainstorm_blueprint.md", "Product notes. " * 30)
+        self.assertTrue(goal_loop.verify_blueprint_artifacts(cwd=self.cwd)["passed"])
+        doc = self.design(TASK_SOLVE)
+        goal_loop.import_design(doc, cwd=self.cwd)
+        self.assertTrue(goal_loop.verify_blueprint_artifacts(cwd=self.cwd)["passed"])
+        (self.root / doc).unlink()
+        res = goal_loop.verify_blueprint_artifacts(cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertIn("is missing", "\n".join(res["errors"]))
+
+
+class TestRepositoryDesign(unittest.TestCase):
+    def test_skill_pack_v3_design_imports_cleanly(self):
+        repo = SCRIPTS_DIR.parent
+        doc = repo / "docs" / "designs" / "skill-pack-v3.md"
+        if not doc.exists():
+            self.skipTest("design document absent")
+        with tempfile.TemporaryDirectory() as tmp:
+            res = goal_loop.import_design(str(doc), cwd=tmp, dry_run=True)
+        self.assertEqual(res["status"], "OK", res["errors"])
+        self.assertEqual([t["id"] for t in res["tasks"]], [f"P{n}" for n in range(1, 12)])
 
 
 if __name__ == "__main__":

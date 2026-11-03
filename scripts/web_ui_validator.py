@@ -1307,7 +1307,6 @@ def validate_target(
             return {
                 "target": target,
                 "status": "FAIL",
-                "hard_cap_score": 6.0,
                 "surface_mode": mode,
                 "findings": [{
                     "level": "FAIL",
@@ -1316,6 +1315,8 @@ def validate_target(
                     "message": f"File not found: {target}",
                     "fix": "Verify the HTML file path exists before running `web_ui_validator.py`.",
                 }],
+                "fail_count": 1,
+                "warn_count": 0,
                 "errors": [f"File not found: {target}"],
                 "warnings": [],
             }
@@ -1492,12 +1493,10 @@ def validate_target(
     ]
 
     status = "PASS" if len(fails) == 0 else "FAIL"
-    hard_cap_score = 6.0 if len(fails) > 0 else 10.0
 
     return {
         "target": target_label,
         "status": status,
-        "hard_cap_score": hard_cap_score,
         "surface_mode": resolved_mode,
         "viewports_inspected": widths,
         "metrics": metrics,
@@ -1589,7 +1588,6 @@ def main() -> None:
             json.dumps(
                 {
                     "overall_status": "PASS" if all_passed else "FAIL",
-                    "hard_cap_score": 10.0 if all_passed else 6.0,
                     "viewports_inspected": widths,
                     "results": results,
                 },
@@ -1604,7 +1602,7 @@ def main() -> None:
             print(
                 f"{icon} [{r['status']}] {r['target']} "
                 f"(Mode: {r['surface_mode']}, Viewports: {r['viewports_inspected']}, "
-                f"Hard-Cap: {r['hard_cap_score']}/10, "
+                f"Fails: {r.get('fail_count', 0)}, Warns: {r.get('warn_count', 0)}, "
                 f"CSS: {m.get('css_chars', 0)} chars, JS: {m.get('js_chars', 0)} chars)"
             )
             for f in r.get("findings", []):

@@ -1,0 +1,181 @@
+{
+  "single_agent_checked": {
+    "task_10_cron_schedule": {
+      "r1": {
+        "wall_seconds": 155.0,
+        "reported_tokens": 51799,
+        "reported_tool_calls": 9,
+        "agents": [
+          {
+            "tokens": 51799,
+            "tool_calls": 9
+          }
+        ]
+      }
+    },
+    "task_11_gitignore_matcher": {
+      "r1": {
+        "wall_seconds": 211.0,
+        "reported_tokens": 58531,
+        "reported_tool_calls": 9,
+        "agents": [
+          {
+            "tokens": 58531,
+            "tool_calls": 9
+          }
+        ]
+      }
+    },
+    "task_9_semver_ranges": {
+      "r1": {
+        "wall_seconds": 431.0,
+        "reported_tokens": 91338,
+        "reported_tool_calls": 9,
+        "agents": [
+          {
+            "tokens": 91338,
+            "tool_calls": 9
+          }
+        ]
+      }
+    },
+    "task_12_commonmark": {
+      "r1": {
+        "wall_seconds": 1265.0,
+        "reported_tokens": 207106,
+        "reported_tool_calls": 19,
+        "agents": [
+          {
+            "tokens": 207106,
+            "tool_calls": 19
+          }
+        ]
+      },
+      "r2": {
+        "wall_seconds": 1067.0,
+        "reported_tokens": 183451,
+        "reported_tool_calls": 29,
+        "agents": [
+          {
+            "tokens": 183451,
+            "tool_calls": 29
+          }
+        ]
+      },
+      "r3": {
+        "wall_seconds": 894.0,
+        "reported_tokens": 157048,
+        "reported_tool_calls": 13,
+        "agents": [
+          {
+            "tokens": 157048,
+            "tool_calls": 13
+          }
+        ]
+      }
+    }
+  },
+  "swarm_peers": {
+    "task_12_commonmark": {
+      "r1": {
+        "wall_seconds": 736.0,
+        "reported_tokens": 365598,
+        "reported_tool_calls": 90,
+        "agents": [
+          {
+            "tokens": 120496,
+            "tool_calls": 38
+          },
+          {
+            "tokens": 115293,
+            "tool_calls": 35
+          },
+          {
+            "tokens": 129809,
+            "tool_calls": 17
+          }
+        ]
+      },
+      "r2": {
+        "wall_seconds": 575.0,
+        "reported_tokens": 356661,
+        "reported_tool_calls": 79,
+        "agents": [
+          {
+            "tokens": 120003,
+            "tool_calls": 32
+          },
+          {
+            "tokens": 117722,
+            "tool_calls": 33
+          },
+          {
+            "tokens": 118936,
+            "tool_calls": 14
+          }
+        ]
+      },
+      "r3": {
+        "wall_seconds": 539.0,
+        "reported_tokens": 330943,
+        "reported_tool_calls": 86,
+        "agents": [
+          {
+            "tokens": 104171,
+            "tool_calls": 30
+          },
+          {
+            "tokens": 105450,
+            "tool_calls": 36
+          },
+          {
+            "tokens": 121322,
+            "tool_calls": 20
+          }
+        ]
+      }
+    },
+    "task_11_gitignore_matcher": {
+      "r1": {
+        "wall_seconds": 261.0,
+        "reported_tokens": 185578,
+        "reported_tool_calls": 43,
+        "agents": [
+          {
+            "tokens": 60825,
+            "tool_calls": 12
+          },
+          {
+            "tokens": 64454,
+            "tool_calls": 16
+          },
+          {
+            "tokens": 60299,
+            "tool_calls": 15
+          }
+        ]
+      }
+    },
+    "task_9_semver_ranges": {
+      "r1": {
+        "wall_seconds": 419.0,
+        "reported_tokens": 259230,
+        "reported_tool_calls": 54,
+        "agents": [
+          {
+            "tokens": 98279,
+            "tool_calls": 21
+          },
+          {
+            "tokens": 84336,
+            "tool_calls": 19
+          },
+          {
+            "tokens": 76615,
+            "tool_calls": 14
+          }
+        ]
+      }
+    }
+  }
+}

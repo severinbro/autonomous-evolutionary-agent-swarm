@@ -61,7 +61,7 @@ def diff_worktree(branch_name: str, base_branch: str = "main") -> None:
     res = subprocess.run(["git", "diff", f"{base_branch}...{branch_name}"], check=False)
 
 
-def cleanup_worktree(branch_name: str) -> None:
+def cleanup_worktree(branch_name: str, delete_branch: bool = False) -> None:
     root = get_git_root()
     repo_name = os.path.basename(root)
     parent_dir = os.path.dirname(root)
@@ -73,6 +73,9 @@ def cleanup_worktree(branch_name: str) -> None:
 
     print("Pruning stale worktree references...")
     subprocess.run(["git", "worktree", "prune"], check=False)
+    if delete_branch:
+        print(f"Deleting branch {branch_name}...")
+        subprocess.run(["git", "branch", "-D", branch_name], check=False)
     print("Cleanup complete.")
 
 
@@ -92,6 +95,7 @@ def main() -> None:
 
     cleanup_parser = subparsers.add_parser("cleanup", help="Remove worktree and prune")
     cleanup_parser.add_argument("branch", help="Task branch name to clean up")
+    cleanup_parser.add_argument("--delete-branch", action="store_true", help="Also delete the branch")
 
     args = parser.parse_args()
 
@@ -102,7 +106,7 @@ def main() -> None:
     elif args.command == "diff":
         diff_worktree(args.branch, args.base)
     elif args.command == "cleanup":
-        cleanup_worktree(args.branch)
+        cleanup_worktree(args.branch, delete_branch=args.delete_branch)
 
 
 if __name__ == "__main__":

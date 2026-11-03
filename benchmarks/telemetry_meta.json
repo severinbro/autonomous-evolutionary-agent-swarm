@@ -1,0 +1,502 @@
+{
+  "single_agent": {
+    "task_1_ledger_cli": {
+      "r1": {
+        "conversation_ids": [
+          "a0b53976-f5b8-4f29-b7c0-2fd753b4e674"
+        ],
+        "wall_seconds": 303.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "91fcf769-5ed2-4a71-9652-badbb977fc0a"
+        ],
+        "wall_seconds": 374.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "3ae93b38-14c4-4b30-82aa-1d20a7311146"
+        ],
+        "wall_seconds": 379.0
+      }
+    },
+    "task_2_rate_limiter": {
+      "r1": {
+        "conversation_ids": [
+          "7ac06143-bc24-48ad-ab8c-45b1333738c3"
+        ],
+        "wall_seconds": 213.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "0fc65c2d-a946-4999-b415-1ffb16263749"
+        ],
+        "wall_seconds": 256.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "eba00ffb-90f3-4352-89f8-be31a29b37bc"
+        ],
+        "wall_seconds": 253.0
+      }
+    },
+    "task_3_dag_scheduler": {
+      "r1": {
+        "conversation_ids": [
+          "221fab00-5f52-4c01-8bb0-b38ad5a124d4"
+        ],
+        "wall_seconds": 242.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "e66a7445-b9e5-4eee-bdbd-ef3ec4002475"
+        ],
+        "wall_seconds": 339.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "9fba48ab-86bc-4557-af33-e38922ebf87b"
+        ],
+        "wall_seconds": 257.0
+      }
+    },
+    "task_4_log_query_workbench": {
+      "r1": {
+        "conversation_ids": [
+          "693ffcfc-10b1-4882-a82b-eab481c8aa11"
+        ],
+        "wall_seconds": 415.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "ee20a30b-ef82-4cbc-91f8-b21b2bb3989e"
+        ],
+        "wall_seconds": 356.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "5e70ca2f-1728-4995-a1f7-eff5f116e05e"
+        ],
+        "wall_seconds": 383.0
+      }
+    },
+    "task_5_legacy_billing_refactor": {
+      "r1": {
+        "conversation_ids": [
+          "fb132304-b87c-4d68-acb2-771e8a9a3cad"
+        ],
+        "wall_seconds": 301.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "a944c93e-40d0-4c01-9a8c-6956e3cdf0c0"
+        ],
+        "wall_seconds": 305.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "f62e10ec-a676-46ed-89fd-5ffbdfdf5b53"
+        ],
+        "wall_seconds": 347.0
+      }
+    },
+    "task_6_mvcc_wal_store": {
+      "r1": {
+        "conversation_ids": [
+          "b181ea20-ba7c-4b70-812b-545a9e745b7e"
+        ],
+        "wall_seconds": 504.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "a587a058-2513-4f52-9f37-9de27937c3fe"
+        ],
+        "wall_seconds": 383.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "a0f423c3-3fca-4c1e-9511-cf8ce9699360"
+        ],
+        "wall_seconds": 400.0
+      }
+    }
+  },
+  "single_agent_checked": {
+    "task_1_ledger_cli": {
+      "r1": {
+        "conversation_ids": [
+          "3a5199d9-b905-4e20-96d6-b2bfcddb835b"
+        ],
+        "wall_seconds": 237.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "f01a5169-cd21-4254-b28a-15ee96b78cc0"
+        ],
+        "wall_seconds": 235.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "7eb3cab2-f070-4e72-ac02-dc6689f177bc"
+        ],
+        "wall_seconds": 251.0
+      }
+    },
+    "task_2_rate_limiter": {
+      "r1": {
+        "conversation_ids": [
+          "f8648cb2-7887-42a8-9b1a-20dae71e4cfb"
+        ],
+        "wall_seconds": 178.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "87960d9f-f08f-42b5-86f8-d2e57abb64fa"
+        ],
+        "wall_seconds": 195.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "9a2aa101-b270-4c38-b4ac-5b5417c211d7"
+        ],
+        "wall_seconds": 229.0
+      }
+    },
+    "task_3_dag_scheduler": {
+      "r1": {
+        "conversation_ids": [
+          "5e6fea19-8e4d-41c4-9719-327bf07905f5"
+        ],
+        "wall_seconds": 197.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "9651c64e-1d2d-4e3d-8c53-f86b3dbfd55a"
+        ],
+        "wall_seconds": 228.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "34db8c62-e662-4ee0-8dd7-e4f9c4d1f97d"
+        ],
+        "wall_seconds": 255.0
+      }
+    },
+    "task_4_log_query_workbench": {
+      "r1": {
+        "conversation_ids": [
+          "96cdde43-b26e-468d-ad49-b0eb3d7935ab"
+        ],
+        "wall_seconds": 406.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "f08f4bc9-bef6-4c7b-bac7-ea1c7c160846"
+        ],
+        "wall_seconds": 442.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "b5106d01-082d-425f-b040-14c3deade9af"
+        ],
+        "wall_seconds": 405.0
+      }
+    },
+    "task_5_legacy_billing_refactor": {
+      "r1": {
+        "conversation_ids": [
+          "bc0f3651-cfe6-4d0d-b014-11ea2664014c"
+        ],
+        "wall_seconds": 358.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "43a31562-a251-45dd-aed5-7bb09b0b0261"
+        ],
+        "wall_seconds": 348.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "b3946948-8199-4090-8cfa-6043ebdeefd9"
+        ],
+        "wall_seconds": 306.0
+      }
+    },
+    "task_6_mvcc_wal_store": {
+      "r1": {
+        "conversation_ids": [
+          "c438957f-d056-40df-9963-284d25d3653e"
+        ],
+        "wall_seconds": 428.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "af876ff3-c29b-4c62-9601-e613a156c302"
+        ],
+        "wall_seconds": 377.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "ebe3465f-9333-4480-a799-4cd2e8b8c66a"
+        ],
+        "wall_seconds": 397.0
+      }
+    },
+    "task_7_parallel_fulfilment": {
+      "r1": {
+        "conversation_ids": [
+          "41188b94-00a1-4d11-bc14-2efdad92b439"
+        ],
+        "wall_seconds": 213.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "52d78411-bf71-4726-a970-7f562db9b218"
+        ],
+        "wall_seconds": 281.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "b5cfe941-f2ca-44db-8d09-7983421db54b"
+        ],
+        "wall_seconds": 312.0
+      }
+    },
+    "task_8_expense_ledger_traps": {
+      "r1": {
+        "conversation_ids": [
+          "932f4c43-10fc-4dc8-a78e-38c54a74d42f"
+        ],
+        "wall_seconds": 248.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "000cc2a1-0959-4ffb-b872-1cf556838838"
+        ],
+        "wall_seconds": 248.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "77555d8e-2f77-4f08-bd37-4201df42cd97"
+        ],
+        "wall_seconds": 259.0
+      }
+    }
+  },
+  "swarm_lite": {
+    "task_1_ledger_cli": {
+      "r1": {
+        "conversation_ids": [
+          "7fa8061d-4bb8-467e-94cc-ef21b50632f2",
+          "ad2aa2cc-3ed7-4a45-bf6c-6e9538325df2"
+        ],
+        "wall_seconds": 317.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "7a5d70ed-2eda-4458-8251-80c00890caac",
+          "4f72c412-cc72-4066-aad6-11d231b39c56"
+        ],
+        "wall_seconds": 362.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "b56e9b6a-db3a-42c4-9adf-9cb460298411",
+          "f52da0b7-6dce-4db6-bb2e-e9d34588e9a7"
+        ],
+        "wall_seconds": 343.0
+      }
+    },
+    "task_2_rate_limiter": {
+      "r1": {
+        "conversation_ids": [
+          "31d4063d-5e28-4345-b002-94aad5b0b2f5",
+          "853f6692-1c63-4557-8039-4936f5ba1783"
+        ],
+        "wall_seconds": 406.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "6f215b36-a943-4061-b415-4702948044a3",
+          "82dae9c6-ebb6-45db-b276-1c6dfb4c47b5"
+        ],
+        "wall_seconds": 340.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "64bc8218-3bb4-4801-b39f-9f3677b8eef8",
+          "1e773132-13d0-4c8d-881e-15221bc6ad09"
+        ],
+        "wall_seconds": 294.0
+      }
+    },
+    "task_3_dag_scheduler": {
+      "r1": {
+        "conversation_ids": [
+          "8074a743-4ba0-4a6f-b4bd-79f3e0a4397e",
+          "03392342-fa38-469c-a023-71e2aa8946f6"
+        ],
+        "wall_seconds": 352.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "d385c1eb-0c9a-4c1f-a5b1-0c95ef28ce2c",
+          "df6fa56e-d54f-413b-9b1c-b31214d4f30a"
+        ],
+        "wall_seconds": 284.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "025111f3-9c8e-45ed-9075-b8b73dbaae0b",
+          "bcdb91c9-037f-4647-8c48-508674cb1190"
+        ],
+        "wall_seconds": 255.0
+      }
+    },
+    "task_4_log_query_workbench": {
+      "r1": {
+        "conversation_ids": [
+          "b159c28a-3bf8-4a5d-906d-9f869cc1036a",
+          "928b5fc1-821e-4287-85e5-88140349a5ea"
+        ],
+        "wall_seconds": 664.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "0cb0d18b-72d7-4b95-b84e-555da5f5beda",
+          "a004a5cf-4c3d-4a9d-b578-f9f5e65085fc"
+        ],
+        "wall_seconds": 631.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "ce4bbd9d-bb9c-4123-a2f3-a4e10d702bfa",
+          "73439f10-0bd0-419f-b1d8-b6279976d3bc"
+        ],
+        "wall_seconds": 509.0
+      }
+    },
+    "task_5_legacy_billing_refactor": {
+      "r1": {
+        "conversation_ids": [
+          "b457947c-3e71-48b6-8d21-f70b3a369ee0",
+          "6e7a7cc9-396d-490e-9eb7-8a62093a0047"
+        ],
+        "wall_seconds": 443.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "40f5e224-e548-476f-b4da-f5088e004367",
+          "7930be6b-c7b2-4bcc-a89b-70f021b793b6"
+        ],
+        "wall_seconds": 380.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "dfcfacb3-3941-4192-857c-7338ba95ec19",
+          "459d0e94-2a4f-4b3f-ab0a-66a85357312a"
+        ],
+        "wall_seconds": 427.0
+      }
+    },
+    "task_6_mvcc_wal_store": {
+      "r1": {
+        "conversation_ids": [
+          "94463675-685f-46df-aebd-4b9dc6c0a6e4",
+          "b9f3e53f-beba-4321-a48f-99f117e5816e"
+        ],
+        "wall_seconds": 525.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "824932b4-7756-4abc-b232-e8df989b0374",
+          "a119d473-b916-477c-9207-8d3c22235efd"
+        ],
+        "wall_seconds": 427.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "4c93c009-3667-4473-9418-b71ddc291779",
+          "0d3adb14-2972-4d8c-af20-2a0eb7060d9b"
+        ],
+        "wall_seconds": 437.0
+      }
+    },
+    "task_7_parallel_fulfilment": {
+      "r1": {
+        "conversation_ids": [
+          "eb85244a-a048-4319-9827-738db229d6e5",
+          "1a4ffe0b-b1b4-49e1-8cb7-efab38243afc",
+          "a8db6157-fbc4-497b-b71f-7ad4a5d55f10",
+          "abc822a1-9517-4131-8f56-93deeb7a3b24",
+          "e53e4a84-f2e4-4176-b36d-2e2da404b201",
+          "90342bea-a5b4-4e68-afbc-7b1a244a7840",
+          "179891cb-bab8-46d6-83b6-ddbb6874e20c",
+          "be7de339-4513-4bd0-ba43-b53c4d01302f",
+          "d8b126ac-1635-4688-b758-dd35609e644b",
+          "e051c403-3f81-4264-9be9-f27a93b74013",
+          "d8872823-8667-4c55-a0cc-9e389e97cdd5"
+        ],
+        "wall_seconds": 859.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "cd351463-d454-441a-b871-7308bba7a8c1",
+          "a61e6c54-b1ee-4650-b34f-d9abfd5c8ffe",
+          "ea671856-110e-4984-8dd5-a22fc25c9138",
+          "db618e61-043b-454d-a1aa-14ff07157265",
+          "71c17170-f044-4f75-b7d4-90a2cee9ebcf",
+          "83912d70-cc2b-435f-bd5d-e2e9f7ea573d",
+          "5f3bc9ca-e6e0-4dcb-b611-41a428ce21e3",
+          "94afc14a-51c8-4f1b-a29b-74777acafaa5",
+          "eb161fb5-65ad-426f-b6dc-935dd0bca249",
+          "ba8f45d0-d249-4022-b689-08a227c88d70",
+          "79ee8e70-9e87-4c81-9b12-dccd177827c4"
+        ],
+        "wall_seconds": 687.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "e9e6733f-5b03-47a8-91ba-ffa4bc20e4a2",
+          "7fc21eac-b5fd-4651-b7e5-d7b3bdbbce80",
+          "6ba10f9d-a105-421e-a780-e567f7ef847f",
+          "a55e1d31-1370-4f8a-a78f-2f67feccec0b",
+          "b2c5cea2-342d-4f4d-a061-6d47f8f99f12",
+          "60f8c958-3980-4e72-bac2-f02ed9eb777d",
+          "2cdc11a6-c852-4a03-8b21-89227938a1b1",
+          "3069905c-7331-4397-96a8-c07f086af9d9",
+          "e8da1bf9-7dd9-43f2-89c6-ef537553f930",
+          "fd5f42e3-76fa-4295-a622-e93e2e0530be",
+          "6b2801f1-5a53-49d3-a2cf-621d7fd885ae"
+        ],
+        "wall_seconds": 799.0
+      }
+    },
+    "task_8_expense_ledger_traps": {
+      "r1": {
+        "conversation_ids": [
+          "32e58e6a-a603-48b9-b69d-c80b1017b4c1",
+          "79575ebe-1aab-4bc2-b825-0ffeeb7e96b3",
+          "f0a18ea5-dd96-4b9f-801c-fe857d13d028"
+        ],
+        "wall_seconds": 457.0
+      },
+      "r2": {
+        "conversation_ids": [
+          "1d01b2ee-3551-40f1-8c6d-90e27e9200f9",
+          "816260c9-2ec1-40d9-929f-adf4b5e81a6c",
+          "edfcc53a-b062-462b-abdf-cbe0313761a0"
+        ],
+        "wall_seconds": 641.0
+      },
+      "r3": {
+        "conversation_ids": [
+          "bb0bd2d2-859b-4913-b982-f7aa938f3cd9",
+          "456661f8-aeee-4cb7-81b0-3cd054f87d98",
+          "79bfe37a-1f7a-41bb-9edb-e26f074670e9"
+        ],
+        "wall_seconds": 531.0
+      }
+    }
+  }
+}

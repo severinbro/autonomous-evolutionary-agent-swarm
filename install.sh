@@ -11,8 +11,9 @@ Usage: ./install.sh <target>
 Targets:
   antigravity   Copy this checkout into the plugin ~/.gemini/config/plugins/agent-swarm
                 (re-run after every update; runtime state in the plugin folder is kept)
-  claude-code   Link each skill into ~/.claude/skills/<name>
-  dir <path>    Link each skill into <path>/<name> (any harness that loads SKILL.md folders)
+  claude-code   Link each skill into ~/.claude/skills/<name> and each agent into ~/.claude/agents/<name>.md
+  dir <path>    Link each skill into <path>/<name> and each agent into <path>/../agents/
+                (any harness that loads SKILL.md folders)
 
 Existing files, links, or plugin folders not created by this script are never overwritten.
 Skills in extras/ need personal infrastructure and are not installed (see extras/README.md).
@@ -48,6 +49,7 @@ case "${1:-}" in
     mkdir -p "$dest"
     rsync -a --delete \
       --exclude .git/ --exclude .installed-from --exclude .swarm_global/ --exclude __pycache__/ \
+      --exclude /benchmarks/ \
       --exclude 'scripts/*.log' --exclude 'scripts/*.pid' --exclude scripts/swarm_tasks.json \
       "$REPO/" "$dest/"
     echo "$REPO" >"$dest/.installed-from"
@@ -66,6 +68,13 @@ case "${1:-}" in
     for skill in "$REPO"/skills/*/; do
       skill="${skill%/}"
       link "$skill" "$dest_dir/$(basename "$skill")"
+    done
+    # Agent definitions (the read-only Goldfish reviewer) sit next to the skills folder.
+    agents_dir="$(dirname "$dest_dir")/agents"
+    mkdir -p "$agents_dir"
+    for agent in "$REPO"/agents/*.md; do
+      [ -e "$agent" ] || continue
+      link "$agent" "$agents_dir/$(basename "$agent")"
     done
     ;;
   -h | --help)

@@ -46,8 +46,8 @@ Track every task's refinement round (`1..5`) deterministically across `.swarm/go
 ### Required `.swarm/ledger.md` Round 5 Breaker Format:
 ```markdown
 ### [Round 5 Breaker] Task <Task_ID> (<branch>) — <ISO-8601 Timestamp>
-- **Rounds 1–3 Worker:** `<conv_id_1>` (Best Score: `<X.X>/10`, Primary Failure: `<path:line>`)
-- **Rounds 4–5 Escalated Worker:** `<conv_id_2>` (Best Score: `<Y.Y>/10`, Primary Failure: `<path:line>`)
+- **Rounds 1–3 Worker:** `<conv_id_1>` (Primary Failure: `<path:line>`)
+- **Rounds 4–5 Escalated Worker:** `<conv_id_2>` (Primary Failure: `<path:line>`)
 - **Ruling:** `<OVERRIDE | SPLIT_TASK | RE_ARCHITECT_CONTRACT | ESCALATE_TO_USER>` — `Ruling: <what you decided> — <why> — <what it costs if wrong>`
 ```
 
@@ -56,9 +56,9 @@ Track every task's refinement round (`1..5`) deterministically across `.swarm/go
 ## 3. CLI Reference (`immortal_watcher.py`)
 
 ```bash
-# 1. Initialize swarm ledger for a new run:
+# 1. Initialize swarm ledger for a new run (add --lite for 1-epoch Gate + Validator Lite Mode):
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
-  --init-swarm --project-goal "<Overall Project Goal>"
+  --init-swarm [--lite] --project-goal "<Overall Project Goal>"
 
 # 2. Start the background supervisor daemon:
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --start
@@ -76,19 +76,23 @@ python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --check-subagents --json
 # 5. Record an infrastructure sub-agent revival event:
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --mark-revived "<worker_conv_id>"
 
-# 6. Record a Discriminator review for round tracking (pass/fail is the same categorical gate as goal_loop.py):
+# 6. Record a Discriminator review for round tracking (pass/fail uses the same categorical gate as goal_loop.py):
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
   --record-review "<worker_conv_id>" \
-  --impl-score 8.5 \
-  --goal-score 9.0 \
+  --spec-verdict PASS \
+  --critical-flaws 0 --important-flaws 0 \
   --notes "Passed all unit tests and architectural checks"
 
-# 7. Record final Orchestrator whole-project evaluation:
+# 7. Check epoch convergence (add --lite in Lite Mode):
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
-  --record-overall --overall-score 9.2 --tests-passed --security-passed \
+  --check-convergence [--lite]
+
+# 8. Record final Orchestrator whole-project evaluation:
+python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
+  --record-overall --tests-passed --security-passed \
   --notes "Merged all branches, integration & security suites passed"
 
-# 8. Check status or stop daemon:
+# 9. Check status or stop daemon:
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --status
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --stop
 ```
@@ -111,7 +115,7 @@ python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --stop
 ## 5. Red Flags — STOP and Follow Process
 
 If you catch yourself thinking any of these, **STOP immediately** and enforce the Immortal Agents protocol:
-- *"The worker is at `7.5/10` after Round 3; I'll just message the same worker a 4th time since it already has the files in context."*
+- *"The worker still has open Critical/Important findings after Round 3; I'll just message the same worker a 4th time since it already has the files in context."*
 - *"Round 5 failed, but one more tweak in Round 6 will definitely get it through the gate."*
 - *"I'll poll `manage_subagents(Action='list')` in a tight loop every 10 seconds instead of waiting for reactive wakeup or using `schedule`."*
 - *"A worker stalled and went idle without `TASK FINISHED`; I'll just merge its partial branch as-is."*
@@ -138,8 +142,8 @@ Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
 Ledger State: .swarm/immortal_state.json, .swarm/ledger.md
 Active / Completed Workers: <N completed>, <M running>, <K revived>, <E escalated (Rounds 4-5)>
 Worker Round Summary:
-- <Task/Role 1> (<conv_id>): Round <1-5>/5 | Score: <impl>/<goal> | State: <APPROVED | ESCALATED_R4 | RULING_BREAKER>
-- <Task/Role 2> (<conv_id>): Round <1-5>/5 | Score: <impl>/<goal> | State: <APPROVED | ESCALATED_R4 | RULING_BREAKER>
+- <Task/Role 1> (<conv_id>): Round <1-5>/5 | Verdict: <PASS/REFINE> | State: <APPROVED | ESCALATED_R4 | RULING_BREAKER>
+- <Task/Role 2> (<conv_id>): Round <1-5>/5 | Verdict: <PASS/REFINE> | State: <APPROVED | ESCALATED_R4 | RULING_BREAKER>
 Round 5 Rulings Triggered: None (or `Ruling: <TYPE>` on <Task_ID> — see .swarm/ledger.md:<line>)
 Infrastructure Health: Network=<ONLINE/RECOVERED>, Revivals=<K>
 ```

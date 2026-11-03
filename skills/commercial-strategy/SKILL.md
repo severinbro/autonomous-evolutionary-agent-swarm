@@ -23,10 +23,10 @@ Evaluate these observable workspace predicates before spawning subagents:
 
 | Observable Workspace Condition | Required Action |
 | :--- | :--- |
-| **Condition A: `.swarm/blueprint/market_research_report.md` or `.swarm/blueprint/deep_research_report.md` exists** | Read those files first and bind Section 2–3 tier prices, ACV, and buyer personas directly to the verified competitor prices, switch triggers, and SOM formula in `.swarm/blueprint/market_research_report.md`. |
+| **Condition A: `.swarm/blueprint/market_research_report.md` or `.swarm/blueprint/tech_research_report.md` exists** | Read those files first and bind Section 2–3 tier prices, ACV, and buyer personas directly to the verified competitor prices, switch triggers, and SOM formula in `.swarm/blueprint/market_research_report.md`. |
 | **Condition B: Dependency manifests exist (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, `LICENSE`)** | Inspect manifests and directory boundaries (`core/`, `ee/`, `enterprise/`). Flag any copyleft (`GPL`, `AGPL`, `SSPL`) dependency with its exact manifest `path:line` and specify either a permissive (`MIT`, `Apache-2.0`, `BSD`) replacement or process-level isolation boundary. |
-| **Condition C: Existing Repo scores `Commercial & License Hygiene >= 8.5/10`** (clean license headers, zero copyleft contamination, clear OSS/B2B boundary or pure OSS goal, and gross margin $\ge 75\%$) | Record **`VERDICT: COMMERCIAL & LICENSE ARCHITECTURE ALREADY OPTIMAL (NO STRUCTURAL CHANGES REQUIRED)`** in Section 1 and set Section 5 Epoch 1 and Epoch 2 items to `NONE — ALREADY OPTIMAL`. |
-| **Condition D: Greenfield Repo OR `Commercial & License Hygiene < 8.5/10`** | Record **`VERDICT: COMMERCIAL & LICENSE UPGRADES SPECIFIED`** in Section 1 and specify concrete repository boundary and monetization deliverables in Section 5. |
+| **Condition C: Existing Repo has clean Commercial & License Hygiene** (clean license headers, zero copyleft contamination, clear OSS/B2B boundary or pure OSS goal, and gross margin $\ge 75\%$) | Record **`VERDICT: COMMERCIAL & LICENSE ARCHITECTURE ALREADY OPTIMAL (NO STRUCTURAL CHANGES REQUIRED)`** in Section 1 and set Section 5 Epoch 1 and Epoch 2 items to `NONE — ALREADY OPTIMAL`. |
+| **Condition D: Greenfield Repo OR Commercial & License Hygiene needs upgrades** | Record **`VERDICT: COMMERCIAL & LICENSE UPGRADES SPECIFIED`** in Section 1 and specify concrete repository boundary and monetization deliverables in Section 5. |
 
 ---
 
@@ -68,8 +68,7 @@ Write `.swarm/blueprint/commercial_strategy_report.md` with these 5 sections in 
 ```markdown
 # Commercial Strategy, Open-Core Licensing & Moat Report: <Project Name>
 
-## 1. Licensing Architecture, Sufficiency Score & Repository Boundary
-- **Existing-Repo Commercial & License Hygiene Score:** `<X.X/10 or N/A — Greenfield>`
+## 1. Licensing Architecture, Sufficiency Verdict & Repository Boundary
 - **Sufficiency Verdict:** `<VERDICT: COMMERCIAL & LICENSE ARCHITECTURE ALREADY OPTIMAL (NO STRUCTURAL CHANGES REQUIRED) | VERDICT: COMMERCIAL & LICENSE UPGRADES SPECIFIED>`
 - **Recommended License Model:** `<e.g., Apache-2.0 Core (src/core/) + Commercial B2B Enterprise (ee/)>`
 - **Cloud-Strip-Mining & Adoption Rationale:** <2-3 sentences explaining how this model maximizes developer PLG adoption while protecting B2B revenue>
@@ -120,7 +119,7 @@ Both commercial subagents (and `/commercial-strategy` when returning to an orche
 ```markdown
 Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
 Artifacts: .swarm/blueprint/commercial_strategy_report.md, .swarm/blueprint/market_dashboard.html (web_ui_validator: PASS)
-Commercial Hygiene Score: <X.X/10 or N/A — Greenfield> (<Sufficiency Verdict>)
+Sufficiency Verdict: <ALREADY OPTIMAL | UPGRADES SPECIFIED>
 License Architecture: <Core License> (`src/core/`) + <Enterprise License> (`ee/`) | Copyleft Risks: <0 or N found>
 Unit Economics: OSS $0 COGS | Pro $<X>/mo (<M1>% GM) | Enterprise $<Y>/yr ACV (<M2>% GM)
 Top 3 Kill-Risk Mitigations:

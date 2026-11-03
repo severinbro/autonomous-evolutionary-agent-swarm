@@ -194,17 +194,17 @@ def generate_dashboard(
 
   <div class="grid">
     <div class="card col-12">
-      <h2>Evolutionary Funnel &amp; Goal-Convergence Progression (Runs UNTIL Desired Outcome Met)</h2>
+      <h2>Evolutionary Funnel &amp; Goal-Convergence Progression</h2>
       <div class="stepper" id="epoch-stepper"></div>
     </div>
 
     <div class="card col-12">
-      <h2>Hierarchical Goal-Loop Tasks &amp; Sub-Tasks (Zero-Synthetic / Wired Outcome Verification)</h2>
+      <h2>Hierarchical Goal-Loop Tasks &amp; Sub-Tasks (AST Authenticity &amp; Wired Outcome Verification)</h2>
       <div id="goal-loop-container"></div>
     </div>
 
     <div class="card col-6">
-      <h2>Triad Audit &amp; SOTA Scores by Epoch (1–10)</h2>
+      <h2>Epoch Verdicts (Gate, Audit &amp; SOTA)</h2>
       <div id="epoch-scores"></div>
     </div>
 
@@ -214,7 +214,7 @@ def generate_dashboard(
     </div>
 
     <div class="card col-12">
-      <h2>Worker Sub-Agents, Discriminator Loops (Max 8) &amp; Immortal Watcher Revivals</h2>
+      <h2>Worker Sub-Agents, Discriminator Loops &amp; Immortal Watcher Revivals</h2>
       <table>
         <thead>
           <tr>
@@ -224,8 +224,8 @@ def generate_dashboard(
             <th>Branch</th>
             <th>Status</th>
             <th>Discriminator Loops</th>
-            <th>Impl Score</th>
-            <th>Goal Score</th>
+            <th>Spec Compliance</th>
+            <th>Quality Verdict</th>
             <th>Revives</th>
           </tr>
         </thead>
@@ -246,20 +246,24 @@ def generate_dashboard(
 
     document.getElementById('project-goal').textContent =
       'Overall Project Goal: ' + (STATE.project_goal || GOAL.goal || 'Not set');
+    const modeLabel = (STATE.mode === 'lite') ? 'LITE MODE' : 'FULL MODE';
     const goalBadge = GOAL.status === 'GOAL_REACHED'
       ? '<span class="badge badge-pass" style="margin-right:8px;">GOAL REACHED</span>'
       : '<span class="badge badge-warn" style="margin-right:8px;">' + (GOAL.status || 'IN_PROGRESS') + '</span>';
     document.getElementById('epoch-pill').innerHTML =
-      goalBadge + `<span class="badge badge-info">Epoch ${{STATE.current_epoch || 1}} / ${{STATE.max_epochs || 3}}</span>`;
+      goalBadge + `<span class="badge badge-info" style="margin-right:8px;">${{modeLabel}}</span>` +
+      `<span class="badge badge-info">Epoch ${{STATE.current_epoch || 1}} / ${{STATE.max_epochs || 3}}</span>`;
 
-    const funnelTitles = {{
+    const funnelTitles = (STATE.mode === 'lite') ? {{
+      1: 'Epoch 1 (Lite): Build, Discriminator Gate & Validator'
+    }} : {{
       1: 'Epoch 1: Foundation, Core Architecture & Entrypoint Wiring',
       2: 'Epoch 2: SOTA Feature Injection & Elevation',
-      3: 'Epoch 3: Hardening, Polish & Zero-Defect Outcome Convergence'
+      3: 'Epoch 3: Hardening, Polish & Outcome Convergence'
     }};
 
     const stepperEl = document.getElementById('epoch-stepper');
-    const maxEp = Math.max(3, Number(STATE.max_epochs || 3), Number(STATE.current_epoch || 1));
+    const maxEp = Math.max(Number(STATE.max_epochs || 3), Number(STATE.current_epoch || 1));
     for (let ep = 1; ep <= maxEp; ep++) {{
       const rec = (STATE.epochs || {{}})[String(ep)] || {{}};
       const conv = (rec.convergence || {{}}).decision || (ep === STATE.current_epoch ? 'ACTIVE' : 'PENDING');
@@ -301,33 +305,35 @@ def generate_dashboard(
 
     const scoresEl = document.getElementById('epoch-scores');
     const epochsObj = STATE.epochs || {{}};
+    if (STATE.mode === 'lite' && !Object.keys(epochsObj).length) {{
+      scoresEl.innerHTML = '<div style="color:var(--muted);font-size:0.88rem;">Lite mode active: Discriminator Gate + Validator only (Triad Audit &amp; SOTA Scout skipped).</div>';
+    }}
     Object.keys(epochsObj).sort().forEach(epKey => {{
       const ep = epochsObj[epKey];
       const a = ep.audits || {{}};
       const s = ep.sota_evaluation || {{}};
-      const metrics = [
-        ['Rigor Audit', a.rigor ? a.rigor.score : null],
-        ['Safety Audit', a.safety ? a.safety.score : null],
-        ['Innovation Audit', a.innovation ? a.innovation.score : null],
-        ['SOTA Innovation', s.innovation_vs_sota_score ?? null],
-        ['SOTA Implementation', s.implementation_vs_sota_score ?? null]
-      ];
       const block = document.createElement('div');
       block.style.marginBottom = '16px';
-      block.innerHTML = `<div style="font-weight:600;margin-bottom:8px;">Epoch ${{epKey}} Scorecard</div>`;
-      metrics.forEach(([label, val]) => {{
-        const num = val !== null && val !== undefined ? Number(val) : 0;
-        const pct = Math.min(100, Math.max(0, num * 10));
-        block.innerHTML += `
-          <div style="margin-bottom:8px;font-size:0.84rem;">
-            <div style="display:flex;justify-content:space-between;">
+      block.innerHTML = `<div style="font-weight:600;margin-bottom:8px;">Epoch ${{epKey}} Verdicts</div>`;
+      if (STATE.mode === 'lite') {{
+        const conv = (ep.convergence || {{}}).decision || 'PENDING';
+        block.innerHTML += `<div style="font-size:0.84rem;color:var(--muted);">Lite mode: Gate + Validator convergence = <strong>${{conv}}</strong> (Triad Audit &amp; SOTA Scout skipped).</div>`;
+      }} else {{
+        const metrics = [
+          ['Rigor Audit', a.rigor ? `${{a.rigor.verdict || (a.rigor.passed ? 'PASS' : 'FAIL')}} (crit=${{a.rigor.critical_count || 0}}, imp=${{a.rigor.important_count || 0}})` : 'Pending'],
+          ['Safety Audit', a.safety ? `${{a.safety.verdict || (a.safety.passed ? 'PASS' : 'FAIL')}} (crit=${{a.safety.critical_count || 0}}, imp=${{a.safety.important_count || 0}})` : 'Pending'],
+          ['Innovation Audit', a.innovation ? `${{a.innovation.verdict || (a.innovation.passed ? 'PASS' : 'FAIL')}} (crit=${{a.innovation.critical_count || 0}}, imp=${{a.innovation.important_count || 0}})` : 'Pending'],
+          ['SOTA Verdict', s.verdict || (s.already_sota ? 'ALREADY_SOTA' : 'Pending')]
+        ];
+        metrics.forEach(([label, val]) => {{
+          block.innerHTML += `
+            <div style="margin-bottom:8px;font-size:0.84rem;display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:4px;">
               <span>${{label}}</span>
-              <span>${{val !== null && val !== undefined ? num.toFixed(1) + ' / 10' : 'Pending'}}</span>
+              <strong>${{val}}</strong>
             </div>
-            <div class="bar-wrap"><div class="bar-fill" style="width:${{pct}}%"></div></div>
-          </div>
-        `;
-      }});
+          `;
+        }});
+      }}
       scoresEl.appendChild(block);
     }});
 
@@ -360,8 +366,8 @@ def generate_dashboard(
           <td><code>${{s.branch || '-'}}</code></td>
           <td><span class="badge ${{badgeClass}}">${{st}}</span></td>
           <td>${{s.loop_count || 0}} / ${{s.max_loops || 5}}</td>
-          <td>${{s.impl_score !== null && s.impl_score !== undefined ? s.impl_score + '/10' : '-'}}</td>
-          <td>${{s.goal_score !== null && s.goal_score !== undefined ? s.goal_score + '/10' : '-'}}</td>
+          <td>${{s.spec_verdict || (st === 'APPROVED' || st === 'MERGED' ? 'PASS' : '-')}}</td>
+          <td>${{s.quality_verdict || (st === 'APPROVED' || st === 'MERGED' ? 'PASS' : '-')}}</td>
           <td>${{s.revive_attempts || 0}} / ${{s.max_revive_attempts || 5}}</td>
         `;
         tbody.appendChild(tr);

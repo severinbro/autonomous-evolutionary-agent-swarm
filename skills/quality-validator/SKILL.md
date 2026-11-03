@@ -18,7 +18,7 @@ Compilers and static typecheckers only verify syntax; they never prove runtime s
 > ```
 > NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE IN THIS MESSAGE
 > ```
-> If you have not run the verification command (`quality_validator.py`, `web_ui_validator.py`, test suite, and `--outcome-cmd`) in **this turn** after the final code edit and inspected its complete exit code and log output, you cannot claim the build passes, works, or is complete. Any runtime crash, unhandled exception, or missing fresh verification imposes an immediate **`6.0 / 10.0` Hard Cap** (`REJECTED`).
+> If you have not run the verification command (`quality_validator.py`, `web_ui_validator.py`, test suite, and `--outcome-cmd`) in **this turn** after the final code edit and inspected its complete exit code and log output, you cannot claim the build passes, works, or is complete. Any runtime crash, unhandled exception, or missing fresh verification forces an immediate **`REJECTED` (`FAIL`)** verdict.
 
 ---
 
@@ -32,9 +32,9 @@ Before claiming any deliverable is complete or ready for merge:
    - Project End-to-End Outcome: `<--outcome-cmd from .swarm/goal_loop.json>`
 2. **RUN:** Execute each command fresh in the current turn (never rely on a run from before your last file edit).
 3. **READ:** Inspect the complete stdout/stderr, exit code (`0` vs non-zero), runtime log (`Player.log`, console errors), and assertion counts.
-4. **VERIFY & APPLY HARD CAP:**
+4. **VERIFY CATEGORICAL OUTCOME:**
    - **IF exit code $\neq 0$, OR any crash (`SIGSEGV`, `SIGTRAP`, `SIGABRT`), OR any unhandled exception (`NullReferenceException`, uncaught JS pageerror), OR any rubric check fails:**
-     Apply the **`6.0 / 10.0` Hard Cap** immediately (`Verdict: REJECTED — HARD CAPPED AT 6.0`).
+     Record `Verdict: REJECTED (FAIL)` immediately.
    - **IF all commands exit `0` with `0` runtime exceptions and all 4 rubric checks pass:**
      Record `Verdict: VERIFIED PASS`.
 5. **CLAIM:** Write the full evidence log to `.swarm/epoch_<N>/quality_validation_report.md` and cite the exact command, exit code, and log line counts in your response.
@@ -54,20 +54,20 @@ python3 "$AGENT_SWARM_HOME/scripts/web_ui_validator.py" /path/to/ui.html
 ### What `quality_validator.py` Validates:
 1. **Zero-Crash Execution:** Launches the target binary, attaches to the display/window server, initializes physics/subsystems, and runs for the full timeout window without throwing `SIGTRAP`, `SIGSEGV`, `SIGABRT`, or exiting early.
 2. **Log & Exception Auditing:** Scans runtime logs (`Player.log` for Unity, stdout/stderr for Godot/Pygame/Rust/C++) for fatal `NullReferenceException`, missing asset references, shader compilation errors, or unhandled panics/exceptions.
-3. **Deterministic Exit Code:** Exits `0` on clean execution; exits `1` if any crash or fatal exception was caught (automatically triggering the **`6.0` Hard Cap**).
+3. **Deterministic Exit Code:** Exits `0` on clean execution; exits `1` if any crash or fatal exception was caught (`Verdict: REJECTED`).
 
 ---
 
-## 3. Product Quality Rubric & Hard-Cap Matrix (The 4 Checks)
+## 3. Product Quality Rubric (The 4 Categorical Checks)
 
 Evaluate the deliverable against all 4 checks before closing any task or epoch:
 
-| Check | Observable Verification Criterion | Score Impact on Failure | Required Remediation Action |
+| Check | Observable Verification Criterion | Verdict on Failure | Required Remediation Action |
 | :--- | :--- | :--- | :--- |
-| **1. Runtime Stability** | Smoke test runs full window (`10s`) with exit `0` and `0` crashes/exceptions | **Hard Cap `6.0/10` (`REJECTED`)** | Relaunch worker with exact stack trace (`path:line`). |
-| **2. Core Loop / Input Playability** | Entrypoint initializes, primary controls/CLI/UI respond to input, state updates | **Hard Cap `6.0/10` (`REJECTED`)** | Fix input bindings, controller wiring, or event listeners. |
-| **3. Domain Systems & Mechanics** | Core mechanics (physics/combat/data pipeline/`--outcome-cmd`) produce verified output | **Hard Cap `6.0/10` (`REJECTED`)** | Delegate failing subsystem with concrete reproduction command. |
-| **4. Visual, Shader & Asset Health** | Scene/UI renders with zero pink/missing shaders, zero `0x0` containers, zero broken assets | **Cap at `7.0/10` (`NEEDS_FIX`)** | Fix material/asset paths or CSS/Canvas layout dimensions. |
+| **1. Runtime Stability** | Smoke test runs full window (`10s`) with exit `0` and `0` crashes/exceptions | **`REJECTED` (`FAIL`)** | Relaunch worker with exact stack trace (`path:line`). |
+| **2. Core Loop / Input Playability** | Entrypoint initializes, primary controls/CLI/UI respond to input, state updates | **`REJECTED` (`FAIL`)** | Fix input bindings, controller wiring, or event listeners. |
+| **3. Domain Systems & Mechanics** | Core mechanics (physics/combat/data pipeline/`--outcome-cmd`) produce verified output | **`REJECTED` (`FAIL`)** | Delegate failing subsystem with concrete reproduction command. |
+| **4. Visual, Shader & Asset Health** | Scene/UI renders with zero pink/missing shaders, zero `0x0` containers, zero broken assets | **`NEEDS_FIX` (`FAIL`)** | Fix material/asset paths or CSS/Canvas layout dimensions. |
 
 ---
 
@@ -78,7 +78,7 @@ When any check fails, extract the exact crash trace or failed rubric item (`path
 ```markdown
 **Objective:** Fix runtime failure in <Component/Method>
 **Observed Defect (Cited):** <Log file:line> reports <Exact Exception / Error> during `<command>`
-**Hard Cap Status:** Score capped at 6.0/10 until resolved
+**Gate Status:** REJECTED (FAIL) until resolved
 **Validation Command:** python3 "$AGENT_SWARM_HOME/scripts/quality_validator.py" ./build/app --timeout 10
 **Stop Condition:** Validation command exits 0 in a fresh run with 0 exceptions in log.
 ```
@@ -102,7 +102,7 @@ If you catch yourself thinking any of these, **STOP immediately** and run the ve
 | :--- | :--- |
 | `"The compiler / linter succeeded with 0 errors"` | Compilers check syntax, not runtime null pointers, broken scene bindings, or missing shaders. Run the binary/UI validator. |
 | `"It passed before my last minor cleanup edit"` | "Minor cleanup" edits routinely break imports or initialization order. Only a run executed *after* the final edit counts. |
-| `"The exception in Player.log is non-fatal"` | Unhandled runtime exceptions corrupt downstream state and freeze game/UI loops. Fix it to `0` exceptions or cap at `6.0`. |
+| `"The exception in Player.log is non-fatal"` | Unhandled runtime exceptions corrupt downstream state and freeze game/UI loops. Fix it to `0` exceptions (`REJECTED` while any exception remains). |
 | `"I'm confident the fix works from reading the diff"` | Confidence is not evidence. Execute the command and cite the fresh exit code and stdout line count. |
 
 ---
@@ -118,7 +118,6 @@ Fresh Verification Run (This Turn):
 - Smoke Validator: `<cmd>` -> Exit `<0|1>` (Runtime: `<Ns>`, Crashes: `<0|N>`, Exceptions: `<0|M>`)
 - Outcome Command: `<outcome_cmd>` -> Exit `<0|1>`
 Rubric Checks: 1. Stability=<PASS/FAIL> | 2. Core Loop=<PASS/FAIL> | 3. Systems=<PASS/FAIL> | 4. Visual/Assets=<PASS/FAIL>
-Hard Cap (6.0) Triggered: <NO | YES — Capped at 6.0 due to <defect at path:line>>
-Quality Score: <X.X>/10.0 (<VERIFIED PASS | REJECTED>)
+Verdict: <VERIFIED PASS | REJECTED>
 Remediation Brief (if failed): None (or 1-line target `<path:line>` + validation command)
 ```

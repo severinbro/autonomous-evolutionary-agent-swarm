@@ -17,8 +17,8 @@ Use this skill during **initial product discovery & planning** (`/product-discov
 
 If the repository already has an implemented UI (`src/`, `index.html`, etc.):
 1. Inspect the existing UI at `1440,768,390` and run `scripts/web_ui_validator.py --screenshots-dir .swarm/blueprint/ui_proposals/screenshots`.
-2. Score the existing UI (`1-10`) using the **14-Pass Visual Rubric + Hard Caps** (in [`/visual-ui-validator`](../visual-ui-validator/SKILL.md)).
-3. If the existing UI already scores **$\ge 8.5 / 10$** with **`0 FAIL`** findings in `web_ui_validator.py`, report **`VERDICT: EXISTING UI ALREADY OPTIMAL`** in `.swarm/blueprint/ui_ux_proposals.md` and ask the user via `ask_question` whether to **keep their existing UI as-is (Recommended)** or still deal and generate 3 alternative redesign prototypes.
+2. Evaluate the existing UI using the **14-Pass Visual Rubric** (in [`/visual-ui-validator`](../visual-ui-validator/SKILL.md)).
+3. If the existing UI passes the 14-Pass Visual Rubric with **`0 FAIL`** findings in `web_ui_validator.py`, report **`VERDICT: EXISTING UI ALREADY OPTIMAL`** in `.swarm/blueprint/ui_ux_proposals.md` and ask the user via `ask_question` whether to **keep their existing UI as-is (Recommended)** or still deal and generate 3 alternative redesign prototypes.
 
 ---
 
@@ -112,8 +112,8 @@ Every prototype **MUST** enforce the **Craft Floor & Browser Surfaces**:
      --screenshots-dir .swarm/blueprint/ui_proposals/screenshots
    ```
 2. **Zero-`FAIL` Gate & Unanchored Visual Critique ([`/visual-ui-validator`](../visual-ui-validator/SKILL.md)):**
-   - Inspect the rendered screenshots (`*-desktop-1440-fold.png`, `*-tablet-768-fold.png`, `*-mobile-390-fold.png`) using `view_file` and apply the **14-Pass Visual Rubric + Hard Caps**.
-   - Any `FAIL` from `web_ui_validator.py` caps the template's score at **`6.0/10`** and blocks completion. Fix every `FAIL` and address or explicitly defend every `WARN` in 1 sentence until all 3 templates return `"status": "PASS"` (`0 FAIL`).
+   - Inspect the rendered screenshots (`*-desktop-1440-fold.png`, `*-tablet-768-fold.png`, `*-mobile-390-fold.png`) using `view_file` and apply the **14-Pass Visual Rubric**.
+   - Any `FAIL` from `web_ui_validator.py` (`fail_count > 0`) blocks completion. Fix every `FAIL` and address or explicitly defend every `WARN` in 1 sentence until all 3 templates return `"status": "PASS"` (`0 FAIL`).
 
 ---
 

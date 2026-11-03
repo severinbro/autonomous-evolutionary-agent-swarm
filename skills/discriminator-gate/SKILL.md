@@ -1,13 +1,13 @@
 ---
 name: discriminator-gate
-description: "Use when a worker agent reports a task done and its diff must be reviewed before it counts as complete, when deciding whether review findings block, or when a fix loop is stuck and needs escalation or a Round 5 ruling."
+description: "Use when a worker's diff needs an independent reviewer (acceptance not fully checkable by commands, parallel branches merging on a shared contract, or the user asks), when deciding whether findings block, or when a fix loop is stuck and needs escalation or a Round 5 ruling."
 ---
 
 # Discriminator Gate & 5-Round Escalating Fix Loop (`/discriminator-gate`)
 
 > **Script paths:** `$AGENT_SWARM_HOME` is the root of this skill pack (the folder containing `skills/` and `scripts/`). If it is unset, resolve this file's real path (following symlinks) and go two directories up.
 
-When the user invokes `/discriminator-gate`, or when `/invoke-swarm` reaches **Step 1.5** after a worker subagent completes a task, execute this skill to audit the implementation. The Discriminator Gate operates on a **Hybrid Two-Verdict Categorical Gate + Hard-Cap Rubric** paired with a **5-Round Escalating Fix Loop**.
+When the user invokes `/discriminator-gate`, or when `/invoke-swarm` Step 1.5b calls for a reviewer, execute this skill to audit the implementation. For single-worker tasks whose acceptance is fully covered by commands (tests, outcome command, `web_ui_validator.py`), `/invoke-swarm` Step 1.5a's deterministic gate is enough: in the repo's benchmark (`benchmarks/RESULTS.md`) a reviewer on such tasks passed all 18 on round 1 at about 2.2× the token cost. The Discriminator Gate operates on a **Two-Verdict Categorical Gate** (where categories and defect counts directly decide the outcome—no arbitrary decimal scores) paired with a **5-Round Escalating Fix Loop**.
 
 ---
 
@@ -19,6 +19,7 @@ When the user invokes `/discriminator-gate`, or when `/invoke-swarm` reaches **S
 3. MINOR FINDINGS NEVER BLOCK A TASK OR TRIGGER A FIX ROUND — DEFER THEM TO `.swarm/deferred_minor_ledger.md`.
 4. SCOPED RE-REVIEW (`FIX_BASE..HEAD`) MAY ONLY CHECK PRIOR OPEN FINDINGS AND NEW BREAKAGE IN THE FIX DIFF — NO MOVING GOALPOSTS.
 5. ROUND 4 ESCALATES TO A FRESH WORKER; ROUND 5 TRIGGERS AN ORCHESTRATOR BREAKER `Ruling:` IN `.swarm/ledger.md`.
+6. THE REVIEWER NEVER CREATES, COPIES OR CHANGES FILES IN THE WORKSPACE — IT RUNS CODE ONLY THROUGH THE TASK'S TEST COMMANDS OR IN A SCRATCH FOLDER OUTSIDE THE WORKSPACE.
 ```
 
 ---
@@ -35,22 +36,28 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" \
 ```
 
 This creates `.swarm/reviews/<TASK_ID>-review.diff.md` containing:
-- The exact task specification, `wiring_contract`, and `review_focus` failure modes from `.swarm/goal_loop.json`.
+- The task's title, `wiring_contract`, and `review_focus` failure modes from `.swarm/goal_loop.json` (the package does not contain the spec itself).
 - `git log --oneline <BASE_SHA>..HEAD` and `git diff --stat <BASE_SHA>..HEAD`.
 - The full unified diff (`git diff <BASE_SHA>..HEAD`) and untracked file previews.
 - The pre-computed **Deterministic Invariant Audit** (`BLOCKING_FAIL` vs. `ADVISORY_WARN`).
 
-Pass **only the path** `.swarm/reviews/<TASK_ID>-review.diff.md` to the `discriminator` subagent—never paste raw diffs into the prompt.
+Pass the `discriminator` subagent **only paths**: `.swarm/reviews/<TASK_ID>-review.diff.md` and the spec it judges against (`TASK_SPEC.md`, the issue text, or the design section named by the task's `spec_ref`). Never paste raw diffs or specs into the prompt.
 
 ---
 
-## Step 2: Two-Verdict Categorical Evaluation + Hard-Cap Rubric
+## Step 1.5: Restate the Requirement
 
-The `discriminator` evaluates `.swarm/reviews/<TASK_ID>-review.diff.md` and live execution using two independent verdicts:
+Before either verdict, the reviewer writes two or three sentences restating what the task requires, taken from the spec (not from `review_focus`, which may state a requirement more narrowly). It then judges the diff against that restatement. The restatement is the first part of its report, so the orchestrator can see what the reviewer thought was required.
+
+---
+
+## Step 2: Two-Verdict Categorical Evaluation
+
+The `discriminator` evaluates `.swarm/reviews/<TASK_ID>-review.diff.md` and live execution using two independent categorical verdicts:
 
 ### Verdict Part 1: Spec & Outcome Compliance (`PASS` | `FAIL` | `UNVERIFIABLE`)
 Checks whether the code built what was requested—nothing less, nothing extra:
-- **Missing Requirements:** Did the worker skip any requirement, sub-task, or `wiring_contract` caller integration?
+- **Missing Requirements:** Did the worker skip any requirement, sub-task, or `wiring_contract` caller integration? A requirement implemented **more narrowly than the spec states** is missing too, even when it matches a `review_focus` item word for word: compare against the spec clause, not the checklist. Report it as Spec `FAIL`, never as `Minor`.
 - **Extra / Unrequested Scope (YAGNI Violation):** Did the worker build unrequested abstractions, unused config flags, or speculative features outside the task brief?
 - **Misunderstood Requirement:** Did the worker solve the wrong problem or wire into the wrong entrypoint?
 - **Review Focus Proof:** For every item in the task's `review_focus` list, is there a concrete, passing automated test that would fail if that failure mode regressed?
@@ -58,11 +65,11 @@ Checks whether the code built what was requested—nothing less, nothing extra:
 ### Verdict Part 2: Code Quality Severity Buckets (`Approved` | `Needs Fixes`)
 Every code quality, security, concurrency, or resource-lifecycle issue must be categorized into one of three strict severity buckets with `file:line` citations:
 
-| Severity Bucket | Definition | Hard-Cap & Loop Impact |
+| Severity Bucket | Definition | Gate & Loop Impact |
 | :--- | :--- | :--- |
-| **`Critical` (Must Fix)** | Any `BLOCKING_FAIL` invariant (missing/empty files, broken AST wiring / `unused_import`, failing verification command, stub/TODO/`NotImplementedError`), data corruption, security flaw, crash, or race condition. | **Hard-caps score at `<= 6.0`**. Blocks task immediately (`NEEDS_ITERATION`). |
-| **`Important` (Should Fix)** | Architectural boundary violation, missing error recovery on I/O boundaries, resource leak, or unverified `review_focus` edge case. | **Hard-caps score at `<= 7.0`**. Blocks task until fixed (`NEEDS_ITERATION`). |
-| **`Minor` (Deferred to Ledger)** | Naming polish, docstring tweaks, minor stylistic cleanup, or micro-optimizations. | **Does NOT block.** Appended to `.swarm/deferred_minor_ledger.md` for Epoch 3 polish. **Forbidden from triggering a fix loop.** |
+| **`Critical` (Must Fix)** | Any `BLOCKING_FAIL` invariant (missing/empty files, broken AST wiring / `unused_import`, failing verification command, stub/TODO/`NotImplementedError`, constant return next to a `fake`/`stub` comment, mock-only test file, vacuous `assert True` test), data corruption, security flaw, crash, or race condition. | **Blocks task immediately (`FAIL` -> `NEEDS_ITERATION`).** |
+| **`Important` (Should Fix)** | Architectural boundary violation, missing error recovery on I/O boundaries, resource leak, or unverified `review_focus` edge case. | **Blocks task until fixed (`FAIL` -> `NEEDS_ITERATION`).** |
+| **`Minor` (Deferred to Ledger)** | Naming polish, docstring tweaks, minor stylistic cleanup, or micro-optimizations. | **Does NOT block (`PASS` when `Critical=0, Important=0`).** Appended to `.swarm/deferred_minor_ledger.md` for Epoch 3 polish. **Forbidden from triggering a fix loop.** |
 
 ### Recording the Verdict
 Record the evaluation deterministically via `goal_loop.py --record-task`:
@@ -74,15 +81,15 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" \
   --critical-count <N> \
   --important-count <M> \
   --minor-count <K> \
+  --review-source reviewer \
   --notes "<concise summary of open Critical/Important items or deferred Minor items>"
 ```
 `--record-task` runs the deterministic audit itself if the task was never audited. Your verdict can only add failures: `BLOCKING_FAIL`s from the latest `--audit-task` always count, a `PASS` cannot clear them, and only re-running `--audit-task` on fixed code does.
 
-Then update the worker's round counter in `immortal_watcher.py`. It applies the same gate and tracks rounds only: record Minor findings and rulings with `goal_loop.py` alone, or they are logged twice:
+Then update the worker's round counter in `immortal_watcher.py`. It applies the same categorical gate and tracks rounds only: record Minor findings and rulings with `goal_loop.py` alone, or they are logged twice:
 ```bash
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
   --record-review <WORKER_ID> \
-  --impl-score <HARD_CAP_SCORE> --goal-score <HARD_CAP_SCORE> \
   --spec-verdict <PASS|FAIL|UNVERIFIABLE> \
   --critical-flaws <N> --important-flaws <M>
 ```
@@ -150,6 +157,7 @@ If the task still has not converged after **Round 5**:
 | Common Reviewer / Orchestrator Excuse | Reality & Mandatory Action |
 | :--- | :--- |
 | *"The worker reported `Status: DONE` and said all tests pass, so I can skip `--review-package`."* | Workers frequently miss unwired callers (`unused_import`) or stub branches. Always generate `--review-package` and run `--audit-task`. |
-| *"The code has an `Important` resource leak, but overall it's really solid so I'll give it an 8.2."* | Any `Important` finding hard-caps the score at `<= 7.0`. Either it is genuinely `Important` (cap at `7.0` and fix it) or it is `Minor` (defer to `.swarm/deferred_minor_ledger.md`). |
+| *"The code has an `Important` resource leak, but overall it's really solid so I'll pass it."* | Any `Important` finding (`important_count > 0`) blocks the categorical gate (`FAIL`). Either it is genuinely `Important` (fix it) or it is `Minor` (defer to `.swarm/deferred_minor_ledger.md`). |
 | *"The worker added a cool extra plugin loader nobody asked for—bonus points!"* | Unrequested features violate `Part 1: Spec Compliance` (Extra / YAGNI Violation) and add untested attack surface. Flag as `Important` or `FAIL` Spec Compliance. |
+| *"The code matches the `review_focus` item, it just doesn't handle the other case the spec mentions, so that's Minor."* | Narrowing a spec requirement is a Missing Requirement (Spec `FAIL`). In the benchmark, reviewers logged exactly this as Minor and the narrowed behaviour shipped. |
 | *"I'll keep looping the same subagent for 8 rounds until it gets it right."* | After 3 rounds, context pollution degrades subagent reasoning. Escalate to a fresh worker at Round 4 and enforce the Breaker `Ruling:` at Round 5. |

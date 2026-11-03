@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Immortal Agents Watcher, Subagent Revival & Multi-Epoch Evolutionary Swarm Ledger.
+"""Immortal Agents Watcher, Subagent Revival & Evolutionary Swarm Ledger (Lite & Full Modes).
 
-Supports both the full 3-Epoch `/invoke-swarm` Macro-Loop and standalone execution
-of individual loop stages (`/discriminator-gate`, `/triad-audit`, `/sota-web-scout`,
-`/epoch-planner`, `/immortal-agents`):
-  - Step 0.25: Pre-Flight Conflict & Dependency Scan (`goal_loop.py --preflight`)
-  - Step 1: Parallel Implementation Subagents (`--task-brief <ID>`) + `immortal_watcher` revival
-  - Step 1.5: `discriminator` Two-Verdict Categorical Gate + Hard-Cap Rubric & 5-Round Escalating Fix Loop:
-      * Rounds 1-3: Resume the SAME worker subagent (scoped re-review `FIX_BASE..HEAD`)
-      * Rounds 4-5: Spawn a FRESH escalated worker subagent
-      * Round 5 Breaker: Orchestrator records `Ruling: <what> — <why> — <cost if wrong>` in `.swarm/ledger.md`
-      * Minor findings: Logged to `.swarm/deferred_minor_ledger.md` (never block task completion)
-  - Step 2-3: Orchestrator merge & Intermittent Report tracking
-  - Step 4-5: Triad Audit Agents (`rigor`, `safety`, `innovation`) 1-10 scoring & findings
-  - Step 6: Parallel `sota_web_scout` continuous SOTA benchmarking & 1-10 scoring
-  - Step 7: Deterministic Convergence Check (`.swarm/goal_loop.json`, `.swarm/ledger.md`, `.swarm/deferred_minor_ledger.md`)
+Supports both:
+  - **Lite Mode (default)**: 1 Epoch with Pre-Flight, Worker Dispatch, Discriminator Gate, and Validator only
+    (Triad Audit and SOTA Web Scout only as an optional release-level audit).
+  - **Full Mode (`--full`, for `/invoke-swarm full`)**: 3-Epoch `/invoke-swarm` Macro-Loop and standalone execution of individual loop stages
+    (`/discriminator-gate`, `/triad-audit`, `/sota-web-scout`, `/epoch-planner`, `/immortal-agents`):
+      - Step 0.25: Pre-Flight Conflict & Dependency Scan (`goal_loop.py --preflight`)
+      - Step 1: Parallel Implementation Subagents (`--task-brief <ID>`) + `immortal_watcher` revival
+      - Step 1.5: `discriminator` Two-Verdict Categorical Gate & 5-Round Escalating Fix Loop:
+          * Rounds 1-3: Resume the SAME worker subagent (scoped re-review `FIX_BASE..HEAD`)
+          * Rounds 4-5: Spawn a FRESH escalated worker subagent
+          * Round 5 Breaker: Orchestrator records `Ruling: <what> — <why> — <cost if wrong>` in `.swarm/ledger.md`
+          * Minor findings: Logged to `.swarm/deferred_minor_ledger.md` (never block task completion)
+      - Step 2-3: Orchestrator merge & Intermittent Report tracking
+      - Step 4-5: Triad Audit Agents (`rigor`, `safety`, `innovation`) categorical verdicts & finding counts
+      - Step 6: Parallel `sota_web_scout` continuous SOTA comparison (`ALREADY_SOTA` vs `UPGRADES_AVAILABLE`)
+      - Step 7: Deterministic Convergence Check (`.swarm/goal_loop.json`, `.swarm/ledger.md`, `.swarm/deferred_minor_ledger.md`)
 """
 
 from __future__ import annotations
@@ -46,15 +48,6 @@ ESCALATION_FRESH_WORKER_ROUND = 4
 BREAKER_RULING_ROUND = 5
 MAX_MACRO_EPOCHS = 3
 HARD_MAX_REMEDIATION_EPOCHS = 10
-PASSING_SCORE_THRESHOLD = 8.0
-HARD_CAP_BLOCKING = 6.0
-HARD_CAP_IMPORTANT = 7.0
-BASELINE_UNPROBED_CEILING = 8.5
-ADVERSARIAL_LOOP1_CEILING = 9.5
-ADVERSARIAL_REFINED_CEILING = 9.8
-CONVERGENCE_RIGOR_THRESHOLD = 9.0
-CONVERGENCE_SAFETY_THRESHOLD = 9.0
-CONVERGENCE_INNOVATION_THRESHOLD = 8.5
 DEFAULT_STALL_SECONDS = 180
 
 
@@ -197,6 +190,7 @@ def load_state() -> dict[str, Any]:
     tasks_file = resolve_tasks_file(create_local_dir=False)
     if not os.path.exists(tasks_file):
         return {
+            "mode": "full",
             "current_epoch": 1,
             "max_epochs": MAX_MACRO_EPOCHS,
             "project_goal": "",
@@ -211,6 +205,7 @@ def load_state() -> dict[str, Any]:
             data = json.load(f)
             if "tasks" not in data and "subagents" not in data:
                 return {
+                    "mode": "full",
                     "current_epoch": 1,
                     "max_epochs": MAX_MACRO_EPOCHS,
                     "project_goal": "",
@@ -220,8 +215,9 @@ def load_state() -> dict[str, Any]:
                     "sota_history": [],
                     "overall_evaluation": None,
                 }
+            data.setdefault("mode", "full")
             data.setdefault("current_epoch", 1)
-            data.setdefault("max_epochs", MAX_MACRO_EPOCHS)
+            data.setdefault("max_epochs", 1 if data.get("mode") == "lite" else MAX_MACRO_EPOCHS)
             data.setdefault("project_goal", "")
             data.setdefault("tasks", {})
             data.setdefault("subagents", {})
@@ -231,6 +227,7 @@ def load_state() -> dict[str, Any]:
             return data
     except Exception:
         return {
+            "mode": "full",
             "current_epoch": 1,
             "max_epochs": MAX_MACRO_EPOCHS,
             "project_goal": "",
@@ -264,11 +261,14 @@ def ensure_epoch(state: dict[str, Any], epoch_num: int | None = None) -> dict[st
     return state["epochs"][ep_key]
 
 
-def init_swarm(project_goal: str = "") -> None:
+def init_swarm(project_goal: str = "", lite: bool = True) -> dict[str, Any]:
+    mode = "lite" if lite else "full"
+    max_ep = 1 if lite else MAX_MACRO_EPOCHS
     state = {
         "initialized_at": now_iso(),
+        "mode": mode,
         "current_epoch": 1,
-        "max_epochs": MAX_MACRO_EPOCHS,
+        "max_epochs": max_ep,
         "project_goal": project_goal,
         "tasks": {},
         "subagents": {},
@@ -277,7 +277,11 @@ def init_swarm(project_goal: str = "") -> None:
         "overall_evaluation": None,
     }
     save_state(state, create_local_dir=True)
-    log(f"Initialized new evolutionary swarm ledger (Epoch 1/{MAX_MACRO_EPOCHS}). Goal: {project_goal or 'N/A'}")
+    log(
+        f"Initialized new evolutionary swarm ledger (mode={mode}, Epoch 1/{max_ep}). "
+        f"Goal: {project_goal or 'N/A'}"
+    )
+    return state
 
 
 def start_epoch(epoch_num: int) -> dict[str, Any]:
@@ -848,8 +852,8 @@ def restore_git_snapshot(label: str, cwd: str | None = None) -> dict[str, Any]:
 
 def record_review(
     conv_id: str,
-    impl_score: float,
-    goal_score: float,
+    impl_score: float | None = None,
+    goal_score: float | None = None,
     notes: str = "",
     critical_flaws: int = 0,
     major_flaws: int = 0,
@@ -865,6 +869,7 @@ def record_review(
     pass_hat_k: int = 1,
     allow_config_edits: bool = False,
 ) -> dict[str, Any]:
+    _ = (impl_score, goal_score, uncalibrated)
     state = load_state()
     subagents = state.get("subagents", {})
     if conv_id not in subagents:
@@ -891,8 +896,6 @@ def record_review(
         info["branch"] = branch_override
 
     loop_count = info.get("loop_count", 0) + 1
-    raw_impl_score = float(impl_score)
-    raw_goal_score = float(goal_score)
     norm_spec_verdict = (spec_verdict or "PASS").upper().strip()
     calibration_reasons: list[str] = []
     blocking_fails: list[str] = []
@@ -912,7 +915,7 @@ def record_review(
     if adversarial_cmd:
         fail_tail = ""
         try:
-            for trial in range(k_runs):
+            for _ in range(k_runs):
                 probe_res = subprocess.run(
                     adversarial_cmd,
                     shell=True,
@@ -988,21 +991,6 @@ def record_review(
         advisory_warns.append(f"Type escape `: any` / `as any` ({diff_audit['any_cast_count']}) — Defend in 1 sentence or fix")
     calibration_reasons.extend(diff_audit.get("reasons", []))
 
-    # 3. Apply Hard-Cap Scoring Rule (replacing arbitrary point-deduction math)
-    #    - Any BLOCKING_FAIL, spec_verdict != PASS, or critical_flaws > 0 -> Hard-capped at 6.0
-    #    - Any major_flaws (Important) > 0 -> Hard-capped at 7.0
-    #    - Minor flaws NEVER block or deduct; deferred to .swarm/deferred_minor_ledger.md
-    hard_cap: float | None = None
-    if len(blocking_fails) > 0 or norm_spec_verdict != "PASS" or critical_flaws > 0 or not outcome_verified:
-        hard_cap = HARD_CAP_BLOCKING
-        calibration_reasons.append(
-            f"Hard Cap {HARD_CAP_BLOCKING}/10 applied (blocking_fails={len(blocking_fails)}, "
-            f"spec_verdict={norm_spec_verdict}, critical_flaws={critical_flaws})"
-        )
-    elif major_flaws > 0:
-        hard_cap = HARD_CAP_IMPORTANT
-        calibration_reasons.append(f"Hard Cap {HARD_CAP_IMPORTANT}/10 applied (important/major_flaws={major_flaws})")
-
     if minor_flaws > 0:
         goal_loop.append_deferred_minor(
             task_id=branch_name or conv_id,
@@ -1014,25 +1002,8 @@ def record_review(
             f"Deferred {minor_flaws} Minor finding(s) to `.swarm/deferred_minor_ledger.md` (non-blocking)"
         )
 
-    if not uncalibrated:
-        if hard_cap is not None:
-            impl_score = round(min(raw_impl_score, hard_cap), 1)
-            goal_score = round(min(raw_goal_score, hard_cap), 1)
-        else:
-            default_clean = 9.2 if len(advisory_warns) == 0 else 8.5
-            ceiling = ADVERSARIAL_LOOP1_CEILING if (adversarial_passed and loop_count == 1) else (
-                ADVERSARIAL_REFINED_CEILING if adversarial_passed else default_clean
-            )
-            impl_score = round(max(8.5, min(raw_impl_score, ceiling)), 1)
-            goal_score = round(max(8.5, min(raw_goal_score, ceiling)), 1)
-    else:
-        impl_score = round(raw_impl_score, 1)
-        goal_score = round(raw_goal_score, 1)
-
-    effective_score = min(impl_score, goal_score)
     ruling_clean = ruling.strip()
-    # The gate is categorical and shared with `goal_loop.py --record-task`; the scores above are telemetry only.
-    gate = goal_loop.compute_hard_cap_score(
+    gate = goal_loop.evaluate_gate(
         blocking_fails=blocking_fails,
         advisory_warns=advisory_warns,
         spec_verdict=norm_spec_verdict,
@@ -1040,6 +1011,8 @@ def record_review(
         important_count=major_flaws,
         minor_count=minor_flaws,
     )
+    if gate["blocking_reasons"]:
+        calibration_reasons.append(f"Categorical Gate FAIL ({', '.join(gate['blocking_reasons'])})")
     passed = gate["passed_gate"] and outcome_verified
     if ruling_clean and blocking_fails:
         calibration_reasons.append("[BLOCKING_FAIL] Ruling ignored: a ruling cannot override deterministic BLOCKING_FAILs")
@@ -1063,8 +1036,8 @@ def record_review(
         info["status"] = "APPROVED"
         goal_loop.append_ledger_entry(
             f"Subagent `{info.get('role')}` ({conv_id}, branch `{branch_name or 'N/A'}`): "
-            f"PASS at Round {loop_count}/{MAX_DISCRIMINATOR_LOOPS} (score={effective_score}/10, "
-            f"minor_deferred={minor_flaws})",
+            f"PASS at Round {loop_count}/{MAX_DISCRIMINATOR_LOOPS} "
+            f"(minor_deferred={minor_flaws})",
             cwd=probe_cwd,
         )
     elif loop_count >= BREAKER_RULING_ROUND:
@@ -1105,11 +1078,8 @@ def record_review(
         )
 
     info["loop_count"] = loop_count
-    info["impl_score"] = impl_score
-    info["goal_score"] = goal_score
-    info["effective_score"] = effective_score
-    info["hard_cap"] = hard_cap
     info["spec_verdict"] = norm_spec_verdict
+    info["gate_verdict"] = verdict
     info["last_checked"] = now_iso()
 
     entry = {
@@ -1118,12 +1088,7 @@ def record_review(
         "max_loops": MAX_DISCRIMINATOR_LOOPS,
         "timestamp": now_iso(),
         "spec_verdict": norm_spec_verdict,
-        "raw_impl_score": raw_impl_score,
-        "raw_goal_score": raw_goal_score,
-        "impl_score": impl_score,
-        "goal_score": goal_score,
-        "effective_score": effective_score,
-        "hard_cap": hard_cap,
+        "blocking_reasons": gate["blocking_reasons"],
         "blocking_fails": blocking_fails,
         "advisory_warns": advisory_warns,
         "adversarial_verified": adversarial_passed,
@@ -1143,7 +1108,7 @@ def record_review(
     }
     info.setdefault("review_history", []).append(entry)
     if not passed:
-        lesson_text = notes or "; ".join(calibration_reasons) or f"Discriminator hard-capped at {hard_cap}"
+        lesson_text = notes or "; ".join(calibration_reasons) or f"Discriminator gate failed ({verdict})"
         cat = f"discriminator:{info.get('role', conv_id)}"
         state.setdefault("lessons", []).append({
             "timestamp": now_iso(),
@@ -1169,11 +1134,10 @@ def record_review(
         )
     save_state(state)
 
-    cal_note = f" (Hard Cap: {hard_cap})" if hard_cap is not None else ""
     log(
         f"🎯 DISCRIMINATOR REVIEW [{verdict}]: Subagent '{info.get('role')}' ({conv_id}) | "
         f"Epoch {entry['epoch']} | Round {loop_count}/{MAX_DISCRIMINATOR_LOOPS} | "
-        f"Spec: {norm_spec_verdict} | Score: {effective_score}/10{cal_note}"
+        f"Spec: {norm_spec_verdict} | Crit={critical_flaws}, Imp={major_flaws}, Blocking={len(blocking_fails)}"
     )
     print(json.dumps(entry, indent=2))
     return entry
@@ -1218,7 +1182,6 @@ def list_lessons(as_json: bool = False) -> list[dict[str, Any]]:
     return lessons
 
 
-
 def record_intermittent_report(report_path: str, summary: str = "", epoch_num: int | None = None) -> dict[str, Any]:
     state = load_state()
     ep_rec = ensure_epoch(state, epoch_num)
@@ -1236,14 +1199,16 @@ def record_intermittent_report(report_path: str, summary: str = "", epoch_num: i
 
 def record_audit(
     auditor: str,
-    score: float,
+    score: float | None = None,
     critical_count: int = 0,
     high_count: int = 0,
     enhancement_count: int = 0,
     report_path: str = "",
     notes: str = "",
     epoch_num: int | None = None,
+    verdict: str | None = None,
 ) -> dict[str, Any]:
+    _ = score
     auditor_key = auditor.lower().strip()
     if auditor_key not in ("rigor", "safety", "innovation"):
         print("Error: --auditor must be one of: rigor, safety, innovation")
@@ -1251,11 +1216,16 @@ def record_audit(
 
     state = load_state()
     ep_rec = ensure_epoch(state, epoch_num)
+    computed_verdict = (
+        verdict.upper().strip()
+        if verdict
+        else ("PASS" if (critical_count == 0 and high_count == 0) else "FAIL")
+    )
     entry = {
         "auditor": auditor_key,
         "epoch": ep_rec["epoch"],
         "timestamp": now_iso(),
-        "score": score,
+        "verdict": computed_verdict,
         "critical_count": critical_count,
         "high_count": high_count,
         "enhancement_count": enhancement_count,
@@ -1266,26 +1236,28 @@ def record_audit(
     save_state(state)
     log(
         f"🔍 TRIAD AUDIT [{auditor_key.upper()}] (Epoch {ep_rec['epoch']}): "
-        f"Score={score}/10 | Critical={critical_count} | High={high_count} | Enhancements={enhancement_count}"
+        f"Verdict={computed_verdict} | Critical={critical_count} | High={high_count} | Enhancements={enhancement_count}"
     )
     print(json.dumps(entry, indent=2))
     return entry
 
 
 def record_sota(
-    innovation_score: float,
-    sota_impl_score: float,
+    innovation_score: float | None = None,
+    sota_impl_score: float | None = None,
     benchmark_path: str = "",
     top_gaps: str = "",
     epoch_num: int | None = None,
+    verdict: str = "ALREADY_SOTA",
 ) -> dict[str, Any]:
+    _ = (innovation_score, sota_impl_score)
     state = load_state()
     ep_rec = ensure_epoch(state, epoch_num)
+    norm_verdict = (verdict or "ALREADY_SOTA").upper().strip().replace(" ", "_")
     entry = {
         "epoch": ep_rec["epoch"],
         "timestamp": now_iso(),
-        "innovation_vs_sota_score": innovation_score,
-        "implementation_vs_sota_score": sota_impl_score,
+        "verdict": norm_verdict,
         "benchmark_path": benchmark_path,
         "top_gaps": top_gaps,
     }
@@ -1294,7 +1266,7 @@ def record_sota(
     save_state(state)
     log(
         f"🌐 SOTA WEB SCOUT REPORT (Epoch {ep_rec['epoch']}): "
-        f"Innovation vs SOTA={innovation_score}/10 | Implementation vs SOTA={sota_impl_score}/10"
+        f"Verdict={norm_verdict} | Gaps={top_gaps or 'none'}"
     )
     print(json.dumps(entry, indent=2))
     return entry
@@ -1306,9 +1278,14 @@ def check_convergence(
     outcome_cmd: str = "",
     expect_output: str = "",
     allow_stop_unconverged: bool = False,
+    lite: bool = False,
 ) -> dict[str, Any]:
-    """Evaluate Step 7 Macro-Loop Convergence or Next-Epoch Transition UNTIL desired outcome is met."""
+    """Evaluate convergence (Lite Mode: 1 epoch with Gate + Validator only; Full Mode: Audits + SOTA + Gate + Validator)."""
     state = load_state()
+    if lite:
+        state["mode"] = "lite"
+        state["max_epochs"] = 1
+    mode = "lite" if (lite or state.get("mode") == "lite") else "full"
     ep_rec = ensure_epoch(state, epoch_num)
     current_ep = ep_rec["epoch"]
     audits = ep_rec.get("audits", {})
@@ -1318,11 +1295,10 @@ def check_convergence(
     safety = audits.get("safety") or {}
     innovation = audits.get("innovation") or {}
 
-    r_score = float(rigor.get("score") or 0.0)
-    s_score = float(safety.get("score") or 0.0)
-    i_score = float(innovation.get("score") or 0.0)
-    sota_innov = float(sota.get("innovation_vs_sota_score") or 0.0)
-    sota_impl = float(sota.get("implementation_vs_sota_score") or 0.0)
+    r_verdict = rigor.get("verdict") or ("PASS" if rigor and int(rigor.get("critical_count", 0)) == 0 and int(rigor.get("high_count", 0)) == 0 else ("SKIPPED" if mode == "lite" else "PENDING"))
+    s_verdict = safety.get("verdict") or ("PASS" if safety and int(safety.get("critical_count", 0)) == 0 and int(safety.get("high_count", 0)) == 0 else ("SKIPPED" if mode == "lite" else "PENDING"))
+    i_verdict = innovation.get("verdict") or ("PASS" if innovation and int(innovation.get("critical_count", 0)) == 0 and int(innovation.get("high_count", 0)) == 0 else ("SKIPPED" if mode == "lite" else "PENDING"))
+    sota_verdict = sota.get("verdict") or ("SKIPPED" if mode == "lite" else ("ALREADY_SOTA" if sota else "PENDING"))
 
     total_critical = sum(int((audits.get(k) or {}).get("critical_count", 0)) for k in ("rigor", "safety", "innovation"))
     total_high = sum(int((audits.get(k) or {}).get("high_count", 0)) for k in ("rigor", "safety", "innovation"))
@@ -1330,8 +1306,6 @@ def check_convergence(
         int((audits.get(k) or {}).get("enhancement_count", 0)) for k in ("rigor", "safety", "innovation")
     )
 
-    # Verify codebase authenticity (no synthetic, no half-baked/placeholder, no unwired conceptual code)
-    # and verify Goal-Loop tasks/subtasks + outcome_cmd if configured
     authenticity_passed = True
     authenticity_counts: dict[str, int] = {
         "placeholder_or_half_baked": 0,
@@ -1364,36 +1338,66 @@ def check_convergence(
     except Exception:
         pass
 
-    scores_converged = (
-        r_score >= CONVERGENCE_RIGOR_THRESHOLD
-        and s_score >= CONVERGENCE_SAFETY_THRESHOLD
-        and i_score >= CONVERGENCE_INNOVATION_THRESHOLD
-        and sota_innov >= CONVERGENCE_INNOVATION_THRESHOLD
-        and sota_impl >= CONVERGENCE_INNOVATION_THRESHOLD
+    # Check if any registered worker subagents are still failing review
+    subagents = state.get("subagents", {})
+    worker_subs = [s for s in subagents.values() if s.get("agent_kind", "worker") == "worker"]
+    all_workers_approved = all(
+        s.get("status") in ("APPROVED", "APPROVED_WITH_RULING", "COMPLETED_WITH_RULING", "MERGED", "COMPLETED")
+        for s in worker_subs
     )
-    no_blocking_findings = (total_critical == 0) and (total_high == 0) and (total_enhancements == 0)
-    truly_converged = scores_converged and no_blocking_findings and authenticity_passed and goal_outcome_passed
 
-    if truly_converged:
-        decision = "CONVERGED_NO_IMPROVEMENTS_NEEDED"
-        next_epoch = None
-        next_focus = (
-            "All Rigor, Safety, Innovation, SOTA benchmarks, Authenticity (0 synthetic/placeholder/unwired), "
-            "and End-to-End Outcome checks verified. Proceed to Final Report."
-        )
-    elif current_ep < MAX_MACRO_EPOCHS:
-        decision = "CONTINUE_NEXT_EPOCH"
-        next_epoch = current_ep + 1
-        next_focus = get_epoch_focus(next_epoch)
-    elif not allow_stop_unconverged and current_ep < HARD_MAX_REMEDIATION_EPOCHS:
-        decision = "CONTINUE_UNTIL_GOAL_MET"
-        next_epoch = current_ep + 1
-        state["max_epochs"] = max(state.get("max_epochs", MAX_MACRO_EPOCHS), next_epoch)
-        next_focus = get_epoch_focus(next_epoch)
+    if mode == "lite":
+        truly_converged = authenticity_passed and goal_outcome_passed and all_workers_approved
+        if truly_converged:
+            decision = "CONVERGED_NO_IMPROVEMENTS_NEEDED"
+            next_epoch = None
+            next_focus = (
+                "Lite Mode (1 Epoch — Gate + Validator only): All tasks passed Discriminator Gate, "
+                "codebase authenticity checks, and outcome validation. Proceed to Final Summary."
+            )
+        else:
+            decision = "LITE_GATE_OR_VALIDATOR_FAILED"
+            next_epoch = None
+            next_focus = (
+                "Lite Mode (1 Epoch): Resolve failing Discriminator Gate or outcome validator items "
+                "within the current epoch before finishing."
+            )
     else:
-        decision = "MAX_EPOCHS_REACHED"
-        next_epoch = None
-        next_focus = f"Reached hard safety epoch cap ({current_ep}). Escalate remaining gaps in Final Report."
+        audits_passed = (
+            r_verdict == "PASS"
+            and s_verdict == "PASS"
+            and i_verdict == "PASS"
+            and sota_verdict in ("ALREADY_SOTA", "PASS")
+        )
+        no_blocking_findings = (total_critical == 0) and (total_high == 0) and (total_enhancements == 0)
+        truly_converged = (
+            audits_passed
+            and no_blocking_findings
+            and authenticity_passed
+            and goal_outcome_passed
+            and all_workers_approved
+        )
+
+        if truly_converged:
+            decision = "CONVERGED_NO_IMPROVEMENTS_NEEDED"
+            next_epoch = None
+            next_focus = (
+                "All Rigor, Safety, Innovation, SOTA checks, Authenticity, "
+                "and End-to-End Outcome checks verified. Proceed to Final Report."
+            )
+        elif current_ep < MAX_MACRO_EPOCHS:
+            decision = "CONTINUE_NEXT_EPOCH"
+            next_epoch = current_ep + 1
+            next_focus = get_epoch_focus(next_epoch)
+        elif not allow_stop_unconverged and current_ep < HARD_MAX_REMEDIATION_EPOCHS:
+            decision = "CONTINUE_UNTIL_GOAL_MET"
+            next_epoch = current_ep + 1
+            state["max_epochs"] = max(state.get("max_epochs", MAX_MACRO_EPOCHS), next_epoch)
+            next_focus = get_epoch_focus(next_epoch)
+        else:
+            decision = "MAX_EPOCHS_REACHED"
+            next_epoch = None
+            next_focus = f"Reached hard safety epoch cap ({current_ep}). Escalate remaining gaps in Final Report."
 
     if plan_path:
         ep_rec["adjusted_plan"] = plan_path
@@ -1401,15 +1405,17 @@ def check_convergence(
     ledger_summary = inspect_swarm_ledgers(cwd=os.getcwd())
 
     result = {
+        "mode": mode,
+        "converged": truly_converged,
         "evaluated_epoch": current_ep,
-        "max_epochs": state.get("max_epochs", MAX_MACRO_EPOCHS),
+        "max_epochs": state.get("max_epochs", 1 if mode == "lite" else MAX_MACRO_EPOCHS),
         "timestamp": now_iso(),
-        "scores": {
-            "rigor": r_score,
-            "safety": s_score,
-            "innovation": i_score,
-            "sota_innovation": sota_innov,
-            "sota_implementation": sota_impl,
+        "verdicts": {
+            "rigor": r_verdict,
+            "safety": s_verdict,
+            "innovation": i_verdict,
+            "sota": sota_verdict,
+            "workers_approved": all_workers_approved,
         },
         "findings_Remaining": {
             "critical": total_critical,
@@ -1430,8 +1436,8 @@ def check_convergence(
     save_state(state)
 
     log(
-        f"🔄 MACRO-LOOP CONVERGENCE GATE (Epoch {current_ep}/{state.get('max_epochs', MAX_MACRO_EPOCHS)}) -> [{decision}] | "
-        f"Rigor={r_score}, Safety={s_score}, Innov={i_score}, SOTA=({sota_innov}/{sota_impl}) | "
+        f"🔄 CONVERGENCE GATE [mode={mode}] (Epoch {current_ep}/{result['max_epochs']}) -> [{decision}] | "
+        f"Rigor={r_verdict}, Safety={s_verdict}, Innov={i_verdict}, SOTA={sota_verdict} | "
         f"Crit={total_critical}, High={total_high} | Auth={authenticity_passed} | Outcome={goal_outcome_passed} | "
         f"Rulings={ledger_summary['rulings_count']} | DeferredMinors={ledger_summary['deferred_minor_count']}"
     )
@@ -1439,13 +1445,19 @@ def check_convergence(
     return result
 
 
-def record_overall_evaluation(score: float, tests_passed: bool, security_passed: bool, notes: str = "") -> None:
+def record_overall_evaluation(
+    tests_passed: bool,
+    security_passed: bool,
+    notes: str = "",
+    score: float | None = None,
+) -> dict[str, Any]:
+    _ = score
     state = load_state()
-    approved = (score >= PASSING_SCORE_THRESHOLD) and tests_passed and security_passed
+    approved = bool(tests_passed and security_passed)
     evaluation = {
         "timestamp": now_iso(),
+        "mode": state.get("mode", "full"),
         "final_epoch": state.get("current_epoch", 1),
-        "overall_goal_score": score,
         "tests_passed": tests_passed,
         "security_passed": security_passed,
         "status": "SUCCESS" if approved else "NEEDS_REMEDIATION",
@@ -1456,9 +1468,10 @@ def record_overall_evaluation(score: float, tests_passed: bool, security_passed:
     log(
         f"🏁 FINAL ORCHESTRATOR EVALUATION [{evaluation['status']}]: "
         f"Epoch {evaluation['final_epoch']}/{state.get('max_epochs', MAX_MACRO_EPOCHS)} | "
-        f"Overall Score: {score}/10 | Tests: {tests_passed} | Security: {security_passed}"
+        f"Tests: {tests_passed} | Security: {security_passed}"
     )
     print(json.dumps(evaluation, indent=2))
+    return evaluation
 
 
 def supervise_tasks() -> None:
@@ -1537,7 +1550,7 @@ def run_loop(single_run: bool = False, stall_seconds: int = DEFAULT_STALL_SECOND
         )
         ledger_info = inspect_swarm_ledgers(cwd=os.getcwd())
         log(
-            f"HEALTH CHECK OK | Epoch: {state.get('current_epoch', 1)}/{MAX_MACRO_EPOCHS} | Online: {online} | "
+            f"HEALTH CHECK OK | Mode: {state.get('mode', 'full')} | Epoch: {state.get('current_epoch', 1)}/{state.get('max_epochs', MAX_MACRO_EPOCHS)} | Online: {online} | "
             f"Active Subagents: {active_subs} | Approved Subagents: {approved_subs} | Active OS Tasks: {active_tasks} | "
             f"Goal Tasks: {ledger_info['goal_tasks_done']}/{ledger_info['goal_tasks_total']} | "
             f"Rulings: {ledger_info['rulings_count']} | Deferred Minors: {ledger_info['deferred_minor_count']}"
@@ -1612,7 +1625,8 @@ def status_daemon() -> None:
 
     state = load_state()
     curr_ep = state.get("current_epoch", 1)
-    print(f"Macro-Loop Epoch: {curr_ep}/{state.get('max_epochs', MAX_MACRO_EPOCHS)}")
+    mode = state.get("mode", "full")
+    print(f"Swarm Mode: {mode.upper()} | Epoch: {curr_ep}/{state.get('max_epochs', MAX_MACRO_EPOCHS)}")
     if state.get("project_goal"):
         print(f"Project Goal: {state['project_goal']}")
 
@@ -1628,37 +1642,29 @@ def status_daemon() -> None:
     if subagents:
         print("\nManaged Swarm Subagents (5-Round Escalating Fix Loop: 1-3 Same Worker, 4-5 Fresh Worker, 5 Breaker):")
         for conv_id, s in subagents.items():
-            impl_s = s.get("impl_score")
-            goal_s = s.get("goal_score")
-            cap_s = f", HardCap={s.get('hard_cap')}" if s.get("hard_cap") is not None else ""
-            score_str = f"Impl={impl_s}/10, Goal={goal_s}/10{cap_s}" if impl_s is not None else "Unscored"
+            verdict_s = s.get("gate_verdict") or s.get("spec_verdict") or "Pending"
             ruling_s = f" | Ruling: {s.get('ruling')}" if s.get("ruling") else ""
             print(
                 f"  - [{s.get('status')}] (Epoch {s.get('epoch', 1)}) {s.get('role')} "
                 f"[kind={s.get('agent_kind', 'worker')}] (ID: {conv_id}, Branch: {s.get('branch') or 'N/A'}) | "
-                f"Fix Rounds: {s.get('loop_count', 0)}/{MAX_DISCRIMINATOR_LOOPS} ({score_str}) | "
+                f"Fix Rounds: {s.get('loop_count', 0)}/{MAX_DISCRIMINATOR_LOOPS} (Gate: {verdict_s}) | "
                 f"Revives: {s.get('revive_attempts', 0)}/{MAX_REVIVE_ATTEMPTS}{ruling_s}"
             )
 
     epochs = state.get("epochs", {})
     if epochs:
-        print("\nEpoch Audit & SOTA Summary:")
+        print("\nEpoch Gate & Audit Summary:")
         for ep_k, ep_v in sorted(epochs.items(), key=lambda x: int(x[0])):
             auds = ep_v.get("audits", {})
-            r_s = (auds.get("rigor") or {}).get("score", "-")
-            s_s = (auds.get("safety") or {}).get("score", "-")
-            i_s = (auds.get("innovation") or {}).get("score", "-")
+            r_v = (auds.get("rigor") or {}).get("verdict", "-" if mode == "full" else "SKIPPED")
+            s_v = (auds.get("safety") or {}).get("verdict", "-" if mode == "full" else "SKIPPED")
+            i_v = (auds.get("innovation") or {}).get("verdict", "-" if mode == "full" else "SKIPPED")
             sota_ev = ep_v.get("sota_evaluation") or {}
-            sota_str = (
-                f"Innov={sota_ev.get('innovation_vs_sota_score')}/10, "
-                f"Impl={sota_ev.get('implementation_vs_sota_score')}/10"
-                if sota_ev
-                else "Pending"
-            )
+            sota_str = sota_ev.get("verdict", "SKIPPED" if mode == "lite" else "Pending")
             conv_decision = (ep_v.get("convergence") or {}).get("decision", "IN_PROGRESS")
             print(
-                f"  - Epoch {ep_k}: Rigor={r_s}/10 | Safety={s_s}/10 | Innovation={i_s}/10 | "
-                f"SOTA=({sota_str}) | Gate: {conv_decision}"
+                f"  - Epoch {ep_k}: Rigor={r_v} | Safety={s_v} | Innovation={i_v} | "
+                f"SOTA={sota_str} | Gate: {conv_decision}"
             )
 
     tasks = state.get("tasks", {})
@@ -1675,14 +1681,13 @@ def status_daemon() -> None:
         print(
             f"\nOverall Project Evaluation: [{ov.get('status')}] "
             f"(Epoch {ov.get('final_epoch', curr_ep)}) "
-            f"Score={ov.get('overall_goal_score')}/10 | Tests={ov.get('tests_passed')} | "
-            f"Security={ov.get('security_passed')}"
+            f"Tests={ov.get('tests_passed')} | Security={ov.get('security_passed')}"
         )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Immortal Agents Supervisor, Subagent Revival & 3-Epoch Evolutionary Swarm Ledger"
+        description="Immortal Agents Supervisor, Subagent Revival & Evolutionary Swarm Ledger (Lite & Full Modes)"
     )
     parser.add_argument("--start", action="store_true", help="Start supervisor daemon in background")
     parser.add_argument("--stop", action="store_true", help="Stop background supervisor daemon")
@@ -1690,6 +1695,12 @@ def main() -> None:
     parser.add_argument("--logs", action="store_true", help="Print recent supervisor logs")
     parser.add_argument("--test-run", action="store_true", help="Run a single diagnostic check cycle")
     parser.add_argument("--init-swarm", action="store_true", help="Reset and initialize swarm ledger for a new run")
+    parser.add_argument(
+        "--lite",
+        action="store_true",
+        help="Lite mode (the --init-swarm default): 1 epoch with Discriminator Gate and Validator",
+    )
+    parser.add_argument("--full", action="store_true", help="With --init-swarm: Full Mode (3-epoch funnel with audits)")
     parser.add_argument("--project-goal", default="", help="Overall project goal description (used with --init-swarm)")
     parser.add_argument("--start-epoch", type=int, metavar="N", help="Advance/start Macro-Loop Epoch N (1..3)")
 
@@ -1710,24 +1721,24 @@ def main() -> None:
     parser.add_argument("--mark-revived", metavar="CONV_ID", help="Record that a stalled/interrupted subagent was revived")
     parser.add_argument("--json", action="store_true", help="Format check output as JSON")
 
-    # Step 1.5 Discriminator Two-Verdict + Hard-Cap review & 5-Round Escalating Loop flags
-    parser.add_argument("--record-review", metavar="CONV_ID", help="Record a Discriminator Two-Verdict + Hard-Cap assessment")
-    parser.add_argument("--impl-score", type=float, default=9.2, help="Implementation goal score (1.0 - 10.0, default 9.2)")
-    parser.add_argument("--goal-score", type=float, default=9.2, help="Overall project goal score (1.0 - 10.0, default 9.2)")
+    # Step 1.5 Discriminator Two-Verdict Categorical Gate & 5-Round Escalating Loop flags
+    parser.add_argument("--record-review", metavar="CONV_ID", help="Record a Discriminator Two-Verdict categorical gate assessment")
+    parser.add_argument("--impl-score", type=float, default=None, help="Deprecated optional score flag (ignored by categorical gate)")
+    parser.add_argument("--goal-score", type=float, default=None, help="Deprecated optional score flag (ignored by categorical gate)")
     parser.add_argument(
         "--spec-verdict",
         choices=["PASS", "FAIL", "UNVERIFIABLE"],
         default="PASS",
-        help="Part 1 Spec Compliance Verdict (PASS, FAIL, UNVERIFIABLE; non-PASS hard-caps score at 6.0)",
+        help="Part 1 Spec Compliance Verdict (PASS, FAIL, UNVERIFIABLE)",
     )
-    parser.add_argument("--critical-flaws", type=int, default=0, help="Count of Critical findings (hard-caps score at 6.0)")
+    parser.add_argument("--critical-flaws", type=int, default=0, help="Count of Critical findings (blocks gate completion)")
     parser.add_argument(
         "--major-flaws",
         "--important-flaws",
         dest="major_flaws",
         type=int,
         default=0,
-        help="Count of Important/Major findings (hard-caps score at 7.0)",
+        help="Count of Important/Major findings (blocks gate completion)",
     )
     parser.add_argument(
         "--minor-flaws",
@@ -1769,7 +1780,7 @@ def main() -> None:
     parser.add_argument(
         "--uncalibrated",
         action="store_true",
-        help="Bypass Hard-Cap enforcement (not recommended; for internal testing only)",
+        help="Deprecated flag (retained for CLI compatibility)",
     )
     parser.add_argument("--notes", default="", help="Critique, summary, or notes")
 
@@ -1784,25 +1795,32 @@ def main() -> None:
     parser.add_argument(
         "--record-audit",
         choices=["rigor", "safety", "innovation"],
-        help="Record a Step 4-5 Triad Audit score (rigor, safety, or innovation)",
+        help="Record a Step 4-5 Triad Audit verdict (rigor, safety, or innovation)",
     )
-    parser.add_argument("--audit-score", type=float, help="Auditor score (1.0 - 10.0)")
+    parser.add_argument("--audit-verdict", choices=["PASS", "FAIL"], default=None, help="Categorical audit verdict (default inferred from counts)")
+    parser.add_argument("--audit-score", type=float, default=None, help="Deprecated optional score flag")
     parser.add_argument("--critical-count", type=int, default=0, help="Number of CRITICAL findings")
     parser.add_argument("--high-count", type=int, default=0, help="Number of HIGH severity findings")
     parser.add_argument("--enhancement-count", type=int, default=0, help="Number of ENHANCEMENT findings")
     parser.add_argument("--report-path", default="", help="Path to detailed markdown/json report")
 
     # Step 6 SOTA Web Scout flags
-    parser.add_argument("--record-sota", action="store_true", help="Record Step 6 SOTA Web Scout continuous evaluation")
-    parser.add_argument("--sota-innovation-score", type=float, help="Project innovation vs SOTA score (1.0 - 10.0)")
-    parser.add_argument("--sota-impl-score", type=float, help="Project implementation vs SOTA score (1.0 - 10.0)")
+    parser.add_argument("--record-sota", action="store_true", help="Record Step 6 SOTA Web Scout categorical evaluation")
+    parser.add_argument(
+        "--sota-verdict",
+        choices=["ALREADY_SOTA", "UPGRADES_AVAILABLE", "PASS"],
+        default="ALREADY_SOTA",
+        help="Categorical SOTA comparison verdict (ALREADY_SOTA or UPGRADES_AVAILABLE)",
+    )
+    parser.add_argument("--sota-innovation-score", type=float, default=None, help="Deprecated optional score flag")
+    parser.add_argument("--sota-impl-score", type=float, default=None, help="Deprecated optional score flag")
     parser.add_argument("--benchmark-path", default="", help="Path to SOTA benchmark markdown file")
 
     # Step 7 Convergence & Re-Plan check
     parser.add_argument(
         "--check-convergence",
         action="store_true",
-        help="Evaluate Step 7 convergence across Triad Audits, SOTA Scout, Authenticity & Desired Outcome",
+        help="Evaluate convergence (Lite Mode: Gate + Validator only; Full Mode: Audits + SOTA + Gate + Validator)",
     )
     parser.add_argument("--plan-path", default="", help="Path to adjusted implementation plan for next epoch")
     parser.add_argument(
@@ -1813,7 +1831,7 @@ def main() -> None:
 
     # Final Orchestrator holistic evaluation flags
     parser.add_argument("--record-overall", action="store_true", help="Record final Orchestrator whole-project evaluation")
-    parser.add_argument("--overall-score", type=float, help="Final whole-project goal score (1.0 - 10.0)")
+    parser.add_argument("--overall-score", type=float, default=None, help="Deprecated optional score flag")
     parser.add_argument("--tests-passed", action="store_true", help="Flag indicating full integrated tests passed")
     parser.add_argument("--security-passed", action="store_true", help="Flag indicating security audit passed")
 
@@ -1836,7 +1854,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.init_swarm:
-        init_swarm(project_goal=args.project_goal)
+        init_swarm(project_goal=args.project_goal, lite=not args.full)
     elif args.start_epoch is not None:
         start_epoch(args.start_epoch)
     elif args.snapshot_create:
@@ -1898,9 +1916,6 @@ def main() -> None:
     elif args.record_intermittent:
         record_intermittent_report(report_path=args.record_intermittent, summary=args.notes)
     elif args.record_audit:
-        if args.audit_score is None:
-            print("Error: --record-audit requires --audit-score (1-10).")
-            sys.exit(1)
         record_audit(
             auditor=args.record_audit,
             score=args.audit_score,
@@ -1909,16 +1924,15 @@ def main() -> None:
             enhancement_count=args.enhancement_count,
             report_path=args.report_path,
             notes=args.notes,
+            verdict=args.audit_verdict,
         )
     elif args.record_sota:
-        if args.sota_innovation_score is None or args.sota_impl_score is None:
-            print("Error: --record-sota requires --sota-innovation-score and --sota-impl-score (1-10).")
-            sys.exit(1)
         record_sota(
             innovation_score=args.sota_innovation_score,
             sota_impl_score=args.sota_impl_score,
             benchmark_path=args.benchmark_path,
             top_gaps=args.notes,
+            verdict=args.sota_verdict,
         )
     elif args.check_convergence:
         check_convergence(
@@ -1926,11 +1940,9 @@ def main() -> None:
             outcome_cmd=args.outcome_cmd,
             expect_output=args.expect_output,
             allow_stop_unconverged=args.allow_stop_unconverged,
+            lite=args.lite,
         )
     elif args.record_overall:
-        if args.overall_score is None:
-            print("Error: --record-overall requires --overall-score (1-10).")
-            sys.exit(1)
         record_overall_evaluation(
             score=args.overall_score,
             tests_passed=args.tests_passed,
