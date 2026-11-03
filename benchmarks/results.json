@@ -6,7 +6,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_1_ledger_cli/r1",
+          "workspace": "benchmarks/runs/single_agent/task_1_ledger_cli/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -30,7 +30,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_1_ledger_cli/r2",
+          "workspace": "benchmarks/runs/single_agent/task_1_ledger_cli/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -54,7 +54,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_1_ledger_cli/r3",
+          "workspace": "benchmarks/runs/single_agent/task_1_ledger_cli/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -80,7 +80,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_2_rate_limiter/r1",
+          "workspace": "benchmarks/runs/single_agent/task_2_rate_limiter/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -104,7 +104,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_2_rate_limiter/r2",
+          "workspace": "benchmarks/runs/single_agent/task_2_rate_limiter/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -128,7 +128,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_2_rate_limiter/r3",
+          "workspace": "benchmarks/runs/single_agent/task_2_rate_limiter/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -154,7 +154,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_3_dag_scheduler/r1",
+          "workspace": "benchmarks/runs/single_agent/task_3_dag_scheduler/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -178,7 +178,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_3_dag_scheduler/r2",
+          "workspace": "benchmarks/runs/single_agent/task_3_dag_scheduler/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -202,7 +202,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_3_dag_scheduler/r3",
+          "workspace": "benchmarks/runs/single_agent/task_3_dag_scheduler/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -228,7 +228,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_4_log_query_workbench/r1",
+          "workspace": "benchmarks/runs/single_agent/task_4_log_query_workbench/r1",
           "passed_all": false,
           "total_defects": 1,
           "held_out_defect_count": 0,
@@ -256,7 +256,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_4_log_query_workbench/r2",
+          "workspace": "benchmarks/runs/single_agent/task_4_log_query_workbench/r2",
           "passed_all": false,
           "total_defects": 1,
           "held_out_defect_count": 0,
@@ -284,7 +284,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_4_log_query_workbench/r3",
+          "workspace": "benchmarks/runs/single_agent/task_4_log_query_workbench/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -312,7 +312,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r1",
+          "workspace": "benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -336,7 +336,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r2",
+          "workspace": "benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -360,7 +360,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r3",
+          "workspace": "benchmarks/runs/single_agent/task_5_legacy_billing_refactor/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -386,7 +386,7 @@
         "r1": {
           "arm": "single_agent",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_6_mvcc_wal_store/r1",
+          "workspace": "benchmarks/runs/single_agent/task_6_mvcc_wal_store/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -410,7 +410,7 @@
         "r2": {
           "arm": "single_agent",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_6_mvcc_wal_store/r2",
+          "workspace": "benchmarks/runs/single_agent/task_6_mvcc_wal_store/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -434,7 +434,7 @@
         "r3": {
           "arm": "single_agent",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent/task_6_mvcc_wal_store/r3",
+          "workspace": "benchmarks/runs/single_agent/task_6_mvcc_wal_store/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -462,7 +462,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_1_ledger_cli/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_1_ledger_cli/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -486,7 +486,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_1_ledger_cli/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_1_ledger_cli/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -510,7 +510,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_1_ledger_cli/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_1_ledger_cli/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -536,7 +536,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_2_rate_limiter/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_2_rate_limiter/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -560,7 +560,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_2_rate_limiter/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_2_rate_limiter/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -584,7 +584,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_2_rate_limiter/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_2_rate_limiter/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -610,7 +610,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -634,7 +634,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -658,7 +658,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_3_dag_scheduler/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -684,7 +684,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -708,7 +708,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -732,7 +732,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_4_log_query_workbench/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -758,7 +758,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -782,7 +782,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -806,7 +806,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_5_legacy_billing_refactor/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -832,7 +832,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -856,7 +856,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -880,7 +880,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_6_mvcc_wal_store/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -906,7 +906,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -930,7 +930,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -954,7 +954,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_7_parallel_fulfilment/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -980,7 +980,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r1",
+          "workspace": "benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1004,7 +1004,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r2",
+          "workspace": "benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1028,7 +1028,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r3",
+          "workspace": "benchmarks/runs/single_agent_checked/task_8_expense_ledger_traps/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1056,7 +1056,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_1_ledger_cli/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_1_ledger_cli/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1094,7 +1094,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_1_ledger_cli/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_1_ledger_cli/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1132,7 +1132,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_1_ledger_cli",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_1_ledger_cli/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_1_ledger_cli/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1172,7 +1172,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_2_rate_limiter/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_2_rate_limiter/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1210,7 +1210,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_2_rate_limiter/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_2_rate_limiter/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1248,7 +1248,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_2_rate_limiter",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_2_rate_limiter/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_2_rate_limiter/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1288,7 +1288,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_3_dag_scheduler/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_3_dag_scheduler/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1326,7 +1326,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_3_dag_scheduler/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_3_dag_scheduler/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1364,7 +1364,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_3_dag_scheduler",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_3_dag_scheduler/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_3_dag_scheduler/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1404,7 +1404,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_4_log_query_workbench/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_4_log_query_workbench/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1442,7 +1442,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_4_log_query_workbench/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_4_log_query_workbench/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1480,7 +1480,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_4_log_query_workbench",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_4_log_query_workbench/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_4_log_query_workbench/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1520,7 +1520,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1558,7 +1558,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1596,7 +1596,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_5_legacy_billing_refactor",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_5_legacy_billing_refactor/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1636,7 +1636,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1674,7 +1674,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1712,7 +1712,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_6_mvcc_wal_store",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_6_mvcc_wal_store/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1752,7 +1752,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1799,7 +1799,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1846,7 +1846,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_7_parallel_fulfilment",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1895,7 +1895,7 @@
         "r1": {
           "arm": "swarm_lite",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r1",
+          "workspace": "benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1934,7 +1934,7 @@
         "r2": {
           "arm": "swarm_lite",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r2",
+          "workspace": "benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -1973,7 +1973,7 @@
         "r3": {
           "arm": "swarm_lite",
           "task": "task_8_expense_ledger_traps",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r3",
+          "workspace": "benchmarks/runs/swarm_lite/task_8_expense_ledger_traps/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,

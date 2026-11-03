@@ -6,7 +6,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_9_semver_ranges",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_9_semver_ranges/r1",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_9_semver_ranges/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -32,7 +32,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_10_cron_schedule",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_10_cron_schedule/r1",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_10_cron_schedule/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -58,7 +58,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_11_gitignore_matcher",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_11_gitignore_matcher/r1",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_11_gitignore_matcher/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -84,7 +84,7 @@
         "r1": {
           "arm": "single_agent_checked",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r1",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -108,7 +108,7 @@
         "r2": {
           "arm": "single_agent_checked",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r2",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -132,7 +132,7 @@
         "r3": {
           "arm": "single_agent_checked",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r3",
+          "workspace": "benchmarks/runs_claude_code/single_agent_checked/task_12_commonmark/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -160,7 +160,7 @@
         "r1": {
           "arm": "swarm_peers",
           "task": "task_9_semver_ranges",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_9_semver_ranges/r1",
+          "workspace": "benchmarks/runs_claude_code/swarm_peers/task_9_semver_ranges/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -186,7 +186,7 @@
         "r1": {
           "arm": "swarm_peers",
           "task": "task_11_gitignore_matcher",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_11_gitignore_matcher/r1",
+          "workspace": "benchmarks/runs_claude_code/swarm_peers/task_11_gitignore_matcher/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -212,7 +212,7 @@
         "r1": {
           "arm": "swarm_peers",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r1",
+          "workspace": "benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r1",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -236,7 +236,7 @@
         "r2": {
           "arm": "swarm_peers",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r2",
+          "workspace": "benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r2",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,
@@ -260,7 +260,7 @@
         "r3": {
           "arm": "swarm_peers",
           "task": "task_12_commonmark",
-          "workspace": "/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r3",
+          "workspace": "benchmarks/runs_claude_code/swarm_peers/task_12_commonmark/r3",
           "passed_all": true,
           "total_defects": 0,
           "held_out_defect_count": 0,

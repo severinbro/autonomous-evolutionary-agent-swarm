@@ -141,13 +141,13 @@ Whenever you want to build a major feature, game system, or application, simply 
 ## 5. Optional Local GPU Engines Configuration
 
 ### Limite 1B - Violetto (Math Reasoning on GPU 0)
-* **Location:** `/mnt/sda/development/scripts/math_eval.py`
+* **Location:** `~/.local/bin/math_eval.py`
 * **Port:** Served via vLLM on `http://127.0.0.1:8000/v1`
 * **Trigger:** Complex trigonometry, collision formulas, coordinate math, or algorithmic proofs.
 * **Fallback:** On machines without this script or GPU, the orchestrator/subagent solves math natively or runs `python3 -c "import math, sympy; ..."`.
 
 ### Qwen 2.5 Coder 7B AWQ (Offline Boilerplate on GPU 1)
-* **Location:** `/mnt/sda/development/scripts/qwen_coder.py`
+* **Location:** `~/.local/bin/qwen_coder.py`
 * **Port:** Served via vLLM on `http://127.0.0.1:8001/v1`
 * **Trigger:** Standalone, repetitive boilerplate code where zero API token consumption is desired.
 * **Fallback:** On standard machines, workers write code directly in their standard conversation turn.

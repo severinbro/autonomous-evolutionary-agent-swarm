@@ -18,12 +18,12 @@ The model runs locally on **GPU 0** via vLLM and incurs zero API token costs.
 To solve a problem, pass the query as a string argument:
 
 ```bash
-/mnt/sda/development/scripts/math_eval.py "Calculate the reflection vector of velocity V = (3, -4) off a surface with normal N = (0, 1)."
+~/.local/bin/math_eval.py "Calculate the reflection vector of velocity V = (3, -4) off a surface with normal N = (0, 1)."
 ```
 
 For complex multiline equations:
 ```bash
-/mnt/sda/development/scripts/math_eval.py << 'EOF'
+~/.local/bin/math_eval.py << 'EOF'
 Given a sphere of radius R at position P1 and a ray starting at P0 with direction D,
 derive the discriminant formula to check for intersection.
 EOF
@@ -31,7 +31,7 @@ EOF
 
 To parse machine-readable JSON output:
 ```bash
-/mnt/sda/development/scripts/math_eval.py --json "Find the roots of x^2 - 5x + 6 = 0"
+~/.local/bin/math_eval.py --json "Find the roots of x^2 - 5x + 6 = 0"
 ```
 
 ---
@@ -41,20 +41,20 @@ To parse machine-readable JSON output:
 The server auto-starts if offline, but can be controlled directly:
 ```bash
 # Check status:
-/mnt/sda/development/scripts/limite_ctl.sh status
+~/.local/bin/limite_ctl.sh status
 
 # Start manually:
-/mnt/sda/development/scripts/limite_ctl.sh start
+~/.local/bin/limite_ctl.sh start
 
 # Stop:
-/mnt/sda/development/scripts/limite_ctl.sh stop
+~/.local/bin/limite_ctl.sh stop
 ```
 
 ---
 
 ## 3. Fallback on Non-GPU / Other Machines
 
-If running on a machine where `/mnt/sda/development/scripts/math_eval.py` is not present:
+If running on a machine where `~/.local/bin/math_eval.py` is not present:
 * Solve the mathematical problem natively within your LLM reasoning.
 * To verify calculations numerically or algebraically, execute a local Python one-liner:
   ```bash

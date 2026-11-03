@@ -93,7 +93,7 @@ rclone sync ./local_dir gdrive:remote_dir -P
 You can create an executable helper script to simplify everyday operations:
 
 ```bash
-cat << 'EOF' > /mnt/sda/bash_scripts/gdrive.sh
+cat << 'EOF' > ~/.local/bin/gdrive.sh
 #!/usr/bin/env bash
 # Quick CLI helper for Rclone Google Drive operations
 REMOTE="gdrive"
@@ -134,7 +134,7 @@ case "$1" in
 esac
 EOF
 
-chmod +x /mnt/sda/bash_scripts/gdrive.sh
+chmod +x ~/.local/bin/gdrive.sh
 ```
 
 ---

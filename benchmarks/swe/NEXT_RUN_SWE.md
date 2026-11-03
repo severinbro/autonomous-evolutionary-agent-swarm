@@ -28,7 +28,7 @@ Within a phase, work through the instances in the order of `instances.json`, so 
 ## 2. One-time setup
 
 ```bash
-cd /home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm
+cd /path/to/autonomous-evolutionary-agent-swarm
 ./install.sh antigravity                      # plugin must include /peer-swarm and the updated goal_loop.py
 python3 -m venv benchmarks/swe/.venv && benchmarks/swe/.venv/bin/pip install swebench==5.0.2   # skip if it exists
 benchmarks/swe/.venv/bin/python benchmarks/swe/swe_bench.py pull            # ~45 GB of images, shared layers

@@ -20,7 +20,7 @@ Expect roughly 3–4 hours of agent time in total if the runs take about as long
 
 1. **Reinstall the plugin so Antigravity uses the updated skills.** The `invoke-swarm`, `discriminator-gate`, `goal-loop` and `coop-brainstorm` skills and `goal_loop.py` changed. Antigravity runs a copy, not this checkout:
    ```bash
-   cd /home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm
+   cd /path/to/autonomous-evolutionary-agent-swarm
    ./install.sh antigravity
    ```
    Then restart Antigravity.
@@ -49,7 +49,7 @@ These rules keep the arms comparable.
 ## 3. Prompts
 
 Replace `<WS>` with the run's absolute workspace path, for example:
-`/home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r2`
+`/path/to/autonomous-evolutionary-agent-swarm/benchmarks/runs/swarm_lite/task_7_parallel_fulfilment/r2`
 
 ### `single_agent_checked` (T7 and T8)
 
@@ -108,7 +108,7 @@ Add an entry to `benchmarks/telemetry_meta.json` under `arm → task → run_id`
 ## 5. Evaluate
 
 ```bash
-cd /home/sebroccoli/Documents/autonomous-evolutionary-agent-swarm
+cd /path/to/autonomous-evolutionary-agent-swarm
 python3 benchmarks/evaluate_benchmarks.py --evaluate
 ```
 

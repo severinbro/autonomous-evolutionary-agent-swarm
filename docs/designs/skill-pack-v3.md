@@ -1,6 +1,6 @@
 # Skill Pack v3: Evidence-Based Swarm Modes and a Design Track
 
-*   **Author:** sebroccoli
+*   **Author:** severinbro
 *   **Status:** Implemented (revision 3, after two Goldfish review rounds). G1 measured in `benchmarks/RESULTS.md` §9: met; no stronger guard needed.
 *   **Date:** 2026-11-03
 

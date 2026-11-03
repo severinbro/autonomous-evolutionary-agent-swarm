@@ -75,5 +75,5 @@ python3 scripts/immortal_watcher.py --stop
 
 ## 3. Hardware Accelerators & Graceful Fallbacks
 
-* **Math Engine (Limite 1B - Violetto on GPU 0):** If `/mnt/sda/development/scripts/math_eval.py` is present, route complex trigonometry/physics to it. Otherwise, solve natively using LLM reasoning or Python SymPy scripts.
-* **Local Coder (Qwen 2.5 Coder on GPU 1):** If `/mnt/sda/development/scripts/qwen_coder.py` is present, route offline boilerplate to it. Otherwise, workers synthesize code directly in their standard conversation loop.
+* **Math Engine (Limite 1B - Violetto on GPU 0):** If `~/.local/bin/math_eval.py` is present, route complex trigonometry/physics to it. Otherwise, solve natively using LLM reasoning or Python SymPy scripts.
+* **Local Coder (Qwen 2.5 Coder on GPU 1):** If `~/.local/bin/qwen_coder.py` is present, route offline boilerplate to it. Otherwise, workers synthesize code directly in their standard conversation loop.
