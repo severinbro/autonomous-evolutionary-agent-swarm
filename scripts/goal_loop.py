@@ -173,6 +173,15 @@ BLUEPRINT_PLACEHOLDER_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Elephant questions must be asked live via the harness polling tool (`ask_question` / `AskUserQuestion` /
+# `request_user_input`), never parked inside a design, plan, or blueprint Markdown file.
+OPEN_QUESTIONS_HEADING_RE = re.compile(r"^#{1,6}\s+Open\s+Questions?\b", re.IGNORECASE)
+UNRESOLVED_QUESTION_MARKER_RE = re.compile(
+    r"(?:\[\s*\?\s*\]|\bTODO\s*:\s*ask\b|\bUNRESOLVED_QUESTION\b"
+    r"|^\s*(?:[-*]|\d+\.)\s*(?:\*\*)?(?:Open\s+Question|Question\s+for\s+(?:User|Author|Elephant))\s*:)",
+    re.IGNORECASE,
+)
+
 # Statuses that mark a task as finished. `--verify-goal` still re-audits every finished task.
 DONE_TASK_STATUSES = {"VERIFIED_COMPLETE", "COMPLETED", "COMPLETED_WITH_RULING"}
 
@@ -1670,7 +1679,10 @@ def verify_wiring(
         }
 
     # 1. Check target module stems are wired when no explicit symbols or alongside symbols
+    has_non_test_target = any(not is_test_file(tf) for tf in target_files)
     for tf in target_files:
+        if has_non_test_target and is_test_file(tf):
+            continue
         stem = os.path.splitext(os.path.basename(tf))[0]
         if stem in ("__init__", "index", "main", "app", "cli", "server"):
             continue
@@ -2617,7 +2629,19 @@ def generate_task_brief(task_id: str, cwd: str | None = None) -> dict[str, Any]:
     lines.extend(
         [
             "",
-            "## 5. Global Non-Negotiables",
+            "## 5. Execution Discipline (TDD, Root-Cause Debugging & YAGNI)",
+            "- **Red-Green-Refactor TDD:** Add or update the automated test for the requirement and `Review Focus` "
+            "items first, run `verification_cmd` to confirm it fails for the expected reason (Red), implement the "
+            "minimal production code to pass (Green), then clean up (Refactor).",
+            "- **4-Phase Root-Cause Debugging:** If any test or audit fails, reproduce and read the full failure, "
+            "trace data flow to the root cause (`file:line`), test one hypothesis at a time, and pair the fix with a "
+            "regression test—never apply speculative symptom patches.",
+            "- **Shortest-Path YAGNI:** Prefer standard library and existing repository helpers over new dependencies, "
+            "wrapper abstractions, or unrequested flags.",
+            "- **Never Park Questions in Files:** If genuinely blocked by missing context that code inspection cannot "
+            "answer, return `Status: NEEDS_CONTEXT` so the orchestrator polls the user via the harness polling tool.",
+            "",
+            "## 6. Global Non-Negotiables",
         ]
     )
     for nn in non_negotiables:
@@ -2626,12 +2650,12 @@ def generate_task_brief(task_id: str, cwd: str | None = None) -> dict[str, Any]:
     lines.extend(
         [
             "",
-            "## 6. Subagent Return Contract (`< 15 lines` in chat)",
+            "## 7. Subagent Return Contract (`< 15 lines` in chat)",
             f"Write your full implementation notes and test output to `{report_path}`, and return ONLY:",
             "- `Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT`",
             "- `Commits: <base_sha>..<head_sha>`",
             "- `Tests: <1-line verification command summary>`",
-            "- `Concerns: <none or bulleted concerns>`",
+            "- `Concerns: <none, or explicit skipped checks / trade-offs / blockers>`",
             "",
         ]
     )
@@ -3201,12 +3225,40 @@ def _plan_list_items(value: str) -> list[str]:
     return items
 
 
+def _find_open_question_violations(text: str) -> list[str]:
+    """Return violations when a design, plan, or blueprint file parks open questions instead of polling live."""
+    cleaned = re.sub(r"<!--.*?-->", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.DOTALL)
+    violations: list[str] = []
+    in_fence = False
+    for lineno, raw in enumerate(cleaned.splitlines(), start=1):
+        if raw.lstrip().startswith(("```", "~~~")):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if OPEN_QUESTIONS_HEADING_RE.match(raw):
+            violations.append(
+                f"Line {lineno} has `{raw.strip()}`: Elephant questions must be asked live via the harness polling "
+                "tool (`ask_question` / `AskUserQuestion` / `request_user_input`), never placed in a plan/design file. "
+                "Record settled choices under `## Resolved Decisions`."
+            )
+            continue
+        unquoted = re.sub(r"`[^`]*`", "", raw)
+        m = UNRESOLVED_QUESTION_MARKER_RE.search(unquoted)
+        if m:
+            violations.append(
+                f"Line {lineno} contains unresolved question marker `{m.group(0).strip()}`: poll the user via the "
+                "harness polling tool before writing the plan."
+            )
+    return violations
+
+
 def _parse_design_plan(text: str) -> tuple[dict[str, Any], list[dict[str, Any]], list[str]]:
     """Parse the goal block and task blocks of a design; return `(goal, tasks, errors)`."""
-    errors: list[str] = []
+    errors: list[str] = _find_open_question_violations(text)
     blocks, has_goal = _plan_blocks(text)
     if blocks is None:
-        return {}, [], ["No `## Detailed Implementation Plan` (or `## Implementation Plan`) section."]
+        return {}, [], errors + ["No `## Detailed Implementation Plan` (or `## Implementation Plan`) section."]
 
     goal: dict[str, Any] = {}
     tasks: list[dict[str, Any]] = []
@@ -3261,6 +3313,7 @@ def _parse_design_plan(text: str) -> tuple[dict[str, Any], list[dict[str, Any]],
                 "id": tid,
                 "title": title,
                 "target_files": target_files,
+                "deleted_files": deleted,
                 "depends_on": depends_on,
                 "objective": objective,
                 "verification_cmd": verification,
@@ -3358,7 +3411,8 @@ def import_design(
 
     head = _detect_git_head(cwd=root)
     for t in plan_tasks:
-        record = {**t, "spec_ref": f"{rel_doc} § Task {t['id']}"}
+        record = {k: v for k, v in t.items() if k != "deleted_files"}
+        record["spec_ref"] = f"{rel_doc} § Task {t['id']}"
         existing = tasks.get(t["id"])
         changed_cmds = [
             (field, record[field]) for field in ("verification_cmd", "outcome_cmd")
@@ -3422,17 +3476,23 @@ def verify_blueprint_artifacts(cwd: str | None = None, require_ui: bool = False)
         os.path.join(root, "docs", "ARCHITECTURE.md"),
     ]
 
-    for r_path in expected_reports + [p for p in optional_reports if os.path.exists(p)]:
+    plans_dir = os.path.join(root, ".swarm", "plans")
+    plan_files = sorted(str(p) for p in Path(plans_dir).glob("*.md")) if os.path.isdir(plans_dir) else []
+
+    for r_path in expected_reports + [p for p in optional_reports if os.path.exists(p)] + plan_files:
         rel = os.path.relpath(r_path, root)
         if not os.path.isfile(r_path):
             errors.append(f"Missing required blueprint artifact: `{rel}`")
             continue
         checked_files.append(rel)
         text = Path(r_path).read_text(encoding="utf-8", errors="replace")
-        if len(text.strip()) < 250:
-            errors.append(f"Blueprint artifact `{rel}` is half-baked / too short ({len(text.strip())} chars).")
+        if r_path in expected_reports or r_path in optional_reports:
+            if len(text.strip()) < 250:
+                errors.append(f"Blueprint artifact `{rel}` is half-baked / too short ({len(text.strip())} chars).")
         for m in BLUEPRINT_PLACEHOLDER_RE.finditer(text):
             errors.append(f"Blueprint artifact `{rel}` contains unfulfilled placeholder `{m.group(0)}`.")
+        for v in _find_open_question_violations(text):
+            errors.append(f"Blueprint/plan `{rel}` violates Zero-Plan-Questions rule: {v}")
 
     if require_ui:
         ui_dir = os.path.join(bp_dir, "ui_proposals")
@@ -3475,6 +3535,227 @@ def verify_blueprint_artifacts(cwd: str | None = None, require_ui: bool = False)
         "passed": passed,
         "checked_files": checked_files,
         "errors": errors,
+    }
+
+
+def _file_defines_symbol(abs_path: str, symbol: str) -> bool:
+    """Return True if `abs_path` defines `symbol` (via Python AST or identifier declaration regex)."""
+    if not os.path.isfile(abs_path):
+        return False
+    try:
+        src = Path(abs_path).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    if os.path.splitext(abs_path)[1].lower() == ".py":
+        try:
+            tree = ast.parse(src, filename=abs_path)
+        except SyntaxError:
+            return False
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and node.name == symbol:
+                return True
+            if isinstance(node, ast.Assign):
+                for tgt in node.targets:
+                    if isinstance(tgt, ast.Name) and tgt.id == symbol:
+                        return True
+            if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name) and node.target.id == symbol:
+                return True
+        return False
+    return bool(re.search(rf"\b{re.escape(symbol)}\b", src))
+
+
+def check_design_drift(
+    doc_paths: list[str] | None = None,
+    cwd: str | None = None,
+    run_checks: bool = False,
+) -> dict[str, Any]:
+    """Compare design specs against the live codebase and `.swarm/goal_loop.json` (EGM spec-to-code drift check)."""
+    root = os.path.abspath(cwd or os.getcwd())
+    explicit = bool(doc_paths)
+    state = load_goal_state(cwd=root)
+    stored_tasks = state.get("tasks", {})
+
+    if explicit:
+        candidates = [p if os.path.isabs(p) else os.path.join(root, p) for p in (doc_paths or [])]
+    else:
+        designs_dir = Path(root) / "docs" / "designs"
+        found = sorted(str(p) for p in designs_dir.glob("*.md")) if designs_dir.is_dir() else []
+        from_refs = sorted(
+            {
+                os.path.join(root, str(t.get("spec_ref")).split(" § ")[0])
+                for t in stored_tasks.values()
+                if t.get("spec_ref")
+            }
+        )
+        candidates = list(dict.fromkeys(found + from_refs))
+
+    if not candidates:
+        return {
+            "status": "NO_DESIGNS",
+            "passed": True,
+            "designs_checked": [],
+            "skipped_drafts": [],
+            "drift_count": 0,
+            "drifts": [],
+        }
+
+    designs_checked: list[str] = []
+    skipped_drafts: list[str] = []
+    drifts: list[dict[str, str]] = []
+
+    def add_drift(doc_rel: str, task_id: str, category: str, target: str, detail: str) -> None:
+        drifts.append(
+            {
+                "design": doc_rel,
+                "task_id": task_id,
+                "category": category,
+                "target": target,
+                "detail": detail,
+            }
+        )
+
+    for abs_doc in candidates:
+        rel_doc = os.path.relpath(abs_doc, root)
+        if not os.path.isfile(abs_doc):
+            designs_checked.append(rel_doc)
+            add_drift(rel_doc, "(design)", "MISSING_DESIGN_FILE", rel_doc, f"Design file `{rel_doc}` does not exist.")
+            continue
+
+        text = Path(abs_doc).read_text(encoding="utf-8", errors="replace")
+        status_m = re.search(r"^[*-]\s+\*\*Status(?::\*\*|\*\*:)\s*(.+)$", text, re.MULTILINE | re.IGNORECASE)
+        doc_status = status_m.group(1).strip() if status_m else ""
+        if not explicit and doc_status.lower().startswith("draft"):
+            skipped_drafts.append(rel_doc)
+            continue
+
+        designs_checked.append(rel_doc)
+        goal, plan_tasks, parse_errors = _parse_design_plan(text)
+        for pe in parse_errors:
+            add_drift(rel_doc, "(design)", "PLAN_CONTRACT_VIOLATION", rel_doc, pe)
+        if not plan_tasks:
+            continue
+
+        owned_in_goal = {
+            tid: task
+            for tid, task in stored_tasks.items()
+            if str(task.get("spec_ref") or "").split(" § ")[0] == rel_doc
+        }
+        plan_ids = {t["id"] for t in plan_tasks}
+
+        for t in plan_tasks:
+            tid = t["id"]
+            missing_targets: list[str] = []
+            for tf in t["target_files"]:
+                abs_tf = tf if os.path.isabs(tf) else os.path.join(root, tf)
+                if not os.path.isfile(abs_tf):
+                    missing_targets.append(tf)
+                    add_drift(
+                        rel_doc, tid, "MISSING_TARGET_FILE", tf, f"Planned file `{tf}` does not exist in workspace."
+                    )
+
+            for df in t.get("deleted_files", []):
+                abs_df = df if os.path.isabs(df) else os.path.join(root, df)
+                if os.path.exists(abs_df):
+                    add_drift(
+                        rel_doc,
+                        tid,
+                        "LINGERING_DELETED_FILE",
+                        df,
+                        f"File `{df}` is marked `(Delete)` in the design but still exists on disk.",
+                    )
+
+            existing_impl_files = [
+                tf
+                for tf in t["target_files"]
+                if tf not in missing_targets and (not is_test_file(tf) or len(t["target_files"]) == 1)
+            ]
+            for sym in t["required_symbols"]:
+                if existing_impl_files and not any(
+                    _file_defines_symbol(tf if os.path.isabs(tf) else os.path.join(root, tf), sym)
+                    for tf in existing_impl_files
+                ):
+                    add_drift(
+                        rel_doc,
+                        tid,
+                        "MISSING_EXPORTED_SYMBOL",
+                        sym,
+                        f"Symbol `{sym}` named in design is not defined in {', '.join(existing_impl_files)}.",
+                    )
+
+            if t["wiring_files"] and not missing_targets:
+                w_res = verify_wiring(
+                    root_dir=root,
+                    target_files=t["target_files"],
+                    wiring_files=t["wiring_files"],
+                    required_symbols=t["required_symbols"],
+                )
+                for w_err in w_res["errors"]:
+                    add_drift(rel_doc, tid, "BROKEN_CALLER_WIRING", ", ".join(t["wiring_files"]), w_err)
+
+            if owned_in_goal:
+                stored = owned_in_goal.get(tid)
+                expected_record = {k: v for k, v in t.items() if k != "deleted_files"}
+                expected_record["spec_ref"] = f"{rel_doc} § Task {tid}"
+                if stored is None:
+                    add_drift(
+                        rel_doc,
+                        tid,
+                        "GOAL_LOOP_OUT_OF_SYNC",
+                        tid,
+                        f"Task `{tid}` is in `{rel_doc}` but missing from `.swarm/goal_loop.json`.",
+                    )
+                else:
+                    changed_fields = [
+                        f for f in IMPORT_COMPARED_FIELDS if stored.get(f) != expected_record.get(f)
+                    ]
+                    if changed_fields:
+                        add_drift(
+                            rel_doc,
+                            tid,
+                            "GOAL_LOOP_OUT_OF_SYNC",
+                            tid,
+                            f"Design fields ({', '.join(changed_fields)}) differ from `.swarm/goal_loop.json`.",
+                        )
+
+            if run_checks and t["verification_cmd"]:
+                c_res = run_command_gate(t["verification_cmd"], cwd=root)
+                if not c_res["passed"]:
+                    add_drift(
+                        rel_doc,
+                        tid,
+                        "FAILING_VERIFICATION_CMD",
+                        t["verification_cmd"],
+                        "; ".join(c_res["errors"][:2]) or "Verification command exited non-zero.",
+                    )
+
+        for orphan_id in sorted(set(owned_in_goal) - plan_ids):
+            add_drift(
+                rel_doc,
+                orphan_id,
+                "ORPHAN_GOAL_LOOP_TASK",
+                orphan_id,
+                f"Task `{orphan_id}` in `.swarm/goal_loop.json` points to `{rel_doc}` but was removed from its plan.",
+            )
+
+        if run_checks and goal.get("outcome_cmd"):
+            o_res = run_command_gate(goal["outcome_cmd"], cwd=root)
+            if not o_res["passed"]:
+                add_drift(
+                    rel_doc,
+                    "(goal)",
+                    "FAILING_OUTCOME_CMD",
+                    goal["outcome_cmd"],
+                    "; ".join(o_res["errors"][:2]) or "Design outcome command exited non-zero.",
+                )
+
+    passed = len(drifts) == 0
+    return {
+        "status": "CLEAN" if passed else "DRIFT_DETECTED",
+        "passed": passed,
+        "designs_checked": designs_checked,
+        "skipped_drafts": skipped_drafts,
+        "drift_count": len(drifts),
+        "drifts": drifts,
     }
 
 
@@ -3707,6 +3988,17 @@ def main() -> None:
     ap.add_argument("--verify-goal", "--verify-epoch", dest="verify_goal", action="store_true", help="Verify all tasks, repo authenticity, and root outcome")
     ap.add_argument("--verify-blueprint", action="store_true", help="Verify `/product-discovery` blueprint artifacts have zero placeholders")
     ap.add_argument("--require-ui", action="store_true", help="Require 3 validated HTML UI templates in --verify-blueprint")
+    ap.add_argument(
+        "--drift-report",
+        nargs="*",
+        metavar="DESIGN_MD",
+        help="Check spec-to-code drift across `docs/designs/*.md` (or specific design files)",
+    )
+    ap.add_argument(
+        "--run-checks",
+        action="store_true",
+        help="With `--drift-report`, also run each design's `Verification` and `Outcome` commands",
+    )
     ap.add_argument("--scan-authenticity", action="store_true", help="Scan codebase for stubs, synthetic mocks, and unwired modules")
     ap.add_argument("--no-orphan-check", action="store_true", help="Skip cross-file orphan module check during --scan-authenticity")
     ap.add_argument("--emit-completion", action="store_true", help="Emit `<!-- GOAL_COMPLETE -->` if and only if goal verification passes")
@@ -3719,6 +4011,8 @@ def main() -> None:
     cwd = args.cwd or os.getcwd()
     if (args.dry_run or args.drop_missing) and not args.import_design:
         ap.error("--dry-run and --drop-missing require --import-design")
+    if args.run_checks and args.drift_report is None:
+        ap.error("--run-checks requires --drift-report")
 
     def _resolve_tid(val: str | None) -> str:
         if val and val != "__USE_TASK_ID__":
@@ -3898,6 +4192,18 @@ def main() -> None:
     elif args.verify_blueprint:
         res = verify_blueprint_artifacts(cwd=cwd, require_ui=args.require_ui)
         print(json.dumps(res, indent=2))
+        sys.exit(0 if res["passed"] else 1)
+    elif args.drift_report is not None:
+        res = check_design_drift(doc_paths=args.drift_report or None, cwd=cwd, run_checks=args.run_checks)
+        if args.json:
+            print(json.dumps(res, indent=2))
+        else:
+            checked = ", ".join(res["designs_checked"]) or "none"
+            print(f"Drift report ({checked}): {res['status']} ({res['drift_count']} drift item(s))")
+            for skipped in res["skipped_drafts"]:
+                print(f"  skipped   {skipped} (Status: Draft)")
+            for d in res["drifts"]:
+                print(f"  drift     [{d['category']}] {d['design']} {d['task_id']} ({d['target']}): {d['detail']}")
         sys.exit(0 if res["passed"] else 1)
     elif args.scan_authenticity:
         t_files = [x.strip() for x in args.target_files.split(",") if x.strip()] if args.target_files else None

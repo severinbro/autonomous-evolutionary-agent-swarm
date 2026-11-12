@@ -22,15 +22,15 @@
 
 ## Non-Goals
 
-<!-- What is deliberately out of scope, so the implementer does not add it. -->
+<!-- What is deliberately out of scope, so the implementer does not add it (YAGNI). -->
 
 *   <non-goal>
 
-## Open Questions
+## Resolved Decisions
 
-<!-- Unresolved questions, kept across drafting sessions. Remove each once answered. Write "None." when empty. -->
+<!-- Key scope, architectural, and edge-case decisions settled with the user via the harness polling tool (`ask_question` / `AskUserQuestion` / `request_user_input`) before implementation. Never place open questions here. -->
 
-*   None.
+*   **D1 — <topic>:** <chosen option and concise rationale>.
 
 ## Critical User Journeys (CUJs)
 
@@ -42,7 +42,7 @@
 
 ## Technical Plan (Architecture)
 
-<!-- Components, data flow, interfaces, and how this fits the existing code. A text diagram helps. -->
+<!-- Components, data flow, interfaces, and how this fits the existing code. Prefer stdlib and existing modules over new abstractions. -->
 
 ## Alternatives Considered
 
@@ -70,14 +70,16 @@
 
 ### Future Improvements
 
-<!-- Ideas deliberately left for later. Omit if none. -->
+<!-- Ideas deliberately left for later, plus anything intentionally skipped or not checked. Omit if none. -->
 
 --------------------------------------------------------------------------------
 
 ## Detailed Implementation Plan
 
 <!--
-`goal_loop.py --import-design` reads only the `### Goal` block and the `### Task <ID>: <title>` blocks below.
+`goal_loop.py --import-design` reads only the `### Goal` block and the `### Task <ID>: <title>` blocks below,
+and rejects any non-fenced `Open Questions` heading or `[?]` marker anywhere in the document.
+Decompose into vertical slices ("tracer bullets"): each task wires real behavior + a failing-first test (`Verification`).
 Fields are bullets at column 0. Required: Files (each path tagged Create/Modify/Delete), Depends on, Changes,
 Verification (a backticked command that fails without the change). Optional: Outcome, Review focus, Called by, Symbols.
 Prefix task IDs with a short name for this design (DEMO-1, DEMO-2, ...) so they never collide with another design's.

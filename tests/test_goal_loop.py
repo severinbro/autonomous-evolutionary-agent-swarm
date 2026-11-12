@@ -666,6 +666,119 @@ class TestImportDesign(GoalLoopProject):
         self.assertFalse(res["passed"])
         self.assertIn("is missing", "\n".join(res["errors"]))
 
+    def test_open_questions_rejected_outside_fences_and_allowed_inside_fences(self):
+        with_open_q = "## Open Questions\n\n* Should we use SQLite or Postgres?\n\n" + DESIGN_HEAD + TASK_SOLVE + PLAN_TAIL
+        self.write("docs/designs/bad.md", with_open_q)
+        before = self.goal_bytes()
+        res = goal_loop.import_design("docs/designs/bad.md", cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        self.assertIn("harness polling", "\n".join(res["errors"]))
+        self.assertEqual(self.goal_bytes(), before)
+
+        with_marker = DESIGN_HEAD + TASK_SOLVE.replace("It doubles every value.", "It doubles every value [?].") + PLAN_TAIL
+        self.write("docs/designs/marker.md", with_marker)
+        res = goal_loop.import_design("docs/designs/marker.md", cwd=self.cwd)
+        self.assertEqual(res["status"], "ERROR")
+        self.assertIn("unresolved question marker", "\n".join(res["errors"]))
+
+        fenced_and_inline = (
+            "## Resolved Decisions\n\n"
+            "<!-- ## Open Questions [?] -->\n"
+            "* Rejected `## Open Questions` and `[?]` markers in favour of live harness polls.\n\n"
+            "```markdown\n## Open Questions\n- Question for User: ignored inside fence [?]\n```\n\n"
+            + DESIGN_HEAD
+            + TASK_SOLVE
+            + PLAN_TAIL
+        )
+        self.write("docs/designs/clean.md", fenced_and_inline)
+        res = goal_loop.import_design("docs/designs/clean.md", cwd=self.cwd, dry_run=True)
+        self.assertEqual(res["status"], "OK", res["errors"])
+
+    def test_verify_blueprint_rejects_open_questions_in_blueprint_and_epoch_plans(self):
+        self.write(".swarm/blueprint/tech_research_report.md", "Research notes. " * 30)
+        self.write(".swarm/blueprint/brainstorm_blueprint.md", ("Product notes. " * 30) + "\n## Open Questions\n* TBD?\n")
+        res = goal_loop.verify_blueprint_artifacts(cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertIn("Zero-Plan-Questions", "\n".join(res["errors"]))
+
+        self.write(".swarm/blueprint/brainstorm_blueprint.md", "Product notes. " * 30)
+        self.write(".swarm/plans/epoch_2_plan.md", "# Plan\n- **Question for User:** Which port?\n")
+        res = goal_loop.verify_blueprint_artifacts(cwd=self.cwd)
+        self.assertFalse(res["passed"])
+        self.assertIn("epoch_2_plan.md", "\n".join(res["errors"]))
+
+    def test_task_brief_embeds_tdd_root_cause_and_yagni_discipline(self):
+        goal_loop.import_design(self.design(TASK_SOLVE), cwd=self.cwd)
+        brief = Path(goal_loop.generate_task_brief("D-1", cwd=self.cwd)["brief_path"]).read_text(encoding="utf-8")
+        self.assertIn("Red-Green-Refactor TDD", brief)
+        self.assertIn("4-Phase Root-Cause Debugging", brief)
+        self.assertIn("Shortest-Path YAGNI", brief)
+        self.assertIn("Never Park Questions in Files", brief)
+
+
+class TestDesignDrift(GoalLoopProject):
+    def _write_approved_design(self, extra_header: str = "*   **Status:** Approved\n\n") -> str:
+        doc = "docs/designs/demo.md"
+        self.write(doc, extra_header + DESIGN_HEAD + TASK_SOLVE + TASK_REPORT + PLAN_TAIL)
+        return doc
+
+    def _populate_matching_code(self) -> None:
+        self.clean_solver()
+        self.write("tests/test_solver.py", "import unittest\nfrom src.solver import solve\n")
+        self.write("src/report.py", "def render(rows):\n    return '\\n'.join(rows)\n")
+
+    def test_clean_when_code_wiring_deletes_and_goal_loop_match_design(self):
+        doc = self._write_approved_design()
+        self._populate_matching_code()
+        goal_loop.import_design(doc, cwd=self.cwd)
+        res = goal_loop.check_design_drift(cwd=self.cwd)
+        self.assertEqual(res["status"], "CLEAN", res["drifts"])
+        self.assertEqual(res["drift_count"], 0)
+
+    def test_detects_missing_file_lingering_delete_missing_symbol_broken_wiring_and_stale_goal(self):
+        doc = self._write_approved_design()
+        self._populate_matching_code()
+        goal_loop.import_design(doc, cwd=self.cwd)
+
+        # 1. Lingering deleted file + missing target file
+        self.write("src/old_report.py", "legacy = True\n")
+        (self.root / "src" / "report.py").unlink()
+        # 2. Missing exported symbol + broken caller wiring
+        self.write("src/solver.py", "def renamed_solve(matrix):\n    return matrix\n")
+        self.write("src/main.py", "print('no solver call')\n")
+        # 3. Stale goal_loop.json + orphan task
+        state = goal_loop.load_goal_state(cwd=self.cwd)
+        state["tasks"]["D-1"]["title"] = "Outdated Title"
+        state["tasks"]["D-ORPHAN"] = {"id": "D-ORPHAN", "title": "Old", "spec_ref": "docs/designs/demo.md § Task D-ORPHAN"}
+        goal_loop.save_goal_state(state, cwd=self.cwd)
+
+        res = goal_loop.check_design_drift(cwd=self.cwd)
+        self.assertEqual(res["status"], "DRIFT_DETECTED")
+        categories = {d["category"] for d in res["drifts"]}
+        self.assertIn("MISSING_TARGET_FILE", categories)
+        self.assertIn("LINGERING_DELETED_FILE", categories)
+        self.assertIn("MISSING_EXPORTED_SYMBOL", categories)
+        self.assertIn("BROKEN_CALLER_WIRING", categories)
+        self.assertIn("GOAL_LOOP_OUT_OF_SYNC", categories)
+        self.assertIn("ORPHAN_GOAL_LOOP_TASK", categories)
+
+    def test_draft_designs_are_skipped_by_default_and_checked_when_explicit(self):
+        doc = self._write_approved_design(extra_header="*   **Status:** Draft\n\n")
+        auto = goal_loop.check_design_drift(cwd=self.cwd)
+        self.assertEqual(auto["status"], "CLEAN")
+        self.assertEqual(auto["skipped_drafts"], [doc])
+
+        explicit = goal_loop.check_design_drift(doc_paths=[doc], cwd=self.cwd)
+        self.assertEqual(explicit["status"], "DRIFT_DETECTED")
+
+    def test_run_checks_flags_failing_verification_command(self):
+        doc = self._write_approved_design()
+        self._populate_matching_code()
+        self.write("tests/test_report.py", "import unittest\nclass T(unittest.TestCase):\n    def test_fail(self): self.fail('boom')\n")
+        res = goal_loop.check_design_drift(doc_paths=[doc], cwd=self.cwd, run_checks=True)
+        self.assertEqual(res["status"], "DRIFT_DETECTED")
+        self.assertIn("FAILING_VERIFICATION_CMD", {d["category"] for d in res["drifts"]})
+
 
 class TestRepositoryDesign(unittest.TestCase):
     def test_skill_pack_v3_design_imports_cleanly(self):

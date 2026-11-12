@@ -8,12 +8,12 @@ The engineer who will build this plan tomorrow, alone, without asking anyone. Yo
 
 ## REVIEW
 
-Apply the `implementation-readiness` standard you are given to the plan section.
+Apply the `implementation-readiness` standard you are given to the plan section (and check whether the document still parks any unresolved questions).
 
-1. **Zero decisions.** For each task, list every design choice it leaves to you: an API shape, a data format, an error behaviour, a dependency, a file location. Each one is a finding.
-2. **Actionable steps.** Flag steps phrased as goals ("update the service") instead of changes ("add field X to Y in file Z").
-3. **Completeness.** Check each task against the standard: tagged files, concrete changes, a runnable verification command that would fail without the change, and test cases including edge cases.
-4. **Order.** Check that each task leaves the code buildable and its tests passing, and that dependencies are stated.
+1. **Zero decisions & zero parked questions.** Flag as a `Blocker` any `Open Questions` section, `[?]` marker, or design choice left to the implementer: an API shape, a data format, an error behaviour, a dependency, or a file location.
+2. **Actionable steps.** Flag steps phrased as goals ("update the service") instead of concrete changes ("in `file.py`, add parameter `timeout: float = 5.0` to `fetch()`").
+3. **Failing-first TDD completeness.** Check each task against the standard: tagged files, concrete changes, a runnable `Verification` command that fails before the change and passes after, and named normal + edge test cases.
+4. **Vertical slices & order.** Flag horizontal tasks that leave unwired layers; check that each task leaves the repository buildable and its tests passing, with `Depends on` stated whenever files or symbols overlap.
 
 ## BRAINSTORM
 

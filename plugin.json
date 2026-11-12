@@ -1,8 +1,8 @@
 {
   "name": "agent-swarm",
   "displayName": "Autonomous Evolutionary Agent Swarm Toolkit",
-  "version": "3.0.0",
-  "description": "Goal-driven multi-agent swarm for Antigravity and Claude Code: /invoke-swarm (Lite by default, opt-in best-of-3 and 3-epoch Full Mode) with a deterministic goal-loop gate and on-demand reviewer; /product-discovery research and planning; and an experimental Elephant-Goldfish design track (/design-draft, /goldfish-review, plan import into goal_loop.json).",
+  "version": "3.1.0",
+  "description": "Goal-driven multi-agent swarm for Antigravity, Claude Code & Codex: /invoke-swarm (Lite default, best-of-3, Full Mode) with TDD/YAGNI briefs, deterministic goal-loop gate, /product-discovery, and an Elephant-Goldfish track (/coop-brainstorm, /design-draft, /goldfish-review, /drift-report) using harness-native polling.",
   "author": {
     "name": "Antigravity Swarm Architecture"
   },
@@ -45,6 +45,7 @@
     "knowledge-wiki",
     "goldfish-review",
     "design-draft",
+    "drift-report",
     "elephant-goldfish"
   ]
 }

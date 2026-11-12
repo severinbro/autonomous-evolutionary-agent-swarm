@@ -181,5 +181,53 @@ class GoldfishPersonaTest(unittest.TestCase):
         self.assertEqual({t.strip() for t in tools.split(",")}, {"Read", "Grep", "Glob"})
 
 
+class ElephantPollingAndPrinciplesTest(unittest.TestCase):
+    def test_shared_harness_polling_reference_covers_all_harnesses_and_forbids_plan_questions(self):
+        ref = read("references/harness-polling.md")
+        for marker in ("ask_question", "AskUserQuestion", "request_user_input", "Never park questions", "Resolved Decisions"):
+            self.assertIn(marker, ref)
+
+    def test_design_template_uses_resolved_decisions_and_has_no_open_questions_heading(self):
+        tpl = read("skills/design-draft/template.md")
+        self.assertIn("## Resolved Decisions", tpl)
+        self.assertIsNone(re.search(r"^#{1,6}\s+Open\s+Questions?\b", tpl, re.MULTILINE | re.IGNORECASE))
+
+    def test_elephant_skills_use_harness_polling_tools_not_plan_questions(self):
+        elephant_skills = (
+            "skills/coop-brainstorm/SKILL.md",
+            "skills/design-draft/SKILL.md",
+            "skills/goldfish-review/SKILL.md",
+            "skills/drift-report/SKILL.md",
+            "skills/product-discovery/SKILL.md",
+            "skills/ui-ux-design/SKILL.md",
+        )
+        for rel in elephant_skills:
+            with self.subTest(skill=rel):
+                text = read(rel)
+                for tool_name in ("ask_question", "AskUserQuestion", "request_user_input"):
+                    self.assertIn(tool_name, text)
+                self.assertIsNone(re.search(r"^#{1,6}\s+Open\s+Questions?\b", text, re.MULTILINE | re.IGNORECASE))
+
+    def test_progressive_disclosure_keeps_every_skill_within_200_lines(self):
+        for path in sorted(REPO.glob("skills/*/SKILL.md")):
+            with self.subTest(skill=path.parent.name):
+                line_count = len(path.read_text(encoding="utf-8").splitlines())
+                self.assertLessEqual(line_count, 200, f"{path.parent.name}/SKILL.md has {line_count} lines (> 200)")
+
+    def test_tdd_root_cause_yagni_and_drift_contracts_present(self):
+        swarm = read("skills/invoke-swarm/SKILL.md")
+        gate = read("skills/discriminator-gate/SKILL.md")
+        orch = read("rules/ORCHESTRATOR.md")
+        drift = read("skills/drift-report/SKILL.md")
+        self.assertIn("Red-Green-Refactor TDD", swarm)
+        self.assertIn("--drift-report", swarm)
+        self.assertIn("4-Phase Root-Cause Debugging", gate)
+        self.assertIn("ESCALATE_TO_USER", gate)
+        self.assertIn("AskUserQuestion", gate)
+        self.assertIn("Red-Green-Refactor TDD", orch)
+        self.assertIn("/drift-report", orch)
+        self.assertIn("--drift-report", drift)
+
+
 if __name__ == "__main__":
     unittest.main()

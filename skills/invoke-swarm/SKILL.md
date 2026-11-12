@@ -107,17 +107,17 @@ Dispatch in waves: a task is ready when every task in its `depends_on` is finish
    python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" \
      --cwd <WORKSPACE_DIR> --task-brief <TASK_ID>
    ```
-2. Invoke the worker subagent, passing **only the path** `.swarm/briefs/<TASK_ID>-brief.md` and enforcing the **Structured Subagent Return Contract (`< 15 lines`)**:
+2. Invoke the worker subagent, passing **only the path** `.swarm/briefs/<TASK_ID>-brief.md` (which embeds Red-Green-Refactor TDD, 4-Phase Root-Cause Debugging, and shortest-path YAGNI) and enforcing the **Structured Subagent Return Contract (`< 15 lines`)**:
    ```markdown
    Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
    Task: <TASK_ID>
    Files Modified: <comma-separated paths>
-   Verification Run: <exact command(s) + exit code>
+   Verification Run: <exact command(s) + exit code (failed Red first, passed Green after)>
    Wiring Proof: <caller_file:line -> exported_symbol()>
-   Concerns / Notes: <1-3 bullet points max, or "None">
+   Concerns / Skipped: <1-3 bullet points max: skipped checks, trade-offs, or "None">
    ```
    - Handle `Status` immediately:
-     - `BLOCKED` or `NEEDS_CONTEXT`: Resolve the missing dependency or ambiguity before running the reviewer.
+     - `BLOCKED` or `NEEDS_CONTEXT`: Inspect the repository (`Read`/`Grep`) first; if genuinely unsettled, poll the user live via the **harness polling tool** (`ask_question` / `AskUserQuestion` / `request_user_input`; `$AGENT_SWARM_HOME/references/harness-polling.md`)—never park open questions in plan files.
      - `DONE` or `DONE_WITH_CONCERNS`: Proceed to Step 1.5.
 
 ### Step 1.5a: Deterministic Gate (Always)
@@ -160,7 +160,7 @@ When running in **Lite Mode**, skip Steps 3–7. Run the project's full test sui
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd <WORKSPACE_DIR> --verify-goal
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --check-convergence --lite
 ```
-If HTML/UI files exist, also run `scripts/web_ui_validator.py`. If the deliverable is a game or app binary, also run `scripts/quality_validator.py <binary> --timeout 10` (it smoke-tests binaries only). Once `--verify-goal` and `--check-convergence --lite` return `CONVERGED_NO_IMPROVEMENTS_NEEDED`, deliver the final summary.
+If HTML/UI files exist, also run `scripts/web_ui_validator.py`. If the deliverable is a game or app binary, also run `scripts/quality_validator.py <binary> --timeout 10` (it smoke-tests binaries only). When tasks came from `docs/designs/*.md`, also run `goal_loop.py --cwd <WORKSPACE_DIR> --drift-report` to verify spec-to-code alignment. Once `--verify-goal` and `--check-convergence --lite` return `CONVERGED_NO_IMPROVEMENTS_NEEDED`, deliver the final summary (explicitly stating verified outcomes, any `Ruling:` entries, and any checks intentionally skipped).
 
 **Release-level audit (when the user asks for one):** run `/triad-audit` and `/sota-web-scout` in parallel (reports go to `.swarm/epoch_1/`, since Lite is epoch 1; the scout needs network access). List every triad `CRITICAL` or `HIGH` finding, every scout `CRITICAL_GAP`, and every scout upgrade row with Net-ROI `HIGH` to the user. For each finding the user picks, add a task `AUDIT-<n>` with `goal_loop.py --add-task`, giving it the files and a verification command you write. The new tasks then go through Steps 1–2.5 in the same goal file; no re-initialisation is needed.
 

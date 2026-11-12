@@ -110,7 +110,9 @@ Each task in `.swarm/goal_loop.json` includes:
 - `spec_ref`: For tasks imported from a design, `"<design path> § Task <ID>"`. Briefs and review packages print it; where they differ from the design, the design decides.
 - `subtasks`: Atomic checklist items (`id`, `title`, `status`, `verification_cmd`).
 
-**Importing a design (`--import-design <doc> [--dry-run] [--drop-missing]`):** reads the `### Goal` block and every `### Task <ID>: <title>` block under the design's `## Detailed Implementation Plan` (headings inside code fences are ignored) and writes them as tasks with `spec_ref`. Fields are column-0 bullets: `Files` (backticked paths tagged `(Create)`/`(Modify)`/`(Delete)`), `Depends on`, `Changes`, `Verification` (backticked command) are required; `Outcome`, `Review focus` (numbered list), `Called by` and `Symbols` are optional. All errors are reported together and nothing is written while any exists: missing fields, untagged files, unknown or cyclic dependencies, duplicate IDs, files shared by tasks with no dependency path, task IDs owned by another design, and tasks dropped from the plan (unless `--drop-missing`). A re-imported task whose fields changed goes back to `PENDING` with its gate results cleared. The output lists every new or changed command; confirm them with the user before a real import, because the gate will run them.
+**Importing a design (`--import-design <doc> [--dry-run] [--drop-missing]`):** reads the `### Goal` block and every `### Task <ID>: <title>` block under the design's `## Detailed Implementation Plan` (headings inside code fences are ignored) and writes them as tasks with `spec_ref`. Fields are column-0 bullets: `Files` (backticked paths tagged `(Create)`/`(Modify)`/`(Delete)`), `Depends on`, `Changes`, `Verification` (backticked command) are required; `Outcome`, `Review focus` (numbered list), `Called by` and `Symbols` are optional. All errors are reported together and nothing is written while any exists: missing fields, untagged files, non-fenced `Open Questions` headings or unresolved `[?]` question markers (Elephant questions belong in live harness polls via `ask_question` / `AskUserQuestion` / `request_user_input`, never inside plan/design files), unknown or cyclic dependencies, duplicate IDs, files shared by tasks with no dependency path, task IDs owned by another design, and tasks dropped from the plan (unless `--drop-missing`). A re-imported task whose fields changed goes back to `PENDING` with its gate results cleared. The output lists every new or changed command; confirm them with the user via the harness polling tool before a real import, because the gate will run them.
+
+**Checking spec-to-code drift (`--drift-report [<doc> ...] [--run-checks]`):** compares non-draft designs under `docs/designs/*.md` (and `spec_ref` targets) against the live codebase and `.swarm/goal_loop.json`, flagging `MISSING_TARGET_FILE`, `LINGERING_DELETED_FILE`, `MISSING_EXPORTED_SYMBOL`, `BROKEN_CALLER_WIRING`, `GOAL_LOOP_OUT_OF_SYNC`, and (with `--run-checks`) failing `Verification`/`Outcome` commands. See `/drift-report`.
 
 ---
 
@@ -161,6 +163,9 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . \
 
 # 8. Verify end-to-end goal convergence (every task, repo authenticity, and the root outcome command)
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --verify-goal
+
+# 9. Check spec-to-code drift across docs/designs/*.md (add --run-checks to execute Verification/Outcome commands)
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --cwd . --drift-report --run-checks
 ```
 
 ---

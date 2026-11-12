@@ -18,7 +18,7 @@ Use this skill during **initial product discovery & planning** (`/product-discov
 If the repository already has an implemented UI (`src/`, `index.html`, etc.):
 1. Inspect the existing UI at `1440,768,390` and run `scripts/web_ui_validator.py --screenshots-dir .swarm/blueprint/ui_proposals/screenshots`.
 2. Evaluate the existing UI using the **14-Pass Visual Rubric** (in [`/visual-ui-validator`](../visual-ui-validator/SKILL.md)).
-3. If the existing UI passes the 14-Pass Visual Rubric with **`0 FAIL`** findings in `web_ui_validator.py`, report **`VERDICT: EXISTING UI ALREADY OPTIMAL`** in `.swarm/blueprint/ui_ux_proposals.md` and ask the user via `ask_question` whether to **keep their existing UI as-is (Recommended)** or still deal and generate 3 alternative redesign prototypes.
+3. If the existing UI passes the 14-Pass Visual Rubric with **`0 FAIL`** findings in `web_ui_validator.py`, report **`VERDICT: EXISTING UI ALREADY OPTIMAL`** in `.swarm/blueprint/ui_ux_proposals.md` and poll the user via the harness polling tool (`ask_question` in Antigravity / `AskUserQuestion` in Claude Code / `request_user_input` in Codex CLI; see `$AGENT_SWARM_HOME/references/harness-polling.md`) whether to **`(Recommended) Keep existing UI as-is`** or generate 3 alternative redesign prototypes.
 
 ---
 
@@ -120,7 +120,7 @@ Every prototype **MUST** enforce the **Craft Floor & Browser Surfaces**:
 ## Step 6: Present Comparison & Persist Chosen Direction (`DESIGN.md` + `.swarm/surfaces/<slug>.md`)
 
 1. Write the comparative critique, Subject Inventory, Idea Sentence, Live Thing specification, and 3-viewport scores to `.swarm/blueprint/ui_ux_proposals.md`.
-2. Present clickable markdown links to all 3 validated `.html` templates (`[template_1_*.html](file:///...)`, `[template_2_*.html](file:///...)`, `[template_3_*.html](file:///...)`) and ask the user via `ask_question` to choose their preferred direction (or hybrid combination).
+2. Present clickable markdown links to all 3 validated `.html` templates (`[template_1_*.html](file:///...)`, `[template_2_*.html](file:///...)`, `[template_3_*.html](file:///...)`) and poll the user via the harness polling tool (`ask_question` / `AskUserQuestion` / `request_user_input`, with `(Recommended)` first) to choose their preferred direction (or hybrid combination). Never park open UI questions inside Markdown files.
 3. Persist the chosen direction into `DESIGN.md` and `.swarm/surfaces/<slug>.md` so all `/invoke-swarm` worker agents inherit the exact tokens, blueprints, and Craft Floor contract:
    ```bash
    python3 "$AGENT_SWARM_HOME/scripts/ui_direction_dealer.py" \

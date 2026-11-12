@@ -1,6 +1,6 @@
-# Autonomous Evolutionary Agent Swarm & Product Discovery Suite (`agent-swarm` v3.0)
+# Autonomous Evolutionary Agent Swarm & Product Discovery Suite (`agent-swarm` v3.1)
 
-A multi-agent orchestration plugin, literature/market/commercial discovery suite (`/product-discovery`), hierarchical Goal-Loop & AST wiring/authenticity engine (`/goal-loop` / `scripts/goal_loop.py`), Two-Verdict Categorical Discriminator Gate (`/discriminator-gate`), empirical UI/UX Art Direction Dealer & 3-Viewport Real-Browser Inspector (`/ui-ux-design`, `scripts/ui_direction_dealer.py`, `scripts/web_ui_validator.py`), security & prompt-injection scanner (`/agent-shield`), evidence-cited session diagnostics (`/swarm-diagnostics`), goal-driven development loop (`/invoke-swarm`: **Lite Mode** by default, opt-in **best-of-3** and **Full Mode**), and an experimental **design track** ported from Google's Elephant-Goldfish Model (`/coop-brainstorm` lenses, `/design-draft`, `/goldfish-review`, `goal_loop.py --import-design`).
+A multi-agent orchestration plugin, literature/market/commercial discovery suite (`/product-discovery`), hierarchical Goal-Loop & AST wiring/authenticity engine (`/goal-loop` / `scripts/goal_loop.py`), Two-Verdict Categorical Discriminator Gate (`/discriminator-gate`), empirical UI/UX Art Direction Dealer & 3-Viewport Real-Browser Inspector (`/ui-ux-design`, `scripts/ui_direction_dealer.py`, `scripts/web_ui_validator.py`), security & prompt-injection scanner (`/agent-shield`), evidence-cited session diagnostics (`/swarm-diagnostics`), goal-driven development loop (`/invoke-swarm`: **Lite Mode** by default, opt-in **best-of-3** and **Full Mode**), and an **Elephant-Goldfish design & drift track** (`/coop-brainstorm` grilling + lenses, `/design-draft`, `/goldfish-review`, `/drift-report`, `goal_loop.py --import-design` & `--drift-report`) with harness-native Elephant polling ([`references/harness-polling.md`](references/harness-polling.md)).
 
 Rather than claiming "zero fake code", `scripts/goal_loop.py` enforces concrete static and AST checks that catch:
 - Unimplemented stubs (`TODO`/`FIXME`/`NotImplementedError`/empty `pass` or `...` bodies) and mock imports in production files.
@@ -83,16 +83,16 @@ All variables except `AGENT_SWARM_HOME` are optional; leave them unset if Playwr
 
 ### Harness compatibility
 
-The skills refer to Antigravity's tool names. In other harnesses, use the equivalent tool:
+Every interactive Elephant prompt uses the active harness's **native polling tool**—questions are never parked inside `plan.md`, `docs/designs/*.md`, or `.swarm/blueprint/*.md` (`goal_loop.py --import-design` and `--verify-blueprint` reject non-fenced `Open Questions` headings and `[?]` markers; see [`references/harness-polling.md`](references/harness-polling.md)):
 
-| Antigravity tool | Purpose | Claude Code equivalent |
-| :--- | :--- | :--- |
-| `define_subagent`, `invoke_subagent` | Define and spawn a subagent | Agent tool |
-| `send_message` | Message a running subagent | `SendMessage` |
-| `manage_subagents` | List running subagents | Harness-specific |
-| `ask_question` | Ask the user to choose between options | `AskUserQuestion` |
-| `view_file` | Read a file | `Read` |
-| `search_web`, `read_url_content` | Web search and page fetch | `WebSearch`, `WebFetch` |
+| Antigravity tool | Purpose | Claude Code equivalent | Codex CLI equivalent |
+| :--- | :--- | :--- | :--- |
+| `define_subagent`, `invoke_subagent` | Define and spawn a subagent | `Agent` tool (`agents/goldfish.md` for read-only) | `spawn_agent` (`sandbox_mode: "read-only"` for Goldfish) |
+| `send_message` | Message a running subagent | `SendMessage` | `send_input` |
+| `manage_subagents` | List running subagents | Harness-specific | `wait` / `close_agent` |
+| `ask_question` | Poll the user with structured options (`(Recommended)` first) | `AskUserQuestion` | `request_user_input` |
+| `view_file` / `read_file` | Read a file | `Read` | `read_file` / shell |
+| `search_web`, `read_url_content` | Web search and page fetch | `WebSearch`, `WebFetch` | `web_search` |
 
 - Without subagents, run the stages one after another. `/triad-audit` then records `Method: ⚠️ DEGRADED: single-context`, as it specifies.
 - Antigravity only: `/swarm-diagnostics` and subagent revival (`immortal_watcher.py --check-subagents`) read Antigravity transcripts in `~/.gemini/antigravity/brain/`. All other scripts are harness-independent.
@@ -101,7 +101,8 @@ The skills refer to Antigravity's tool names. In other harnesses, use the equiva
 ### Repository layout
 
 ```
-skills/       25 skills, one folder each with a SKILL.md
+skills/       26 skills (<200 lines each), one folder each with a SKILL.md
+references/   Shared cross-harness references (harness-polling.md)
 agents/       goldfish.md, the read-only reviewer agent for Claude Code (linked by install.sh)
 docs/designs/ Design documents (this pack's own: skill-pack-v3.md)
 scripts/      Python tools the skills call (goal_loop.py, web_ui_validator.py, ...)
@@ -240,7 +241,10 @@ The toolkit is divided into two phases — **`/product-discovery`** for Phase A 
 * **What It Does:** The Elephant writes `docs/designs/<name>.md` with the user, one section group at a time, from the product notes or the user's notes. It then lists where the draft contradicts the notes, and checks the implementation plan with `goal_loop.py --import-design --dry-run`. The plan's `### Task` blocks (files, dependencies, changes, verification, review focus) become the task list.
 
 ### 1.8 `/goldfish-review` (experimental) - [`skills/goldfish-review/SKILL.md`](skills/goldfish-review/SKILL.md)
-* **What It Does:** Reviews any Markdown document with read-only reviewers that have no conversation history (Claude Code: `agents/goldfish.md`; Antigravity: write tools off). The stages run in order: zoom-out first (stops on a Blocker), then comprehension (the reviewer restates the document), critics, and implementation readiness, with an import dry run. The Elephant classifies each finding as fix, contest, escalate or decline, and the user decides before any edit. It shows a token estimate first: about 100k tokens per reviewer, measured on this pack's own design.
+* **What It Does:** Reviews any Markdown document with read-only reviewers that have no conversation history (Claude Code: `agents/goldfish.md`; Antigravity: write tools off; Codex CLI: read-only sandbox). The stages run in order: zoom-out first (stops on a Blocker), then comprehension (the reviewer restates the document), critics, and implementation readiness, with an import dry run. The Elephant classifies each finding as fix, contest, escalate or decline, and polls the user via the harness polling tool before any edit. It shows a token estimate first: about 100k tokens per reviewer, measured on this pack's own design.
+
+### 1.9 `/drift-report` - [`skills/drift-report/SKILL.md`](skills/drift-report/SKILL.md)
+* **What It Does:** Checks whether `docs/designs/*.md` and the live repository have diverged (`goal_loop.py --drift-report [--run-checks]`: missing/lingering files, missing exported symbols, broken `Called by` AST wiring, stale `.swarm/goal_loop.json` tasks, and failing checks, plus an optional read-only Goldfish semantic check), then polls the user via the harness polling tool to either update the spec or schedule remediation tasks.
 
 ---
 
@@ -332,6 +336,7 @@ python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --review-package TASK-001 --bas
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --audit-task TASK-001
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --record-task TASK-001 --spec-verdict PASS --critical-count 0 --important-count 0 --minor-count 1
 python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --import-design docs/designs/<name>.md --dry-run   # then without --dry-run
+python3 "$AGENT_SWARM_HOME/scripts/goal_loop.py" --drift-report --run-checks                        # spec-to-code drift check
 
 # 2. Swarm Lite Mode Initialization & Convergence Check (Lite is the default; add --full for Full Mode):
 python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" --init-swarm --project-goal "<GOAL>"
@@ -352,7 +357,8 @@ python3 "$AGENT_SWARM_HOME/scripts/swarm_diagnostics.py" --conversation-id <CONV
 
 ## Acknowledgements
 
-The design track (`/design-draft`, `/goldfish-review`, the `/coop-brainstorm` lenses) adapts ideas from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) (Apache-2.0), rewritten for this pack; no EGM files are copied. The design that planned this port, reviewed by its own method, is [`docs/designs/skill-pack-v3.md`](docs/designs/skill-pack-v3.md).
+- The Elephant-Goldfish design & drift track (`/coop-brainstorm` lenses, `/design-draft`, `/goldfish-review`, `/drift-report`) adapts ideas from Google's [Elephant-Goldfish Model](https://github.com/google/elephant-goldfish-model) (Apache-2.0), rewritten for this pack with harness-native Elephant polling (`ask_question` / `AskUserQuestion` / `request_user_input`); no EGM files are copied. The v3.0 port design is [`docs/designs/skill-pack-v3.md`](docs/designs/skill-pack-v3.md).
+- Workflow principles integrate open-source patterns from [`obra/superpowers`](https://github.com/obra/superpowers) (Red-Green-Refactor TDD, 4-phase root-cause debugging, anti-rationalization red flags), [`mattpocock/skills`](https://github.com/mattpocock/skills) (code-first decision-tree grilling & vertical-slice planning), [`anthropics/skills`](https://github.com/anthropics/skills) (progressive disclosure `<200`-line skills & contract evals), [`DietrichGebert/ponytail`](https://github.com/DietrichGebert/ponytail) (shortest-path YAGNI & skipped-check disclosure), [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills), and [`garrytan/gstack`](https://github.com/garrytan/gstack).
 
 ## License
 

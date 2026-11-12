@@ -100,9 +100,9 @@ python3 "$AGENT_SWARM_HOME/scripts/immortal_watcher.py" \
 
 When the gate fails (any `BLOCKING_FAIL`, `spec_verdict != PASS`, `Critical > 0`, or `Important > 0`), execute the **5-Round Escalating Fix Loop**:
 
-### Rounds 1–3: Same Worker Subagent + Scoped Re-Review (`FIX_BASE..HEAD`)
+### Rounds 1–3: Same Worker Subagent + 4-Phase Root-Cause Fix + Scoped Re-Review (`FIX_BASE..HEAD`)
 1. Record the pre-fix commit SHA as `FIX_BASE=$(git rev-parse HEAD)`.
-2. Send a targeted fix prompt to the **same worker subagent** listing **only** the open `Critical` and `Important` findings (with `file:line` and concrete verification criteria). Never include `Minor` findings.
+2. Send a targeted fix prompt to the **same worker subagent** listing **only** the open `Critical` and `Important` findings (with `file:line` and concrete verification criteria; never `Minor` findings). Require **4-Phase Root-Cause Debugging** (`superpowers`): (a) reproduce & read the full failure, (b) trace data flow to the root cause (`file:line`), (c) test one hypothesis, (d) add a failing-first regression test with the minimal fix—never symptom patches.
 3. **Scoped Re-Review Contract (`FIX_BASE..HEAD`):**
    When the worker returns, the `discriminator` inspects **only** `git diff $FIX_BASE..HEAD` and answers strictly two questions:
    - **1. Prior Open Issues (`ADDRESSED` | `NOT ADDRESSED`):** For each numbered `Critical` / `Important` finding from the previous round, did the fix diff actually resolve it?
@@ -126,7 +126,7 @@ If the task still has not converged after **Round 5**:
    | `OVERRIDE` | The open Critical/Important findings are reviewer overreach or false positives, and `--audit-task` reports zero `BLOCKING_FAIL`s. | Task becomes `COMPLETED_WITH_RULING` and is listed in the `--verify-goal` result. Rejected while any `BLOCKING_FAIL` remains. |
    | `SPLIT_TASK` | The task is too large to converge. Add the smaller tasks to `.swarm/goal_loop.json` first. | Task becomes `SUPERSEDED` and counts as finished once every task in `--superseded-by` is finished. |
    | `RE_ARCHITECT_CONTRACT` | The findings trace back to a flawed interface or contract. | Task is `BLOCKED_BY_RULING` until `/contract-lock` revises the contract and a new verdict is recorded. |
-   | `ESCALATE_TO_USER` | The dispute needs a product decision. | Task is `BLOCKED_BY_RULING` until the user decides and a new verdict is recorded. |
+   | `ESCALATE_TO_USER` | The dispute needs a product decision. | Task is `BLOCKED_BY_RULING`; prompt the user live via the **harness polling tool** (`ask_question` / `AskUserQuestion` / `request_user_input`; `$AGENT_SWARM_HOME/references/harness-polling.md`) with `(Recommended)` first—never park questions in `plan.md`—until the user decides and a new verdict is recorded. |
 
 3. Record the ruling with the reviewer's actual open counts; never rewrite them to `0`:
    ```bash

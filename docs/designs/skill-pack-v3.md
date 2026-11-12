@@ -155,9 +155,9 @@ Part B (experimental):
     `/tmux-orchestrator`).
 *   A brief-check subagent. Built only if G1 fails.
 
-## Open Questions
+## Resolved Decisions
 
-*   None.
+*   All design questions settled with the author before plan import.
 
 ## Critical User Journeys (CUJs)
 

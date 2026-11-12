@@ -58,7 +58,7 @@ Write `.swarm/reports/epoch_<N>_intermittent_report.md` using these exact 5 sect
 
 ## Deliverable 2: Next-Epoch Adjusted Implementation Plan (Step 7 of `/invoke-swarm`)
 
-After Triad Audit (`/triad-audit`) and SOTA Web Scout (`/sota-web-scout`) complete, write `.swarm/plans/epoch_<N+1>_plan.md` using these exact 6 sections in order, and synchronize the new tasks into `.swarm/goal_loop.json`:
+After Triad Audit (`/triad-audit`) and SOTA Web Scout (`/sota-web-scout`) complete, resolve any product ambiguity live via the harness polling tool (`ask_question` / `AskUserQuestion` / `request_user_input`; `$AGENT_SWARM_HOME/references/harness-polling.md`—never park open questions inside plan files), write `.swarm/plans/epoch_<N+1>_plan.md` using these exact 6 sections in order, and synchronize the new tasks into `.swarm/goal_loop.json`:
 
 ```markdown
 # Epoch <N+1> Adjusted Implementation Plan

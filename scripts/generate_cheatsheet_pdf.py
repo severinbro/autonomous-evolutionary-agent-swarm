@@ -533,7 +533,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
     <text x="386" y="53.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Sufficiency Gate (OPTIMAL &rarr; ALREADY OPTIMAL)</text>
     <text x="386" y="66" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; Search-First Adopt/Extend vs. Build Custom</text>
     <text x="386" y="78.5" fill="#334155" font-family="Inter, Arial, sans-serif" font-size="8.0">&bull; 3-Epoch Features [OSS/Pro/B2B] &amp; Arch Option 0</text>
-    <text x="386" y="91" fill="#b45309" font-family="Inter, Arial, sans-serif" font-size="7.8" font-weight="bold">Pauses via ask_question for User Co-Design</text>
+    <text x="386" y="91" fill="#b45309" font-family="Inter, Arial, sans-serif" font-size="7.8" font-weight="bold">Polls via Harness Tool (Never in plan.md)</text>
     <text x="386" y="103" fill="#047857" font-family="DejaVu Sans Mono, monospace" font-size="7.6">&rarr; product notes &rarr; /design-draft &rarr; /goldfish-review</text>
 
     <!-- Arrow Checkpoint 1 -> Wave 2 -->
@@ -685,9 +685,9 @@ HTML_CONTENT = r"""<!DOCTYPE html>
       <td><span class="path">.swarm/blueprint/brainstorm_blueprint.md</span> (product notes)</td>
     </tr>
     <tr>
-      <td><code class="cmd cmd-primary">/design-draft</code><br><code class="cmd cmd-primary">/goldfish-review</code><br><span class="mode-tag">experimental</span></td>
-      <td><span class="when-to-use">Design before code (EGM port).</span> Elephant drafts with you; fresh read-only Goldfish review it.</td>
-      <td>Section-by-section design; review: zoom-out first, then comprehension, critics, readiness + import dry run; you decide every fix. <code>goal_loop.py --import-design</code> turns the plan into tasks.</td>
+      <td><code class="cmd cmd-primary">/design-draft</code><br><code class="cmd cmd-primary">/goldfish-review</code><br><code class="cmd cmd-primary">/drift-report</code></td>
+      <td><span class="when-to-use">Design before code &amp; drift check (EGM).</span> Elephant polls live; fresh read-only Goldfish review; drift reconciles code vs. spec.</td>
+      <td>Polled section-by-section design (zero questions in <code>plan.md</code>); 4-stage read-only Goldfish review; <code>goal_loop.py --import-design</code> &amp; <code>--drift-report</code>.</td>
       <td><span class="path">docs/designs/&lt;name&gt;.md</span><br><span class="path">.swarm/design-reviews/*</span></td>
     </tr>
     <tr>
@@ -706,7 +706,7 @@ HTML_CONTENT = r"""<!DOCTYPE html>
 </table>
 
 <div class="footer-bar">
-  <span>Autonomous Evolutionary Agent Swarm Toolkit (v3.0) — Antigravity &amp; Claude Code</span>
+  <span>Autonomous Evolutionary Agent Swarm Toolkit (v3.1) — Antigravity, Claude Code &amp; Codex</span>
   <span class="right">Page 1 of 2 (Flip for Phase B Swarm Skills, Lite Mode, Categorical Gate &amp; File Bus Map &rarr;)</span>
 </div>
 
